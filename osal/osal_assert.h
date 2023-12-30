@@ -36,6 +36,8 @@
 		osal_abort(); \
 	}
 
+#ifndef osal_abort
 #define osal_abort abort
+#endif
 
 #endif //OSAL_ASSERT_H

@@ -27,6 +27,7 @@
 #ifndef OSAL_LIMIT_H
 #define OSAL_LIMIT_H
 
+/* Please optimize for your usage */
 #define OSAL_TASK_NAME_SIZE 64
 #define OSAL_TASK_NUM_MAX 4 /* Maximum number of task */
 #define OSAL_MUTEX_NUM_MAX 16 /* Maximum number of mutex */
