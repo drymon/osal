@@ -25,8 +25,8 @@
 */
 
 #include <stdio.h>
-#include "osal.h"
-#include "osal_task.h"
+#include <dmosal/osal.h>
+#include <dmosal/osal_task.h>
 
 static void task_handler(void *arg)
 {

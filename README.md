@@ -1,7 +1,7 @@
 # OSAL - OS Abstraction Layer for Embedded Systems
 
-OSAL (OS Abstraction Layer) is a lightweight, static resource allocation framework designed for Real-Time Operating Systems (RTOS) in embedded systems.  
-It offers a seamless interface for managing tasks, semaphores, mutexes, timers, and more, all statically defined at initialization.  
+OSAL (OS Abstraction Layer) is a lightweight, static resource allocation framework designed for Real-Time Operating Systems (RTOS) in embedded systems.
+It offers a seamless interface for managing tasks, semaphores, mutexes, timers, and more, all statically defined at initialization.
 Under the permissive BSD-2-Clause license, users can freely utilize and distribute the library without licensing complexities.
 
 ## Features
@@ -15,15 +15,15 @@ Under the permissive BSD-2-Clause license, users can freely utilize and distribu
 ## Usage
 
 ```
-   +-------------------------------+ 
+   +-------------------------------+
    |           Application         |
-   +-------------------------------+ 
+   +-------------------------------+
    +--------------+ +--------------+
    |       OSAL   | |    libc      |
    +--------------+ +--------------+
-   +-------------------------------+ 
+   +-------------------------------+
    |       OS User Space           |
-   +-------------------------------+ 
+   +-------------------------------+
    +-------------------------------+
    |         OS Kernel Space       |
    +-------------------------------+
@@ -33,6 +33,40 @@ Under the permissive BSD-2-Clause license, users can freely utilize and distribu
 ```
 
 OSAL aims to enhance application code reliability by effectively managing OS resources, ensuring portability across multiple operating systems.
+
+## Compilation
+
+- Build the lib:
+
+```
+$ mkdir build
+$ cd build
+$ cmake ..
+$ make
+```
+
+- Install the lib:
+
+```
+$ sudo make install # install into `/usr/local/`
+```
+
+- Uninstall the lib:
+
+```
+$ sudo make uninstall # uninstall
+```
+
+## Test
+
+The test can be run after the compilation steps above:
+```
+$ mkdir build
+$ cd build
+$ cmake ..
+$ make
+$ make check
+```
 
 ## Example
 
@@ -77,20 +111,18 @@ exit:
 }
 ```
 
-## Compilation
+This example code resides in the example folder and can be built using
+the following steps:
+
+- Ensure that the libosal library is already installed on your system.
+- Execute the following commands in your terminal:
 
 ```
+$ cd example
 $ mkdir build
 $ cd build
 $ cmake ..
 $ make
-```
-
-## Test
-
-The test can be run after the compilation steps above:
-```
-$ make check
 ```
 
 ## Dependencies

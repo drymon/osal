@@ -1,38 +1,80 @@
-cmake_minimum_required(VERSION 3.10.2)
+cmake_minimum_required(VERSION 2.8.12)
 project(dmosal C)
 
-set (DMOSAL_MAJOR_VERSION 1)
-set (DMOSAL_MINOR_VERSION 0)
-set (DMOSAL_PATCH_VERSION 0)
-set (DMOSAL_VERSION ${DMOSAL_MAJOR_VERSION}.${DMOSAL_MINOR_VERSION}.${DMOSAL_PATCH_VERSION})
+set(DMOSAL_MAJOR_VERSION 1)
+set(DMOSAL_MINOR_VERSION 0)
+set(DMOSAL_PATCH_VERSION 0)
+set(DMOSAL_VERSION ${DMOSAL_MAJOR_VERSION}.${DMOSAL_MINOR_VERSION}.${DMOSAL_PATCH_VERSION})
+
+set(INSTALL_LIB_DIR lib CACHE PATH "Installation directory for libraries")
+set(INSTALL_BIN_DIR bin CACHE PATH "Installation directory for executables")
+set(INSTALL_INCLUDE_DIR include CACHE PATH "Installation directory for header files")
+set(INSTALL_CMAKE_DIR lib/cmake/dmosal CACHE PATH "Installation directory for CMake file")
 
 find_package(Threads REQUIRED)
 
 file(GLOB osal_SRC
   implementation/*.c
   implementation/posix/*.c
-  )
+)
 
 include_directories(
   osal
-  )
+)
 
 add_library(dmosal SHARED ${osal_SRC})
 set_target_properties(dmosal PROPERTIES VERSION ${DMOSAL_VERSION} SOVERSION ${DMOSAL_MAJOR_VERSION})
 
+set(INCLUDE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/osal")
 
-add_executable(osal_task "example/task_example.c")
-target_link_libraries(osal_task dmosal ${CMAKE_THREAD_LIBS_INIT})
+file(GLOB_RECURSE dmosal_INCLUDE RELATIVE ${INCLUDE_PATH} "osal/*.h")
+list(SORT dmosal_INCLUDE)
+
+foreach(file ${dmosal_INCLUDE})
+    get_filename_component( dir ${file} DIRECTORY )
+    install( FILES "${INCLUDE_PATH}/${file}" DESTINATION "${INSTALL_INCLUDE_DIR}/dmosal/${dir}" COMPONENT dev)
+endforeach()
+
+configure_file(dmosal.pc.in ${PROJECT_BINARY_DIR}/dmosal.pc @ONLY)
+install(FILES ${PROJECT_BINARY_DIR}/dmosal.pc DESTINATION ${INSTALL_LIB_DIR}/pkgconfig/ COMPONENT dev)
 
 install(
   TARGETS dmosal
+  EXPORT dmosalTargets
   LIBRARY DESTINATION "${INSTALL_LIB_DIR}" COMPONENT bin
-  )
+  ARCHIVE DESTINATION "${INSTALL_LIB_DIR}" COMPONENT bin
+)
+
+foreach(p LIB BIN INCLUDE CMAKE)
+  set(var INSTALL_${p}_DIR)
+  if(NOT IS_ABSOLUTE "${${var}}")
+	set(ABSOLUTE_${var} "${CMAKE_INSTALL_PREFIX}/${${var}}")
+  endif()
+endforeach()
+
+file(RELATIVE_PATH REL_INCLUDE_DIR "${ABSOLUTE_INSTALL_CMAKE_DIR}" "${ABSOLUTE_INSTALL_INCLUDE_DIR}/..")
+set(CONF_INCLUDE_DIRS "\${DMOSAL_CMAKE_DIR}/${REL_INCLUDE_DIR}")
+configure_file(dmosalConfig.cmake.in "${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/dmosalConfig.cmake" @ONLY)
+configure_file(dmosalConfigVersion.cmake.in "${PROJECT_BINARY_DIR}/dmosalConfigVersion.cmake" @ONLY)
+
+install(
+  FILES
+  "${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/dmosalConfig.cmake"
+  "${PROJECT_BINARY_DIR}/dmosalConfigVersion.cmake"
+  DESTINATION "${INSTALL_CMAKE_DIR}"
+  COMPONENT dev
+)
+
+install(
+  EXPORT dmosalTargets
+  DESTINATION "${INSTALL_CMAKE_DIR}" COMPONENT dev
+)
 
 add_custom_target(uninstall
   COMMAND xargs rm < ${CMAKE_BINARY_DIR}/install_manifest.txt
-  )
+)
 
+# for testing
 enable_testing()
 set(CMAKE_CTEST_COMMAND stdbuf -o0 ctest -V)
 add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND})

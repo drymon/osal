@@ -1,0 +1,13 @@
+#  Defines variables for building application:
+#  DMOSAL_INCLUDE_DIRS - include directories
+#  DMOSAL_LIBRARIES    - libraries to link against
+
+# Compute paths
+get_filename_component(DMOSAL_CMAKE_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
+set(DMOSAL_INCLUDE_DIRS "@CONF_INCLUDE_DIRS@")
+
+# Our library dependencies (contains definitions for IMPORTED targets)
+include("${DMOSAL_CMAKE_DIR}/dmosalTargets.cmake")
+
+# These are IMPORTED targets created by dmosalTargets.cmake
+set(DMOSAL_LIBRARIES dmosal)
