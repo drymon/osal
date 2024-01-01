@@ -1,11 +1,16 @@
 cmake_minimum_required(VERSION 2.8.12)
 project(dmosal C)
 
+# OSAL version
 set(DMOSAL_MAJOR_VERSION 1)
 set(DMOSAL_MINOR_VERSION 0)
 set(DMOSAL_PATCH_VERSION 0)
 set(DMOSAL_VERSION ${DMOSAL_MAJOR_VERSION}.${DMOSAL_MINOR_VERSION}.${DMOSAL_PATCH_VERSION})
 
+# OSAL resource limit
+include("${CMAKE_CURRENT_SOURCE_DIR}/osal_limit.cmake")
+
+# OSAL install dirs
 set(INSTALL_LIB_DIR lib CACHE PATH "Installation directory for libraries")
 set(INSTALL_BIN_DIR bin CACHE PATH "Installation directory for executables")
 set(INSTALL_INCLUDE_DIR include CACHE PATH "Installation directory for header files")
@@ -23,7 +28,8 @@ include_directories(
 )
 
 add_library(dmosal SHARED ${osal_SRC})
-set_target_properties(dmosal PROPERTIES VERSION ${DMOSAL_VERSION} SOVERSION ${DMOSAL_MAJOR_VERSION})
+set_target_properties(dmosal PROPERTIES VERSION
+  ${DMOSAL_VERSION} SOVERSION ${DMOSAL_MAJOR_VERSION})
 
 set(INCLUDE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/osal")
 
@@ -32,11 +38,16 @@ list(SORT dmosal_INCLUDE)
 
 foreach(file ${dmosal_INCLUDE})
     get_filename_component( dir ${file} DIRECTORY )
-    install( FILES "${INCLUDE_PATH}/${file}" DESTINATION "${INSTALL_INCLUDE_DIR}/dmosal/${dir}" COMPONENT dev)
+    install( FILES "${INCLUDE_PATH}/${file}"
+	  DESTINATION "${INSTALL_INCLUDE_DIR}/dmosal/${dir}" COMPONENT dev)
 endforeach()
 
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/osal/osal_limit.h.in"
+  "${CMAKE_CURRENT_SOURCE_DIR}/osal/osal_limit.h" @ONLY)
 configure_file(dmosal.pc.in ${PROJECT_BINARY_DIR}/dmosal.pc @ONLY)
-install(FILES ${PROJECT_BINARY_DIR}/dmosal.pc DESTINATION ${INSTALL_LIB_DIR}/pkgconfig/ COMPONENT dev)
+
+install(FILES ${PROJECT_BINARY_DIR}/dmosal.pc
+  DESTINATION ${INSTALL_LIB_DIR}/pkgconfig/ COMPONENT dev)
 
 install(
   TARGETS dmosal
@@ -52,10 +63,15 @@ foreach(p LIB BIN INCLUDE CMAKE)
   endif()
 endforeach()
 
-file(RELATIVE_PATH REL_INCLUDE_DIR "${ABSOLUTE_INSTALL_CMAKE_DIR}" "${ABSOLUTE_INSTALL_INCLUDE_DIR}/..")
+file(RELATIVE_PATH REL_INCLUDE_DIR
+  "${ABSOLUTE_INSTALL_CMAKE_DIR}" "${ABSOLUTE_INSTALL_INCLUDE_DIR}/..")
+
 set(CONF_INCLUDE_DIRS "\${DMOSAL_CMAKE_DIR}/${REL_INCLUDE_DIR}")
-configure_file(dmosalConfig.cmake.in "${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/dmosalConfig.cmake" @ONLY)
-configure_file(dmosalConfigVersion.cmake.in "${PROJECT_BINARY_DIR}/dmosalConfigVersion.cmake" @ONLY)
+
+configure_file(dmosalConfig.cmake.in
+  "${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/dmosalConfig.cmake" @ONLY)
+configure_file(dmosalConfigVersion.cmake.in
+  "${PROJECT_BINARY_DIR}/dmosalConfigVersion.cmake" @ONLY)
 
 install(
   FILES

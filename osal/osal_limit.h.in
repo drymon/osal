@@ -27,11 +27,10 @@
 #ifndef OSAL_LIMIT_H
 #define OSAL_LIMIT_H
 
-/* Please optimize for your usage */
-#define OSAL_TASK_NAME_SIZE 64
-#define OSAL_TASK_NUM_MAX 4 /* Maximum number of task */
-#define OSAL_MUTEX_NUM_MAX 16 /* Maximum number of mutex */
-#define OSAL_SEM_NUM_MAX 4 /* Maximum number of semaphore */
-#define OSAL_TIMER_NUM_MAX 64 /* Maximum number of semaphore */
+#define OSAL_TASK_NAME_SIZE @OSAL_CONFIG_TASK_NAME_SIZE@ /* The length of the task name */
+#define OSAL_TASK_NUM_MAX @OSAL_CONFIG_TASK_NUM_MAX@ /* Maximum number of tasks */
+#define OSAL_MUTEX_NUM_MAX @OSAL_CONFIG_MUTEX_NUM_MAX@ /* Maximum number of mutexes */
+#define OSAL_SEM_NUM_MAX @OSAL_CONFIG_SEM_NUM_MAX@ /* Maximum number of semaphores */
+#define OSAL_TIMER_NUM_MAX @OSAL_CONFIG_TIMER_NUM_MAX@ /* Maximum number of timers */
 
 #endif //OSAL_LIMIT_H
