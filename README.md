@@ -1,7 +1,7 @@
 # OSAL - OS Abstraction Layer for Embedded Systems
 
-OSAL (OS Abstraction Layer) is a lightweight, static resource allocation framework designed for Real-Time Operating Systems (RTOS) in embedded systems. <br>
-It offers a seamless interface for managing tasks, semaphores, mutexes, timers, and more, all statically defined at initialization. <br>
+OSAL (OS Abstraction Layer) is a **lightweight, static resource allocation framework** designed for Real-Time Operating Systems (RTOS) in embedded systems. <br>
+All OS resources are preconfigured within this framework, providing a seamless interface for managing tasks, semaphores, mutexes, timers, and more, all statically defined at initialization. <br>
 Under the permissive BSD-2-Clause license, users can freely utilize and distribute the library without licensing complexities.
 
 ## Features
@@ -48,7 +48,7 @@ $ make
 
 You can configure OSAL resource limitations via the command line.
 For detailed information on configuration parameters and how to set them up,
-please consult the osal_limit.cmake file.
+please consult the [osal_limit.cmake](osal_limit.cmake) file.
 
 - Install the lib:
 
