@@ -24,20 +24,46 @@
 * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+/**
+ * @addtogroup dmosal
+ * @{
+ * @file osal_assert.h
+ * @brief OS Abstraction Layer Assertion Definitions
+ * @copyright Copyright (c) 2023, nguyenvannam142@gmail.com
+ * @author Nam Nguyen Van(nguyenvannam142@gmail.com)
+ */
 #ifndef OSAL_ASSERT_H
 #define OSAL_ASSERT_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#ifndef OSAL_ASSERT /* Allow to define this from the outside */
 #include <stdio.h>
 #include <stdlib.h>
 
+/**
+ * @def OSAL_ASSERT(a)
+ * @brief Assertion macro for checking conditions.
+ *
+ * The macro checks the condition `a` and prints an error message with file name
+ * and line number if the condition is not met. It then aborts the program.
+ *
+ * @param a The condition to be evaluated.
+ */
 #define OSAL_ASSERT(a) \
 	if(!(a)) { \
 		printf("assert:%s:%d!!!\n", __FILE__, __LINE__); \
-		osal_abort(); \
+		abort(); \
 	}
 
-#ifndef osal_abort
-#define osal_abort abort
+#endif //OSAL_ASSERT
+
+#ifdef __cplusplus	/* extern "C" */
+}
 #endif
 
 #endif //OSAL_ASSERT_H
+
+/** @}*/

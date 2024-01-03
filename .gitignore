@@ -1,5 +1,5 @@
 *~
-osal_limit.h
+osal_config.h
 osal_version.h
 build
 GPATH

@@ -24,13 +24,52 @@
 * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+/**
+ * @addtogroup dmosal
+ * @{
+ * @file osal.h
+ * @brief OS Abstract Layer Definitions
+ * @copyright Copyright (c) 2023, nguyenvannam142@gmail.com
+ * @author Nam Nguyen Van(nguyenvannam142@gmail.com)
+ */
 #ifndef OSAL_H
 #define OSAL_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "osal_error.h"
 
+/**
+ * @brief Initializes the OS abstraction layer.
+ *
+ * This function initializes the OS abstraction layer.
+ *
+ * @return An error code of type ::osal_error_t indicating the status of the initialization.
+ */
 osal_error_t osal_init(void);
+
+/**
+ * @brief Retrieves the version of the OS abstraction layer.
+ *
+ * This function returns a string containing the version of the OS abstraction layer.
+ *
+ * @return A pointer to a string representing the version.
+ */
 char *osal_version(void);
+
+/**
+ * @brief Deinitializes the OS abstraction layer.
+ *
+ * This function deinitializes the OS abstraction layer.
+ */
 void osal_deinit(void);
 
+#ifdef __cplusplus	/* extern "C" */
+}
+#endif
+
 #endif //OSAL_H
+
+/** @}*/

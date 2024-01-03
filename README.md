@@ -48,7 +48,7 @@ $ make
 
 You can configure OSAL resource limitations via the command line.
 For detailed information on configuration parameters and how to set them up,
-please consult the [osal_limit.cmake](osal_limit.cmake) file.
+please consult the [osal_config.cmake](osal_config.cmake) file.
 
 - Install the lib:
 
@@ -78,6 +78,15 @@ The examples code can be built as:
 
 ```
 $ make examples
+```
+
+## Doc
+
+To generate the documentation, execute the following command.
+The output can be located in the build directory.
+
+```
+$ make doc
 ```
 
 ## Dependencies

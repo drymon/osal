@@ -8,14 +8,11 @@ set(DMOSAL_PATCH_VERSION 0)
 set(DMOSAL_VERSION ${DMOSAL_MAJOR_VERSION}.${DMOSAL_MINOR_VERSION}.${DMOSAL_PATCH_VERSION})
 set(DMOSAL_LIBRARIES dmosal)
 
+##############################################################################
+# build lib
+##############################################################################
 # OSAL resource limit
-include("${CMAKE_CURRENT_SOURCE_DIR}/osal_limit.cmake")
-
-# OSAL install dirs
-set(INSTALL_LIB_DIR lib CACHE PATH "Installation directory for libraries")
-set(INSTALL_BIN_DIR bin CACHE PATH "Installation directory for executables")
-set(INSTALL_INCLUDE_DIR include CACHE PATH "Installation directory for header files")
-set(INSTALL_CMAKE_DIR lib/cmake/dmosal CACHE PATH "Installation directory for CMake file")
+include("${CMAKE_CURRENT_SOURCE_DIR}/osal_config.cmake")
 
 find_package(Threads REQUIRED)
 
@@ -33,6 +30,15 @@ add_library(dmosal SHARED ${osal_SRC})
 set_target_properties(dmosal PROPERTIES VERSION
   ${DMOSAL_VERSION} SOVERSION ${DMOSAL_MAJOR_VERSION})
 
+##############################################################################
+# install & uninstall
+##############################################################################
+# OSAL install dirs
+set(INSTALL_LIB_DIR lib CACHE PATH "Installation directory for libraries")
+set(INSTALL_BIN_DIR bin CACHE PATH "Installation directory for executables")
+set(INSTALL_INCLUDE_DIR include CACHE PATH "Installation directory for header files")
+set(INSTALL_CMAKE_DIR lib/cmake/dmosal CACHE PATH "Installation directory for CMake file")
+
 set(DMOSAL_INCLUDE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/include/dmosal")
 
 file(GLOB_RECURSE dmosal_INCLUDE RELATIVE ${DMOSAL_INCLUDE_PATH} "include/dmosal/*.h")
@@ -46,14 +52,15 @@ execute_process(COMMAND
 )
 string(TIMESTAMP DMOSAL_BUILD_TIME "%Y:%m:%d-%H:%M")
 
+
 foreach(file ${dmosal_INCLUDE})
   get_filename_component( dir ${file} DIRECTORY)
   install(FILES "${DMOSAL_INCLUDE_PATH}/${file}"
 	DESTINATION "${INSTALL_INCLUDE_DIR}/dmosal/${dir}" COMPONENT dev)
 endforeach()
 
-configure_file("${DMOSAL_INCLUDE_PATH}/osal_limit.h.in"
-  "${DMOSAL_INCLUDE_PATH}/osal_limit.h" @ONLY)
+configure_file("${DMOSAL_INCLUDE_PATH}/osal_config.h.in"
+  "${DMOSAL_INCLUDE_PATH}/osal_config.h" @ONLY)
 configure_file("${DMOSAL_INCLUDE_PATH}/osal_version.h.in"
   "${DMOSAL_INCLUDE_PATH}/osal_version.h" @ONLY)
 configure_file(dmosal.pc.in ${PROJECT_BINARY_DIR}/dmosal.pc @ONLY)
@@ -98,17 +105,38 @@ install(
   DESTINATION "${INSTALL_CMAKE_DIR}" COMPONENT dev
 )
 
+# uninstall
 add_custom_target(uninstall
   COMMAND xargs rm < ${CMAKE_BINARY_DIR}/install_manifest.txt
 )
 
-# for testing
+##############################################################################
+# build test
+##############################################################################
 enable_testing()
 set(CMAKE_CTEST_COMMAND stdbuf -o0 ctest -V)
 add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND})
 add_dependencies(check dmosal)
 add_subdirectory(test EXCLUDE_FROM_ALL)
 
+##############################################################################
 # build examples
+##############################################################################
 add_custom_target(examples)
 add_subdirectory(examples EXCLUDE_FROM_ALL)
+
+##############################################################################
+# build doc
+##############################################################################
+add_custom_target(doc)
+
+find_package(Doxygen)
+if (NOT DOXYGEN_FOUND)
+  message(WARNING "Doxygen is not found!")
+else()
+  configure_file(doc/doxygen.cfg.in ${PROJECT_BINARY_DIR}/Doxyfile @ONLY)
+  add_custom_target(doxygen-doc
+    COMMAND ${DOXYGEN_EXECUTABLE} ${PROJECT_BINARY_DIR}/Doxyfile
+    SOURCES ${PROJECT_BINARY_DIR}/Doxyfile)
+  add_dependencies(doc doxygen-doc)
+endif()

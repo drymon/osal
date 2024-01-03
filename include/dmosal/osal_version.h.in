@@ -24,9 +24,34 @@
 * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+/**
+ * @addtogroup dmosal
+ * @{
+ * @file osal_version.h
+ * @brief OS Abstraction Layer Version Definitions
+ * @copyright Copyright (c) 2023, nguyenvannam142@gmail.com
+ * @author Nam Nguyen Van(nguyenvannam142@gmail.com)
+ */
+
 #ifndef OSAL_VERSION_H
 #define OSAL_VERSION_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/**
+ * @brief Version string for the OS abstraction layer.
+ *
+ * This string represents the version of the OS abstraction layer.
+ * It includes major, minor, and patch versions, git commit hash, and build timestamp.
+ */
 #define OSAL_VERSION "@DMOSAL_MAJOR_VERSION@.@DMOSAL_MINOR_VERSION@.@DMOSAL_PATCH_VERSION@-@DMOSAL_GIT_COMMIT@-@DMOSAL_BUILD_TIME@"
 
+#ifdef __cplusplus	/* extern "C" */
+}
+#endif
+
 #endif //OSAL_VERSION_H
+
+/** @}*/

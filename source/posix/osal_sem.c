@@ -92,7 +92,7 @@ void osal_sem_delete(osal_sem_t *sem)
 	osal_rm_free(&s_sem_man.rm, sem->resrc);
 }
 
-int osal_sem_post(osal_sem_t *sem)
+osal_error_t osal_sem_post(osal_sem_t *sem)
 {
 	if (sem == NULL) {
 		return OSAL_E_PARAM;
@@ -104,7 +104,7 @@ int osal_sem_post(osal_sem_t *sem)
 	return OSAL_E_OK;
 }
 
-int osal_sem_wait(osal_sem_t *sem)
+osal_error_t osal_sem_wait(osal_sem_t *sem)
 {
 	if (sem == NULL) {
 		return OSAL_E_PARAM;
@@ -116,7 +116,7 @@ int osal_sem_wait(osal_sem_t *sem)
 	return OSAL_E_OK;
 }
 
-int osal_sem_waittime(osal_sem_t *sem, uint32_t usec)
+osal_error_t osal_sem_waittime(osal_sem_t *sem, uint32_t usec)
 {
 	struct timespec ts;
 	uint64_t ns;

@@ -24,19 +24,50 @@
 * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+/**
+ * @addtogroup dmosal
+ * @{
+ * @file osal_error.h
+ * @brief OS Abstraction Layer Error Definitions
+ * @copyright Copyright (c) 2023, nguyenvannam142@gmail.com
+ * @author Nam Nguyen Van(nguyenvannam142@gmail.com)
+ */
 #ifndef OSAL_ERROR_H
 #define OSAL_ERROR_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/**
+ * @brief Error codes for the OS abstraction layer.
+ *
+ * Defines error codes that can be returned by the OS abstraction layer functions.
+ */
 typedef enum {
-	OSAL_E_OK, /* no error */
-	OSAL_E_PARAM, /* param invalid */
-	OSAL_E_RESRC, /* no resource */
-	OSAL_E_FAILURE, /* not detailed failure */
-	OSAL_E_OSCALL, /* OS call error */
-	OSAL_E_TIMEOUT, /* timeout error */
-	OSAL_E_MAX,
+	OSAL_E_OK, /**< No error */
+	OSAL_E_PARAM, /**< Invalid parameter */
+	OSAL_E_RESRC, /**< Insufficient resources */
+	OSAL_E_FAILURE, /**< Unspecified failure */
+	OSAL_E_OSCALL, /**< Operating system call error */
+	OSAL_E_TIMEOUT, /**< Timeout error */
+	OSAL_E_MAX, /**< Maximum error code (for range checking) */
 } osal_error_t;
 
+/**
+ * @brief Retrieves the error description for a given error code.
+ *
+ * This function returns a pointer to a string representing the description of the provided error code.
+ *
+ * @param e The error code of type ::osal_error_t for which the description is required.
+ * @return A pointer to a string representing the error description.
+ */
 const char *osal_errstr(osal_error_t e);
 
+#ifdef __cplusplus	/* extern "C" */
+}
+#endif
+
 #endif //OSAL_ERROR_H
+
+/** @}*/

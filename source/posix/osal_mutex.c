@@ -93,7 +93,7 @@ void osal_mutex_delete(osal_mutex_t *mutex)
 	pthread_mutex_unlock(&s_mutex_man.resrc_mutex);
 }
 
-int osal_mutex_lock(osal_mutex_t *mutex)
+osal_error_t osal_mutex_lock(osal_mutex_t *mutex)
 {
 	if (mutex == NULL) {
 		return OSAL_E_PARAM;
@@ -107,7 +107,7 @@ int osal_mutex_lock(osal_mutex_t *mutex)
 	return OSAL_E_OK;
 }
 
-int osal_mutex_unlock(osal_mutex_t *mutex)
+osal_error_t osal_mutex_unlock(osal_mutex_t *mutex)
 {
 	if (mutex == NULL) {
 		return OSAL_E_PARAM;

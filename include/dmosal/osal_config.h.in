@@ -24,13 +24,60 @@
 * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef OSAL_LIMIT_H
-#define OSAL_LIMIT_H
+/**
+ * @addtogroup dmosal
+ * @{
+ * @file osal_config.h
+ * @brief OSAL resource configuration
+ * @copyright Copyright (c) 2023, nguyenvannam142@gmail.com
+ * @author Nam Nguyen Van(nguyenvannam142@gmail.com)
+ */
+#ifndef OSAL_CONFIG_H
+#define OSAL_CONFIG_H
 
-#define OSAL_TASK_NAME_SIZE @OSAL_CONFIG_TASK_NAME_SIZE@ /* The length of the task name */
-#define OSAL_TASK_NUM_MAX @OSAL_CONFIG_TASK_NUM_MAX@ /* Maximum number of tasks */
-#define OSAL_MUTEX_NUM_MAX @OSAL_CONFIG_MUTEX_NUM_MAX@ /* Maximum number of mutexes */
-#define OSAL_SEM_NUM_MAX @OSAL_CONFIG_SEM_NUM_MAX@ /* Maximum number of semaphores */
-#define OSAL_TIMER_NUM_MAX @OSAL_CONFIG_TIMER_NUM_MAX@ /* Maximum number of timers */
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-#endif //OSAL_LIMIT_H
+/**
+ * @brief The length of the task name.
+ *
+ * Defines the length of the task name used in the OS abstraction layer.
+ */
+#define OSAL_TASK_NAME_SIZE @OSAL_CONFIG_TASK_NAME_SIZE@
+
+/**
+ * @brief Maximum number of tasks.
+ *
+ * Defines the maximum number of tasks allowed in the OS abstraction layer.
+ */
+#define OSAL_TASK_NUM_MAX @OSAL_CONFIG_TASK_NUM_MAX@
+
+/**
+ * @brief Maximum number of mutexes.
+ *
+ * Defines the maximum number of mutexes allowed in the OS abstraction layer.
+ */
+#define OSAL_MUTEX_NUM_MAX @OSAL_CONFIG_MUTEX_NUM_MAX@
+
+/**
+ * @brief Maximum number of semaphores.
+ *
+ * Defines the maximum number of semaphores allowed in the OS abstraction layer.
+ */
+#define OSAL_SEM_NUM_MAX @OSAL_CONFIG_SEM_NUM_MAX@
+
+/**
+ * @brief Maximum number of timers.
+ *
+ * Defines the maximum number of timers allowed in the OS abstraction layer.
+ */
+#define OSAL_TIMER_NUM_MAX @OSAL_CONFIG_TIMER_NUM_MAX@
+
+#ifdef __cplusplus	/* extern "C" */
+}
+#endif
+
+#endif //OSAL_CONFIG_H
+
+/** @}*/
