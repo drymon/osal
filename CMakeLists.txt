@@ -6,6 +6,7 @@ set(DMOSAL_MAJOR_VERSION 1)
 set(DMOSAL_MINOR_VERSION 0)
 set(DMOSAL_PATCH_VERSION 0)
 set(DMOSAL_VERSION ${DMOSAL_MAJOR_VERSION}.${DMOSAL_MINOR_VERSION}.${DMOSAL_PATCH_VERSION})
+set(DMOSAL_LIBRARIES dmosal)
 
 # OSAL resource limit
 include("${CMAKE_CURRENT_SOURCE_DIR}/osal_limit.cmake")
@@ -96,3 +97,7 @@ set(CMAKE_CTEST_COMMAND stdbuf -o0 ctest -V)
 add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND})
 add_dependencies(check dmosal)
 add_subdirectory(test EXCLUDE_FROM_ALL)
+
+# build examples
+add_custom_target(examples)
+add_subdirectory(examples EXCLUDE_FROM_ALL)

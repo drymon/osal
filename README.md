@@ -65,69 +65,19 @@ $ sudo make uninstall # uninstall
 ## Test
 
 The test can be run after the compilation steps above:
+
 ```
-$ mkdir build
-$ cd build
-$ cmake ..
-$ make
 $ make check
 ```
 
-## Example
+## Examples
+
+Please refer to the `examples` dir for how to use the OSAL APIs.
+
+The examples code can be built as:
 
 ```
-#include <stdio.h>
-#include "osal.h"
-#include "osal_task.h"
-
-static void task_handler(void *arg)
-{
-	printf("--task is started--\n");
-}
-
-int main()
-{
-	int res = -1;
-	int err;
-	osal_task_t *task = NULL;
-	osal_task_cfg_t cfg = {
-		.task_handler = &task_handler,
-	};
-
-	err = osal_init();
-	if (err != OSAL_E_OK) {
-		printf("failed to init osal\n");
-		return -1;
-	}
-	printf("osal_init OK\n");
-
-	task = osal_task_create(&cfg);
-	if (task == NULL) {
-		printf("failed to create task\n");
-		goto exit;
-	}
-	osal_task_delete(task);
-	res = 0;
-
-exit:
-	osal_deinit();
-	printf("osal_deinit\n");
-	return res;
-}
-```
-
-This example code resides in the example folder and can be built using
-the following steps:
-
-- Ensure that the libosal library is already installed on your system.
-- Execute the following commands in your terminal:
-
-```
-$ cd example
-$ mkdir build
-$ cd build
-$ cmake ..
-$ make
+$ make examples
 ```
 
 ## Dependencies

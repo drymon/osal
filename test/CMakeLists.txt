@@ -1,5 +1,3 @@
-
-find_package(Threads REQUIRED)
 find_package(cmocka REQUIRED)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
