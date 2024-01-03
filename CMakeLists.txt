@@ -20,21 +20,22 @@ set(INSTALL_CMAKE_DIR lib/cmake/dmosal CACHE PATH "Installation directory for CM
 find_package(Threads REQUIRED)
 
 file(GLOB osal_SRC
-  implementation/*.c
-  implementation/posix/*.c
+  source/*.c
+  source/posix/*.c
 )
 
 include_directories(
-  osal
+  include
+  include/dmosal
 )
 
 add_library(dmosal SHARED ${osal_SRC})
 set_target_properties(dmosal PROPERTIES VERSION
   ${DMOSAL_VERSION} SOVERSION ${DMOSAL_MAJOR_VERSION})
 
-set(INCLUDE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/osal")
+set(INCLUDE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/include/dmosal")
 
-file(GLOB_RECURSE dmosal_INCLUDE RELATIVE ${INCLUDE_PATH} "osal/*.h")
+file(GLOB_RECURSE dmosal_INCLUDE RELATIVE ${INCLUDE_PATH} "include/dmosal/*.h")
 list(SORT dmosal_INCLUDE)
 
 foreach(file ${dmosal_INCLUDE})
@@ -43,8 +44,8 @@ foreach(file ${dmosal_INCLUDE})
 	  DESTINATION "${INSTALL_INCLUDE_DIR}/dmosal/${dir}" COMPONENT dev)
 endforeach()
 
-configure_file("${CMAKE_CURRENT_SOURCE_DIR}/osal/osal_limit.h.in"
-  "${CMAKE_CURRENT_SOURCE_DIR}/osal/osal_limit.h" @ONLY)
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/include/dmosal/osal_limit.h.in"
+  "${CMAKE_CURRENT_SOURCE_DIR}/include/dmosal/osal_limit.h" @ONLY)
 configure_file(dmosal.pc.in ${PROJECT_BINARY_DIR}/dmosal.pc @ONLY)
 
 install(FILES ${PROJECT_BINARY_DIR}/dmosal.pc
