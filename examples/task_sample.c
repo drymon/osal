@@ -42,6 +42,8 @@ int main()
 		.task_handler = &task_handler,
 	};
 
+	printf("DMOSAL version: %s\n", osal_version());
+
 	err = osal_init();
 	if (err != OSAL_E_OK) {
 		printf("failed to init osal\n");

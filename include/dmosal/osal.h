@@ -30,6 +30,7 @@
 #include "osal_error.h"
 
 osal_error_t osal_init(void);
+char *osal_version(void);
 void osal_deinit(void);
 
 #endif //OSAL_H

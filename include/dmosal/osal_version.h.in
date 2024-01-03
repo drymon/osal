@@ -1,6 +1,6 @@
 /* BSD 2-Clause License
 *
-* Copyright (c) 2023, nguyenvannam142@gmail.com
+* Copyright (c) 2024, nguyenvannam142@gmail.com
 *
 * Redistribution and use in source and binary forms, with or without
 * modification, are permitted provided that the following conditions are met:
@@ -24,38 +24,9 @@
 * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "osal_assert.h"
-#include "osal_mutex.h"
-#include "osal_task.h"
-#include "osal_timer.h"
-#include "osal_sem.h"
-#include "osal_version.h"
+#ifndef OSAL_VERSION_H
+#define OSAL_VERSION_H
 
-osal_error_t osal_init(void)
-{
-	osal_error_t res;
+#define OSAL_VERSION "@DMOSAL_MAJOR_VERSION@.@DMOSAL_MINOR_VERSION@.@DMOSAL_PATCH_VERSION@-@DMOSAL_GIT_COMMIT@-@DMOSAL_BUILD_TIME@"
 
-	/* mutex must be init first since it is used in other osal modules */
-	res = osal_mutex_init();
-	OSAL_ASSERT(res == OSAL_E_OK);
-	res = osal_sem_init();
-	OSAL_ASSERT(res == OSAL_E_OK);
-	res = osal_task_init();
-	OSAL_ASSERT(res == OSAL_E_OK);
-	res = osal_timer_init();
-	OSAL_ASSERT(res == OSAL_E_OK);
-	return OSAL_E_OK;
-}
-
-char *osal_version(void)
-{
-	return OSAL_VERSION;
-}
-
-void osal_deinit(void)
-{
-	osal_mutex_deinit();
-	osal_sem_deinit();
-	osal_task_deinit();
-	osal_timer_deinit();
-}
+#endif //OSAL_VERSION_H
