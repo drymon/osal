@@ -49,6 +49,18 @@ extern "C" {
 typedef struct osal_mutex osal_mutex_t;
 
 /**
+ * @brief Global mutex for shared resources.
+ *
+ * A global mutex, created within the @ref osal_mutex_init() and deleted within
+ * the @ref osal_mutex_deinit(). It is designed to minimize the number of mutex
+ * instances. In certain use cases, utilizing this shared mutex may be sufficient.
+ *
+ * @note Ensure proper initialization using @ref osal_mutex_init() before
+ * accessing this mutex.
+ */
+extern osal_mutex_t *g_osal_shared_mutex;
+
+/**
  * @brief Initializes the OS abstraction layer mutex subsystem.
  *
  * @return An error code indicating the status of the initialization.

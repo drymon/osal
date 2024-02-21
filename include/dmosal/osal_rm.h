@@ -28,7 +28,7 @@
  * @addtogroup dmosal
  * @{
  * @file osal_rm.h
- * @brief OS Abstraction Layer Resource Manager Definitions
+ * @brief OS Abstraction Layer Resource Manager (RM) Definitions
  * @copyright Copyright (c) 2023, nguyenvannam142@gmail.com
  * @author Nam Nguyen Van(nguyenvannam142@gmail.com)
  */
@@ -58,6 +58,7 @@ typedef struct {
  */
 typedef struct {
 	osal_mutex_t *mutex; /**< The mutex used for resource manager synchronization. */
+	bool mutex_created; /**< Flag indicating if the resource manager created the mutex. */
 	bool safe; /**< Flag indicating if the resource manager is thread-safe. */
 	osal_lifo_t resrc_pool; /**< Resource pool for managing resources. */
 	uint32_t n_resrces; /**< Number of resources in the pool. */
@@ -68,6 +69,7 @@ typedef struct {
  */
 typedef struct {
 	bool safe; /**< Flag indicating if the resource manager should be thread-safe. */
+	osal_mutex_t *mutex; /**< The mutex is used when safe is set. If mutex is NULL, the RM will create it internally */
 	uint32_t n_resrces; /**< Number of resources in the resource manager. */
 	osal_resrc_t *resrces; /**< Pointer to the array of the global resources */
 } osal_rm_cfg_t;
@@ -137,8 +139,9 @@ uint32_t osal_rm_use(osal_rm_t *rm);
  * @param userobjman_ptr Pointer to the user-managed object array.
  * @param userobj_num Number of user-managed objects.
  * @param issafe Flag indicating if the resource manager should be thread-safe.
+ * @param mutex_ptr External mutex if the resource manager should be thread-safe.
  */
-#define OSAL_RM_USEROBJMAN_INIT(userobjman_ptr, userobj_num, issafe) \
+#define OSAL_RM_USEROBJMAN_INIT(userobjman_ptr, userobj_num, issafe, mutex_ptr)	\
 	{ \
 		osal_rm_cfg_t rmcfg; \
 		int i; \
@@ -147,6 +150,7 @@ uint32_t osal_rm_use(osal_rm_t *rm);
 			(userobjman_ptr)->resrces[i].data = &(userobjman_ptr)->userobj[i]; \
 		} \
 		rmcfg.safe = issafe; \
+		rmcfg.mutex = mutex_ptr; \
 		rmcfg.n_resrces = userobj_num; \
 		rmcfg.resrces = (userobjman_ptr)->resrces; \
 		res = osal_rm_init(&(userobjman_ptr)->rm, &rmcfg); \

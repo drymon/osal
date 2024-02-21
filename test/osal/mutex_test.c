@@ -39,20 +39,21 @@ static void test_mutex_loop(void)
 
 	res = osal_mutex_init();
 	assert_int_equal(res, OSAL_E_OK);
+	assert_non_null(g_osal_shared_mutex);
 
 	use = osal_mutex_use();
-	assert_int_equal(use, 0);
+	assert_int_equal(use, 1);
 
 	avail = osal_mutex_avail();
-	assert_int_equal(avail, OSAL_MUTEX_NUM_MAX);
+	assert_int_equal(avail, OSAL_MUTEX_NUM_MAX-1);
 
 	/* only create, not delete */
-	for (i = 0; i < OSAL_MUTEX_NUM_MAX; i++) {
+	for (i = 0; i < OSAL_MUTEX_NUM_MAX-1; i++) {
 		use = osal_mutex_use();
-		assert_int_equal(use, i);
+		assert_int_equal(use, i+1);
 
 		avail = osal_mutex_avail();
-		assert_int_equal(avail, OSAL_MUTEX_NUM_MAX-i);
+		assert_int_equal(avail, OSAL_MUTEX_NUM_MAX-i-1);
 
 		mutex = osal_mutex_create();
 		assert_non_null(mutex);
@@ -71,12 +72,12 @@ static void test_mutex_loop(void)
 	assert_int_equal(res, OSAL_E_OK);
 
 	/* create and then delete */
-	for (i = 0; i < OSAL_MUTEX_NUM_MAX; i++) {
+	for (i = 0; i < OSAL_MUTEX_NUM_MAX-1; i++) {
 		use = osal_mutex_use();
-		assert_int_equal(use, 0);
+		assert_int_equal(use, 1);
 
 		avail = osal_mutex_avail();
-		assert_int_equal(avail, OSAL_MUTEX_NUM_MAX);
+		assert_int_equal(avail, OSAL_MUTEX_NUM_MAX-1);
 
 		mutex = osal_mutex_create();
 		assert_non_null(mutex);
@@ -92,6 +93,7 @@ static void test_mutex_loop(void)
 	assert_non_null(mutex);
 
 	osal_mutex_deinit();
+	assert_null(g_osal_shared_mutex);
 }
 
 static void test_mutex(void **state)

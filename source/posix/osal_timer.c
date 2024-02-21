@@ -57,7 +57,7 @@ osal_error_t osal_timer_init(void)
 	if (s_timer_man.init == true) {
 		return OSAL_E_OK;
 	}
-	OSAL_RM_USEROBJMAN_INIT(&s_timer_man, OSAL_TIMER_NUM_MAX, true);
+	OSAL_RM_USEROBJMAN_INIT(&s_timer_man, OSAL_TIMER_NUM_MAX, true, g_osal_shared_mutex);
 
 	s_timer_man.init = true;
 	return OSAL_E_OK;

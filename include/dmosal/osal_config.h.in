@@ -74,6 +74,20 @@ extern "C" {
  */
 #define OSAL_TIMER_NUM_MAX @OSAL_CONFIG_TIMER_NUM_MAX@
 
+/**
+ * @brief The length of the queue name.
+ *
+ * Defines the length of the queue name used in the OS abstraction layer.
+ */
+#define OSAL_QUEUE_NAME_SIZE @OSAL_CONFIG_QUEUE_NAME_SIZE@
+
+/**
+ * @brief Maximum number of queues.
+ *
+ * Defines the maximum number of queues allowed in the OS abstraction layer.
+ */
+#define OSAL_QUEUE_NUM_MAX @OSAL_CONFIG_QUEUE_NUM_MAX@
+
 #ifdef __cplusplus	/* extern "C" */
 }
 #endif

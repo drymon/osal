@@ -27,13 +27,13 @@
 #include "cmocka_include.h"
 #include "osal_rm.h"
 
-#define MAX_RES 10
+#define MAX_RES 100
 
 typedef struct {
 	osal_resrc_t *resrc;
 } rmdata_t;
 
-static void test_rm(bool safe)
+static void test_rm(bool safe, bool use_shared_mutex)
 {
 	osal_rm_t rm;
 	rmdata_t rmdatas[MAX_RES];
@@ -45,8 +45,12 @@ static void test_rm(bool safe)
 	uint32_t use;
 	uint32_t avail;
 
+	memset(&rmcfg, 0, sizeof(rmcfg));
 	if (safe) {
 		osal_mutex_init();
+		if (use_shared_mutex) {
+			rmcfg.mutex = g_osal_shared_mutex;
+		}
 	}
 	rmcfg.safe = safe;
 	rmcfg.n_resrces = MAX_RES;
@@ -109,8 +113,9 @@ static void test_rm_run(void **state)
 	int i;
 
 	for (i = 0; i < 10; i++) {
-		test_rm(true);
-		test_rm(false);
+		test_rm(true, true);
+		test_rm(true, false);
+		test_rm(false, false);
 	}
 }
 

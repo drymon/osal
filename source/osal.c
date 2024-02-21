@@ -24,11 +24,13 @@
 * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "osal.h"
 #include "osal_assert.h"
 #include "osal_mutex.h"
 #include "osal_task.h"
 #include "osal_timer.h"
 #include "osal_sem.h"
+#include "osal_queue.h"
 #include "osal_version.h"
 
 osal_error_t osal_init(void)
@@ -44,6 +46,8 @@ osal_error_t osal_init(void)
 	OSAL_ASSERT(res == OSAL_E_OK);
 	res = osal_timer_init();
 	OSAL_ASSERT(res == OSAL_E_OK);
+	res = osal_queue_init();
+	OSAL_ASSERT(res == OSAL_E_OK);
 	return OSAL_E_OK;
 }
 
@@ -58,4 +62,5 @@ void osal_deinit(void)
 	osal_sem_deinit();
 	osal_task_deinit();
 	osal_timer_deinit();
+	osal_queue_deinit();
 }

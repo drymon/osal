@@ -51,7 +51,7 @@ osal_error_t osal_sem_init(void)
 	if (s_sem_man.init == true) {
 		return OSAL_E_OK;
 	}
-	OSAL_RM_USEROBJMAN_INIT(&s_sem_man, OSAL_SEM_NUM_MAX, true);
+	OSAL_RM_USEROBJMAN_INIT(&s_sem_man, OSAL_SEM_NUM_MAX, true, g_osal_shared_mutex);
 	s_sem_man.init = true;
 
 	return OSAL_E_OK;

@@ -18,5 +18,13 @@ set(OSAL_CONFIG_SEM_NUM_MAX 64
 )
 
 set(OSAL_CONFIG_TIMER_NUM_MAX 64
-    CACHE STRING "Maximum number of semaphores to support"
+    CACHE STRING "Maximum number of timers to support"
+)
+
+set(OSAL_CONFIG_QUEUE_NAME_SIZE 64
+    CACHE STRING "The length of the queue name"
+)
+
+set(OSAL_CONFIG_QUEUE_NUM_MAX 64
+    CACHE STRING "Maximum number of queues to support"
 )
