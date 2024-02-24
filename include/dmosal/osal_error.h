@@ -51,6 +51,8 @@ typedef enum {
 	OSAL_E_FAILURE, /**< Unspecified failure */
 	OSAL_E_OSCALL, /**< Operating system call error */
 	OSAL_E_TIMEOUT, /**< Timeout error */
+	OSAL_E_QFULL, /**< Queue is full */
+	OSAL_E_QEMPTY, /**< Queue is empty*/
 	OSAL_E_MAX, /**< Maximum error code (for range checking) */
 } osal_error_t;
 

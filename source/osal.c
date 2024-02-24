@@ -24,11 +24,13 @@
 * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "osal.h"
 #include "osal_assert.h"
 #include "osal_mutex.h"
 #include "osal_task.h"
 #include "osal_timer.h"
 #include "osal_sem.h"
+#include "osal_queue.h"
 #include "osal_version.h"
 
 osal_error_t osal_init(void)
@@ -44,6 +46,8 @@ osal_error_t osal_init(void)
 	OSAL_ASSERT(res == OSAL_E_OK);
 	res = osal_timer_init();
 	OSAL_ASSERT(res == OSAL_E_OK);
+	res = osal_queue_init();
+	OSAL_ASSERT(res == OSAL_E_OK);
 	return OSAL_E_OK;
 }
 
@@ -52,10 +56,39 @@ char *osal_version(void)
 	return OSAL_VERSION;
 }
 
+void osal_print_resource(void)
+{
+	uint32_t use;
+	uint32_t avail;
+
+	use = osal_mutex_use();
+	avail = osal_mutex_avail();
+	printf("osal: ---resource: <module>=used/total---\n");
+	printf("osal: mutex=%u/%u\n", use, use+avail);
+
+	use = osal_sem_use();
+	avail = osal_sem_avail();
+	printf("osal: semaphore=%u/%u\n", use, use+avail);
+
+	use = osal_task_use();
+	avail = osal_task_avail();
+	printf("osal: task=%u/%u\n", use, use+avail);
+
+	use = osal_timer_use();
+	avail = osal_timer_avail();
+	printf("osal: timer=%u/%u\n", use, use+avail);
+
+	use = osal_queue_use();
+	avail = osal_queue_avail();
+	printf("osal: queue=%u/%u\n", use, use+avail);
+	printf("osal: ---------------\n");
+}
+
 void osal_deinit(void)
 {
 	osal_mutex_deinit();
 	osal_sem_deinit();
 	osal_task_deinit();
 	osal_timer_deinit();
+	osal_queue_deinit();
 }

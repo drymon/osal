@@ -46,7 +46,12 @@ osal_error_t osal_rm_init(osal_rm_t *rm, osal_rm_cfg_t *cfg)
 	}
 
 	if (rm->safe == true) {
-		rm->mutex = osal_mutex_create();
+		if (cfg->mutex) {
+			rm->mutex = cfg->mutex;
+		} else {
+			rm->mutex = osal_mutex_create();
+			rm->mutex_created = true;
+		}
 		OSAL_ASSERT(rm->mutex != NULL);
 	}
 	return OSAL_E_OK;
@@ -67,7 +72,9 @@ void osal_rm_deinit(osal_rm_t *rm)
 	if (rm->safe == true) {
 		OSAL_ASSERT(rm->mutex != NULL);
 		osal_mutex_unlock(rm->mutex);
-		osal_mutex_delete(rm->mutex);
+		if (rm->mutex_created == true) {
+			osal_mutex_delete(rm->mutex);
+		}
 	}
 
 	rm->safe = false;

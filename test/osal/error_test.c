@@ -49,6 +49,10 @@ static void test_error(void **state)
 	assert_string_equal(estr, "OSAL_E_OSCALL");
 	estr = osal_errstr(OSAL_E_TIMEOUT);
 	assert_string_equal(estr, "OSAL_E_TIMEOUT");
+	estr = osal_errstr(OSAL_E_QFULL);
+	assert_string_equal(estr, "OSAL_E_QFULL");
+	estr = osal_errstr(OSAL_E_QEMPTY);
+	assert_string_equal(estr, "OSAL_E_QEMPTY");
 }
 
 int main(int argc, char **argv)

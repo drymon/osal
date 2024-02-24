@@ -36,6 +36,8 @@ static const char *s_osal_errstr[OSAL_E_MAX] = {
 	OSAL_E(FAILURE),
 	OSAL_E(OSCALL),
 	OSAL_E(TIMEOUT),
+	OSAL_E(QFULL),
+	OSAL_E(QEMPTY),
 };
 
 const char *osal_errstr(osal_error_t e)

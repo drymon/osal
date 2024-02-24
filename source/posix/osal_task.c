@@ -50,7 +50,7 @@ osal_error_t osal_task_init(void)
 	if (s_task_man.init == true) {
 		return OSAL_E_OK;
 	}
-	OSAL_RM_USEROBJMAN_INIT(&s_task_man, OSAL_TASK_NUM_MAX, true);
+	OSAL_RM_USEROBJMAN_INIT(&s_task_man, OSAL_TASK_NUM_MAX, true, g_osal_shared_mutex);
 	s_task_man.init = true;
 
 	return OSAL_E_OK;
