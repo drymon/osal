@@ -56,6 +56,34 @@ char *osal_version(void)
 	return OSAL_VERSION;
 }
 
+void osal_print_resource(void)
+{
+	uint32_t use;
+	uint32_t avail;
+
+	use = osal_mutex_use();
+	avail = osal_mutex_avail();
+	printf("osal: ---resource: <module>=used/total---\n");
+	printf("osal: mutex=%u/%u\n", use, use+avail);
+
+	use = osal_sem_use();
+	avail = osal_sem_avail();
+	printf("osal: semaphore=%u/%u\n", use, use+avail);
+
+	use = osal_task_use();
+	avail = osal_task_avail();
+	printf("osal: task=%u/%u\n", use, use+avail);
+
+	use = osal_timer_use();
+	avail = osal_timer_avail();
+	printf("osal: timer=%u/%u\n", use, use+avail);
+
+	use = osal_queue_use();
+	avail = osal_queue_avail();
+	printf("osal: queue=%u/%u\n", use, use+avail);
+	printf("osal: ---------------\n");
+}
+
 void osal_deinit(void)
 {
 	osal_mutex_deinit();

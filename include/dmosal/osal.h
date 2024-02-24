@@ -60,6 +60,11 @@ osal_error_t osal_init(void);
 char *osal_version(void);
 
 /**
+ * @brief Print the resource usage of each OSAL submodule.
+ */
+void osal_print_resource(void);
+
+/**
  * @brief Deinitializes the OS abstraction layer.
  *
  * This function deinitializes the OS abstraction layer.

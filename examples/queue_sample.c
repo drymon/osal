@@ -94,6 +94,7 @@ int main(void)
 		printf("failed to create task\n");
 		goto exit;
 	}
+	osal_print_resource();
 
 	printf("main() waiting message...\n");
 	while (true) {
