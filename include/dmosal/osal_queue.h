@@ -44,8 +44,14 @@ extern "C" {
 #include "osal_config.h"
 #include "osal_mutex.h"
 
+/**
+ * @brief Forward declaration of the OS abstraction layer queue structure.
+ */
 typedef struct osal_queue osal_queue_t;
 
+/**
+ * @brief Structure defining the configuration for an OS abstraction layer queue.
+ */
 typedef struct {
 	uint8_t name[OSAL_QUEUE_NAME_SIZE]; /**< name of the queue. */
 	uint32_t msglen; /**< len of the message */
@@ -94,7 +100,7 @@ osal_error_t osal_queue_send(osal_queue_t *queue, uint8_t *msg, uint32_t msglen)
  * @brief Receives a message from the queue.
  *
  * @param queue Pointer to the queue.
- * @param msg Pointer to the received buffer.
+ * @param buf Pointer to the received buffer.
  * @param bufsize Size of the buffer.
  * @param timeout_usec Timeout to wait on queue when having no message
  * @return An error code indicating the status of the receive.
