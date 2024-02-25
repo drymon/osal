@@ -45,12 +45,12 @@ typedef struct {
 
 static task_man_t s_task_man;
 
-osal_error_t osal_task_init(void)
+osal_error_t osal_task_init(osal_mutex_t *mutex)
 {
 	if (s_task_man.init == true) {
 		return OSAL_E_OK;
 	}
-	OSAL_RM_USEROBJMAN_INIT(&s_task_man, OSAL_TASK_NUM_MAX, true, g_osal_shared_mutex);
+	OSAL_RM_USEROBJMAN_INIT(&s_task_man, OSAL_TASK_NUM_MAX, mutex);
 	s_task_man.init = true;
 
 	return OSAL_E_OK;

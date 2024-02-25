@@ -52,12 +52,12 @@ typedef struct {
 
 static timer_man_t s_timer_man;
 
-osal_error_t osal_timer_init(void)
+osal_error_t osal_timer_init(osal_mutex_t *mutex)
 {
 	if (s_timer_man.init == true) {
 		return OSAL_E_OK;
 	}
-	OSAL_RM_USEROBJMAN_INIT(&s_timer_man, OSAL_TIMER_NUM_MAX, true, g_osal_shared_mutex);
+	OSAL_RM_USEROBJMAN_INIT(&s_timer_man, OSAL_TIMER_NUM_MAX, mutex);
 
 	s_timer_man.init = true;
 	return OSAL_E_OK;
@@ -85,7 +85,6 @@ osal_timer_t *osal_timer_create(void (*expire)(void *arg), void *arg)
 {
 	osal_timer_t *timer;
 	osal_resrc_t *resrc;
-	int res;
 	struct sigevent sev;
 
 	if (expire == NULL) {

@@ -34,8 +34,6 @@ struct osal_mutex {
 	osal_resrc_t *resrc;
 };
 
-osal_mutex_t *g_osal_shared_mutex = NULL;
-
 typedef struct {
 	OSAL_RM_USEROBJMAN_DECLARE(
 		struct osal_mutex,
@@ -55,13 +53,9 @@ osal_error_t osal_mutex_init(void)
 	if (s_mutex_man.init == true) {
 		return OSAL_E_OK;
 	}
-	/* set issafe = false, rm will not use its internal mutex.*/
-	OSAL_RM_USEROBJMAN_INIT(&s_mutex_man, OSAL_MUTEX_NUM_MAX, false, NULL);
+	OSAL_RM_USEROBJMAN_INIT(&s_mutex_man, OSAL_MUTEX_NUM_MAX, NULL);
 
 	pthread_mutex_init(&s_mutex_man.resrc_mutex, NULL);
-
-	g_osal_shared_mutex = osal_mutex_create();
-	OSAL_ASSERT(g_osal_shared_mutex != NULL);
 
 	s_mutex_man.init = true;
 
@@ -132,8 +126,6 @@ void osal_mutex_deinit(void)
 	if (s_mutex_man.init == false) {
 		return;
 	}
-	osal_mutex_delete(g_osal_shared_mutex);
-	g_osal_shared_mutex = NULL;
 	osal_rm_deinit(&s_mutex_man.rm);
 	pthread_mutex_destroy(&s_mutex_man.resrc_mutex);
 	s_mutex_man.init = false;

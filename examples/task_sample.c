@@ -30,6 +30,7 @@
 
 static void task_handler(void *arg)
 {
+	(void)arg;
 	printf("--task is started--\n");
 }
 

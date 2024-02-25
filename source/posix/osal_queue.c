@@ -52,12 +52,12 @@ typedef struct {
 
 static queue_man_t s_queue_man;
 
-osal_error_t osal_queue_init(void)
+osal_error_t osal_queue_init(osal_mutex_t *mutex)
 {
 	if (s_queue_man.init == true) {
 		return OSAL_E_OK;
 	}
-	OSAL_RM_USEROBJMAN_INIT(&s_queue_man, OSAL_QUEUE_NUM_MAX, true, g_osal_shared_mutex);
+	OSAL_RM_USEROBJMAN_INIT(&s_queue_man, OSAL_QUEUE_NUM_MAX, mutex);
 	s_queue_man.init = true;
 
 	return OSAL_E_OK;
@@ -171,7 +171,7 @@ osal_error_t osal_queue_recv(osal_queue_t *queue, uint8_t *buf,
 	if (FD_ISSET(queue->fd, &rfds) == false) {
 		return OSAL_E_QEMPTY;
 	}
-	res = mq_receive(queue->fd, buf, bufsize, NULL);
+	res = mq_receive(queue->fd, (char *)buf, bufsize, NULL);
 	if (res < 0) {
 		perror("mq_receive");
 		return OSAL_E_OSCALL;

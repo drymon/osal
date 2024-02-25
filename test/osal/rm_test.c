@@ -33,7 +33,7 @@ typedef struct {
 	osal_resrc_t *resrc;
 } rmdata_t;
 
-static void test_rm(bool safe, bool use_shared_mutex)
+static void test_rm(bool use_mutex)
 {
 	osal_rm_t rm;
 	rmdata_t rmdatas[MAX_RES];
@@ -46,13 +46,11 @@ static void test_rm(bool safe, bool use_shared_mutex)
 	uint32_t avail;
 
 	memset(&rmcfg, 0, sizeof(rmcfg));
-	if (safe) {
+	if (use_mutex) {
 		osal_mutex_init();
-		if (use_shared_mutex) {
-			rmcfg.mutex = g_osal_shared_mutex;
-		}
+		rmcfg.mutex = osal_mutex_create();
+		assert_non_null(rmcfg.mutex);
 	}
-	rmcfg.safe = safe;
 	rmcfg.n_resrces = MAX_RES;
 	rmcfg.resrces = resrces;
 	for (i = 0; i < MAX_RES; i++) {
@@ -101,25 +99,25 @@ static void test_rm(bool safe, bool use_shared_mutex)
 	use = osal_rm_use(&rm);
 	assert_int_equal(use, MAX_RES);
 
-	osal_rm_deinit(&rm);
-
-	if (safe) {
+	if (use_mutex) {
+		osal_mutex_delete(rmcfg.mutex);
 		osal_mutex_deinit();
 	}
+	osal_rm_deinit(&rm);
 }
 
 static void test_rm_run(void **state)
 {
+	(void)state;
 	int i;
 
 	for (i = 0; i < 10; i++) {
-		test_rm(true, true);
-		test_rm(true, false);
-		test_rm(false, false);
+		test_rm(true);
+		test_rm(false);
 	}
 }
 
-int main(int argc, char **argv)
+int main(void)
 {
 	setenv("CMOCKA_TEST_ABORT", "1", 1);
 

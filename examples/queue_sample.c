@@ -33,7 +33,7 @@
 #include <dmosal/osal_time.h>
 
 #define QUEUE_NAME "example_queue"
-#define QUEUE_SIZE 16
+#define QUEUE_SIZE 10
 #define MSG_LEN 128
 
 static void task_send(void *arg)
@@ -47,7 +47,7 @@ static void task_send(void *arg)
 	for (i = 10; i > 0; i--) {
 		memset(msg, 0, sizeof(msg));
 		snprintf(msg, MSG_LEN, "hello main %d", i);
-		res = osal_queue_send(queue, msg, strlen(msg));
+		res = osal_queue_send(queue, (uint8_t *)msg, strlen(msg));
 		if (res != OSAL_E_OK) {
 			printf("Send error: %s\n", osal_errstr(res));
 		} else {
@@ -99,7 +99,7 @@ int main(void)
 	printf("main() waiting message...\n");
 	while (true) {
 		memset(msg, 0, sizeof(msg));
-		res = osal_queue_recv(queue, msg, sizeof(msg), OSAL_SEC_USEC);
+		res = osal_queue_recv(queue, (uint8_t *)msg, sizeof(msg), OSAL_SEC_USEC);
 		if (res == OSAL_E_OK) {
 			printf("main() receive: %s\n", msg);
 		} else if ((res == OSAL_E_TIMEOUT) || (res == OSAL_E_QEMPTY)) {

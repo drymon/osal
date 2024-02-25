@@ -14,6 +14,8 @@ set(DMOSAL_LIBRARIES dmosal)
 # OSAL resource limit
 include("${CMAKE_CURRENT_SOURCE_DIR}/osal_config.cmake")
 
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -Werror=implicit-function-declaration")
+
 find_package(Threads REQUIRED)
 
 file(GLOB osal_SRC

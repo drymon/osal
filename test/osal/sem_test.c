@@ -38,11 +38,12 @@ static void test_sem_loop(void)
 	osal_sem_t *sem;
 	uint64_t ts1, ts2, diff, wait_nsec;
 
+	/* check if we can create sem if it is deinitialized */
 	osal_sem_deinit();
 	sem = osal_sem_create();
 	assert_null(sem);
 
-	res = osal_sem_init();
+	res = osal_sem_init(NULL);
 	assert_int_equal(res, OSAL_E_OK);
 
 	use = osal_sem_use();
@@ -72,7 +73,7 @@ static void test_sem_loop(void)
 	assert_null(sem);
 
 	osal_sem_deinit();
-	res = osal_sem_init();
+	res = osal_sem_init(NULL);
 	assert_int_equal(res, OSAL_E_OK);
 
 	/* create and then delete */
@@ -116,6 +117,7 @@ static void test_sem_loop(void)
 
 static void test_sem(void **state)
 {
+	(void)state;
 	int i;
 	for (i = 0; i < 10; i++) {
 		test_sem_loop();
@@ -124,17 +126,19 @@ static void test_sem(void **state)
 
 static int setup(void **state)
 {
+	(void)state;
 	osal_init();
 	return 0;
 }
 
 static int teardown(void **state)
 {
+	(void)state;
 	osal_deinit();
 	return 0;
 }
 
-int main(int argc, char **argv)
+int main(void)
 {
 	setenv("CMOCKA_TEST_ABORT", "1", 1);
 

@@ -42,6 +42,7 @@ extern "C" {
 #include <stdint.h>
 #include "osal_error.h"
 #include "osal_config.h"
+#include "osal_mutex.h"
 
 /**
  * @brief Forward declaration of the OS abstraction layer task structure.
@@ -63,9 +64,10 @@ typedef struct {
 /**
  * @brief Initializes the OS abstraction layer task subsystem.
  *
+ * @param mutex Mutex to protect the internal resource.
  * @return An error code indicating the status of the initialization.
  */
-osal_error_t osal_task_init(void);
+osal_error_t osal_task_init(osal_mutex_t *mutex);
 
 /**
  * @brief Deinitializes the OS abstraction layer task subsystem.

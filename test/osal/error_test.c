@@ -30,6 +30,7 @@
 static void test_error(void **state)
 {
 	const char *estr;
+	(void)state;
 
 	estr = osal_errstr(-1);
 	assert_string_equal(estr, "OSAL_UNKNOWN");
@@ -55,7 +56,7 @@ static void test_error(void **state)
 	assert_string_equal(estr, "OSAL_E_QEMPTY");
 }
 
-int main(int argc, char **argv)
+int main(void)
 {
 	setenv("CMOCKA_TEST_ABORT", "1", 1);
 

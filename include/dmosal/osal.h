@@ -40,6 +40,14 @@ extern "C" {
 #endif
 
 #include "osal_error.h"
+#include "osal_assert.h"
+#include "osal_mutex.h"
+#include "osal_task.h"
+#include "osal_timer.h"
+#include "osal_sem.h"
+#include "osal_queue.h"
+#include "osal_rm.h"
+#include "osal_version.h"
 
 /**
  * @brief Initializes the OS abstraction layer.

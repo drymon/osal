@@ -46,12 +46,12 @@ typedef struct {
 
 static sem_man_t s_sem_man;
 
-osal_error_t osal_sem_init(void)
+osal_error_t osal_sem_init(osal_mutex_t *mutex)
 {
 	if (s_sem_man.init == true) {
 		return OSAL_E_OK;
 	}
-	OSAL_RM_USEROBJMAN_INIT(&s_sem_man, OSAL_SEM_NUM_MAX, true, g_osal_shared_mutex);
+	OSAL_RM_USEROBJMAN_INIT(&s_sem_man, OSAL_SEM_NUM_MAX, mutex);
 	s_sem_man.init = true;
 
 	return OSAL_E_OK;

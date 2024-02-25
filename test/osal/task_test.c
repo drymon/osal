@@ -30,15 +30,17 @@
 
 static void test_task_init(void **state)
 {
+	(void)state;
 	int res;
 	uint32_t use;
 	uint32_t avail;
 
 	res = osal_init();
 	assert_int_equal(res, OSAL_E_OK);
-	res = osal_task_init();
+	/* reinit should be okay */
+	res = osal_task_init(NULL);
 	assert_int_equal(res, OSAL_E_OK);
-	res = osal_task_init();
+	res = osal_task_init(NULL);
 	assert_int_equal(res, OSAL_E_OK);
 	use = osal_task_use();
 	assert_int_equal(use, 0);
@@ -56,12 +58,14 @@ static void test_task_handler(void *arg)
 
 static void test_task_create(void **state)
 {
+	(void)state;
 	int res;
 	int i;
 	osal_task_t *task;
 	osal_task_cfg_t cfg = {0};
 	uint32_t use;
 	uint32_t avail;
+	test_task_count = 0;
 
 	res = osal_init();
 	assert_int_equal(res, OSAL_E_OK);
@@ -92,7 +96,7 @@ static void test_task_create(void **state)
 
 static void test_task_delete(void **state)
 {
-	int res;
+	(void)state;
 	int i;
 	uint32_t use;
 	uint32_t avail;
@@ -101,6 +105,7 @@ static void test_task_delete(void **state)
 		.task_handler = test_task_handler,
 		.task_arg = (void *)&test_task_handler
 	};
+	test_task_count = 0;
 
 	for (i = 0; i < OSAL_TASK_NUM_MAX*10; i++) {
 		use = osal_task_use();
@@ -119,17 +124,19 @@ static void test_task_delete(void **state)
 
 static int setup(void **state)
 {
+	(void)state;
 	osal_init();
 	return 0;
 }
 
 static int teardown(void **state)
 {
+	(void)state;
 	osal_deinit();
 	return 0;
 }
 
-int main(int argc, char **argv)
+int main(void)
 {
 	setenv("CMOCKA_TEST_ABORT", "1", 1);
 

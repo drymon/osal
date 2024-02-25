@@ -36,6 +36,7 @@ typedef struct {
 
 static void test_lifo(void **state)
 {
+	(void)state;
 	lifo_data_t lifodatas[NUM_NODES];
 	osal_lifo_t lifo;
 	int size;
@@ -67,7 +68,7 @@ static void test_lifo(void **state)
 	assert_null(nodedata);
 }
 
-int main(int argc, char **argv)
+int main(void)
 {
 	setenv("CMOCKA_TEST_ABORT", "1", 1);
 

@@ -25,29 +25,32 @@
 */
 
 #include "osal.h"
-#include "osal_assert.h"
-#include "osal_mutex.h"
-#include "osal_task.h"
-#include "osal_timer.h"
-#include "osal_sem.h"
-#include "osal_queue.h"
-#include "osal_version.h"
+
+static osal_mutex_t *s_shared_mutex;
+static bool s_initialized;
 
 osal_error_t osal_init(void)
 {
 	osal_error_t res;
 
+	if (s_initialized) {
+		return OSAL_E_OK;
+	}
 	/* mutex must be init first since it is used in other osal modules */
 	res = osal_mutex_init();
 	OSAL_ASSERT(res == OSAL_E_OK);
-	res = osal_sem_init();
+	OSAL_ASSERT(s_shared_mutex == NULL);
+	s_shared_mutex = osal_mutex_create();
+	OSAL_ASSERT(s_shared_mutex != NULL);
+	res = osal_sem_init(s_shared_mutex);
 	OSAL_ASSERT(res == OSAL_E_OK);
-	res = osal_task_init();
+	res = osal_task_init(s_shared_mutex);
 	OSAL_ASSERT(res == OSAL_E_OK);
-	res = osal_timer_init();
+	res = osal_timer_init(s_shared_mutex);
 	OSAL_ASSERT(res == OSAL_E_OK);
-	res = osal_queue_init();
+	res = osal_queue_init(s_shared_mutex);
 	OSAL_ASSERT(res == OSAL_E_OK);
+	s_initialized = true;
 	return OSAL_E_OK;
 }
 
@@ -86,9 +89,17 @@ void osal_print_resource(void)
 
 void osal_deinit(void)
 {
+	if (s_initialized == false) {
+		return;
+	}
+	OSAL_ASSERT(s_shared_mutex != NULL);
+	osal_mutex_delete(s_shared_mutex);
+	s_shared_mutex = NULL;
+
 	osal_mutex_deinit();
 	osal_sem_deinit();
 	osal_task_deinit();
 	osal_timer_deinit();
 	osal_queue_deinit();
+	s_initialized = false;
 }
