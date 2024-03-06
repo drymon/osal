@@ -40,6 +40,7 @@ extern "C" {
 #endif
 
 #include "osal_error.h"
+#include "osal_log.h"
 #include "osal_assert.h"
 #include "osal_mutex.h"
 #include "osal_task.h"
@@ -50,13 +51,25 @@ extern "C" {
 #include "osal_version.h"
 
 /**
+ * @brief The index of the OSAL module log
+ */
+#define OSAL_LOG_MODULE_INDEX 0
+
+typedef struct {
+	osal_log_output_t log_output; /**< Pointer to the logging output function. Set NULL to use the default output */
+	osal_log_level_t osal_level; /**< Log level of the OSAL layer */
+} osal_config_t;
+
+/**
  * @brief Initializes the OS abstraction layer.
  *
  * This function initializes the OS abstraction layer.
  *
- * @return An error code of type ::osal_error_t indicating the status of the initialization.
+ * @param config Pointer to the configuration struct. Set to NULL to use the default config.
+ * @return An error code of type ::osal_error_t indicating the status of
+ * the initialization.
  */
-osal_error_t osal_init(void);
+osal_error_t osal_init(osal_config_t *config);
 
 /**
  * @brief Retrieves the version of the OS abstraction layer.

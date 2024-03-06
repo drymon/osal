@@ -127,7 +127,7 @@ static void test_sem(void **state)
 static int setup(void **state)
 {
 	(void)state;
-	osal_init();
+	osal_init(NULL);
 	return 0;
 }
 
