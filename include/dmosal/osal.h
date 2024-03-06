@@ -50,11 +50,6 @@ extern "C" {
 #include "osal_rm.h"
 #include "osal_version.h"
 
-/**
- * @brief The index of the OSAL module log
- */
-#define OSAL_LOG_MODULE_INDEX 0
-
 typedef struct {
 	osal_log_output_t log_output; /**< Pointer to the logging output function. Set NULL to use the default output */
 	osal_log_level_t osal_level; /**< Log level of the OSAL layer */

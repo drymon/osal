@@ -34,6 +34,8 @@
 #include "osal_queue.h"
 #include "osal_assert.h"
 #include "osal_rm.h"
+#include "osal_log.h"
+#define OSALOG_MODULE OSAL_LOG_MODULE_INDEX
 
 struct osal_queue {
 	osal_resrc_t *resrc;
@@ -104,18 +106,17 @@ osal_queue_t *osal_queue_create(osal_queue_cfg_t *cfg)
 	res = mq_open(queue->name, O_CREAT|O_RDWR|O_EXCL|O_NONBLOCK, S_IRWXU, &attr);
 	if (res < 0) {
 		if (errno != EEXIST) {
-			perror("1st mq_open()");
-			printf("queue->name=%s\n", queue->name);
+			OSALOG_ERROR("mq_open(%s):%s\n", queue->name, strerror(errno));
 			OSAL_ASSERT(false);
 		}
 		res = mq_open(queue->name, O_RDWR);
 		if (res < 0) {
-			perror("2nd mq_open()");
+			OSALOG_ERROR("mq_open(%s):%s\n", queue->name, strerror(errno));
 			OSAL_ASSERT(false);
 		}
-		printf("Open existing queue: %s\n", queue->name);
+		OSALOG_INFO("Open existing queue: %s\n", queue->name);
 	} else {
-		printf("Open new queue: %s qsize=%d msglen=%d\n",
+		OSALOG_INFO("Open new queue: %s qsize=%d msglen=%d\n",
 			   queue->name, cfg->qsize, cfg->msglen);
 		queue->create = true;
 	}
@@ -137,7 +138,7 @@ osal_error_t osal_queue_send(osal_queue_t *queue, uint8_t *msg, uint32_t msglen)
 		if (errno == EAGAIN) {
 			return OSAL_E_QFULL;
 		}
-		perror("mq_send");
+		OSALOG_ERROR("mq_send: %s\n", strerror(errno));
 		return OSAL_E_OSCALL;
 	}
 	return OSAL_E_OK;
@@ -163,7 +164,7 @@ osal_error_t osal_queue_recv(osal_queue_t *queue, uint8_t *buf,
 
 	res = select(queue->fd+1, &rfds, NULL, NULL, &tvtout);
 	if (res < 0) {
-		perror("select");
+		OSALOG_ERROR("select:%s\n", strerror(errno));
 		return OSAL_E_OSCALL;
 	} else if (res == 0) {
 		return OSAL_E_TIMEOUT;
@@ -173,7 +174,7 @@ osal_error_t osal_queue_recv(osal_queue_t *queue, uint8_t *buf,
 	}
 	res = mq_receive(queue->fd, (char *)buf, bufsize, NULL);
 	if (res < 0) {
-		perror("mq_receive");
+		OSALOG_ERROR("mq_receive:%s", strerror(errno));
 		return OSAL_E_OSCALL;
 	}
 

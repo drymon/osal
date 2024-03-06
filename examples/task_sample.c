@@ -44,25 +44,20 @@ int main(void)
 	osal_task_cfg_t cfg = {
 		.task_handler = &task_handler,
 	};
-	osal_log_module_t log_mod;
 
 	err = osal_init(NULL);
 	if (err != OSAL_E_OK) {
 		return -1;
 	}
-	memset(&log_mod, 0, sizeof(log_mod));
-	snprintf(log_mod.name, OSAL_LOG_MODULE_NAME_SIZE, "task");
-	log_mod.log_level = OSALOG_LEVEL_DEBUG;
-	log_mod.module_index = OSALOG_MODULE;
 
-	err = osal_log_init_module(&log_mod);
+	err = osal_log_module_init(OSALOG_MODULE, "task", OSALOG_LEVEL_DEBUG, true);
 	if (err != OSAL_E_OK) {
 		return -1;
 	}
 
 	/* log can work from now */
 
-	OSALOG_DEBUG("osal_log_init_module() OK\n");
+	OSALOG_DEBUG("osal_log_module_init() OK\n");
 
 	OSALOG_DEBUG("osal_init() OK\n");
 

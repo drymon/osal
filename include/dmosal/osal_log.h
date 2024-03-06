@@ -45,6 +45,13 @@ extern "C" {
 #include "osal_error.h"
 #include "osal_config.h"
 
+
+/**
+ * @brief The log module index reserved for the OSAL module.
+ * The application should use the index starts from 1.
+ */
+#define OSAL_LOG_MODULE_INDEX 0
+
 /**
  * @brief Default logging build level configuration
  *
@@ -67,7 +74,7 @@ extern "C" {
 
 /**
  * @brief Macro to provide a generic logging helper function.
- * User needs to define @ref OSALOG_MODULE at the begining of the source file.
+ * User needs to define OSALOG_MODULE at the begining of the source file.
  *
  * @param level The log level (FATAL, ERROR, WARN, INFO, DEBUG, TRACE).
  * @param ts Flag indicating whether to include timestamp in the log.
@@ -166,25 +173,15 @@ typedef void (*osal_log_output_t)(char *logstr);
  * @brief Enumeration defining log levels.
  */
 typedef enum {
+	OSALOG_LEVEL_NONE, /**< No log at all */
 	OSALOG_LEVEL_FATAL, /**< Fatal error level. */
-    OSALOG_LEVEL_ERROR, /**< Error level. */
-    OSALOG_LEVEL_WARN, /**< Warning level. */
-    OSALOG_LEVEL_INFO, /**< Informational level. */
-    OSALOG_LEVEL_DEBUG, /**< Debugging level. */
-    OSALOG_LEVEL_TRACE, /**< Trace level. */
-    OSALOG_LEVEL_MAX /**< Maximum log level. */
+	OSALOG_LEVEL_ERROR, /**< Error level. */
+	OSALOG_LEVEL_WARN, /**< Warning level. */
+	OSALOG_LEVEL_INFO, /**< Informational level. */
+	OSALOG_LEVEL_DEBUG, /**< Debugging level. */
+	OSALOG_LEVEL_TRACE, /**< Trace level. */
+	OSALOG_LEVEL_MAX /**< Maximum log level. */
 } osal_log_level_t;
-
-/**
- * @brief Structure representing a logging module.
- */
-typedef struct {
-	char name[OSAL_LOG_MODULE_NAME_SIZE]; /**< Name of the logging module. */
-    osal_log_level_t log_level; /**< Log level for the module. */
-    bool enable_ts; /**< Flag indicating whether to include timestamp. */
-    uint32_t module_index; /**< Index of the module. */
-    bool inuse; /**< Skip this flag when call @ref osal_log_init_module(), it is used for managing the module internally. */
-} osal_log_module_t;
 
 /**
  * @brief Initializes the logging system.
@@ -202,23 +199,36 @@ void osal_log_deinit(void);
 /**
  * @brief Initializes a logging module.
  *
- * @param module Pointer to the logging module structure.
+ * @param index Index of the module.
+ * @param name Name of the logging module. Set NULL to not print module name.
+ * @param level Log level for the module.
+ * @param ts Flag indicating whether to include timestamp.
  * @return An error code indicating the status of the initialization.
  */
-osal_error_t osal_log_init_module(osal_log_module_t *module);
+osal_error_t osal_log_module_init(uint32_t index, char *name,
+								  osal_log_level_t level, bool ts);
 
 /**
  * @brief Prints a log message.
  *
- * @param module_index Index of the logging module.
+ * @param index Index of the logging module.
  * @param ts Flag indicating whether to include timestamp.
  * @param level Log level.
  * @param format Format string for the log message.
  * @param ... Additional arguments for the log message.
- * @return An error code indicating the status of the initialization.
+ * @return An error code indicating the status of the print.
  */
-osal_error_t osal_log_print(uint32_t module_index, bool ts,
+osal_error_t osal_log_print(uint32_t index, bool ts,
 				osal_log_level_t level, const char *format, ...);
+
+/**
+ * @brief Changes a log level of a module at the runtime.
+ *
+ * @param index Index of the logging module.
+ * @param level Log level. Set to @ref OSALOG_LEVEL_NONE to disable the log.
+ * @return An error code indicating the status of the change.
+ */
+osal_error_t osal_log_module_change(uint32_t index, osal_log_level_t level);
 
 #ifdef __cplusplus	/* extern "C" */
 }

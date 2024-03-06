@@ -63,7 +63,6 @@ int main(void)
 	int err;
 	osal_task_t *task = NULL;
 	osal_queue_t *queue = NULL;
-	osal_log_module_t log_mod;
 	osal_task_cfg_t taskcfg = {
 		.task_handler = &task_send,
 	};
@@ -79,13 +78,7 @@ int main(void)
 		return -1;
 	}
 
-	memset(&log_mod, 0, sizeof(log_mod));
-	snprintf(log_mod.name, OSAL_LOG_MODULE_NAME_SIZE, "queue");
-	log_mod.enable_ts = true;
-	log_mod.log_level = OSALOG_LEVEL_TRACE;
-	log_mod.module_index = OSALOG_MODULE;
-
-	err = osal_log_init_module(&log_mod);
+	err = osal_log_module_init(OSALOG_MODULE, "queue", OSALOG_LEVEL_TRACE, false);
 	if (err != OSAL_E_OK) {
 		return -1;
 	}

@@ -37,6 +37,6 @@ set(OSAL_CONFIG_LOG_MODULE_NAME_SIZE 64
     CACHE STRING "The size of the log module name"
 )
 
-set(OSAL_CONFIG_LOG_STRING_SIZE 1024
+set(OSAL_CONFIG_LOG_STRING_SIZE 256
     CACHE STRING "The size of the log string buffer"
 )

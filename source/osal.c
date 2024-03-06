@@ -27,6 +27,7 @@
 #include <string.h>
 #include <stdio.h>
 #include "osal.h"
+#define OSALOG_MODULE OSAL_LOG_MODULE_INDEX
 
 static osal_mutex_t *s_shared_mutex;
 static bool s_initialized;
@@ -39,7 +40,6 @@ static void log_output_default(char *logstr)
 osal_error_t osal_init(osal_config_t *config)
 {
 	osal_error_t res;
-	osal_log_module_t log_module;
 	osal_log_output_t log_output = log_output_default;
 	osal_log_level_t log_level = OSALOG_LEVEL_INFO;
 
@@ -63,12 +63,7 @@ osal_error_t osal_init(osal_config_t *config)
 	OSAL_ASSERT(res == OSAL_E_OK);
 
 	/* log module initialization */
-	memset(&log_module, 0, sizeof(log_module));
-	snprintf(log_module.name, OSAL_LOG_MODULE_NAME_SIZE, "osal");
-	log_module.log_level = log_level;
-	log_module.enable_ts = false;
-	log_module.module_index = OSAL_LOG_MODULE_INDEX;
-	res = osal_log_init_module(&log_module);
+	res = osal_log_module_init(OSAL_LOG_MODULE_INDEX, "osal", log_level, false);
 	OSAL_ASSERT(res == OSAL_E_OK);
 
 	/* create a shared local mutex */
@@ -110,25 +105,25 @@ void osal_print_resource(void)
 
 	use = osal_mutex_use();
 	avail = osal_mutex_avail();
-	printf("osal: ---resource: <module>=used/total---\n");
-	printf("osal: mutex=%u/%u\n", use, use+avail);
+	OSALOG_INFO("osal: ---resource: <module>=used/total---\n");
+	OSALOG_INFO("osal: mutex=%u/%u\n", use, use+avail);
 
 	use = osal_sem_use();
 	avail = osal_sem_avail();
-	printf("osal: semaphore=%u/%u\n", use, use+avail);
+	OSALOG_INFO("osal: semaphore=%u/%u\n", use, use+avail);
 
 	use = osal_task_use();
 	avail = osal_task_avail();
-	printf("osal: task=%u/%u\n", use, use+avail);
+	OSALOG_INFO("osal: task=%u/%u\n", use, use+avail);
 
 	use = osal_timer_use();
 	avail = osal_timer_avail();
-	printf("osal: timer=%u/%u\n", use, use+avail);
+	OSALOG_INFO("osal: timer=%u/%u\n", use, use+avail);
 
 	use = osal_queue_use();
 	avail = osal_queue_avail();
-	printf("osal: queue=%u/%u\n", use, use+avail);
-	printf("osal: ---------------\n");
+	OSALOG_INFO("osal: queue=%u/%u\n", use, use+avail);
+	OSALOG_INFO("osal: ---------------\n");
 }
 
 void osal_deinit(void)
