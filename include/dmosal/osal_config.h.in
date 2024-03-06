@@ -40,9 +40,9 @@ extern "C" {
 #endif
 
 /**
- * @brief The length of the task name.
+ * @brief The size of the task name.
  *
- * Defines the length of the task name used in the OS abstraction layer.
+ * Defines the size of the task name used in the OS abstraction layer.
  */
 #define OSAL_TASK_NAME_SIZE @OSAL_CONFIG_TASK_NAME_SIZE@
 
@@ -75,9 +75,9 @@ extern "C" {
 #define OSAL_TIMER_NUM_MAX @OSAL_CONFIG_TIMER_NUM_MAX@
 
 /**
- * @brief The length of the queue name.
+ * @brief The size of the queue name.
  *
- * Defines the length of the queue name used in the OS abstraction layer.
+ * Defines the size of the queue name used in the OS abstraction layer.
  */
 #define OSAL_QUEUE_NAME_SIZE @OSAL_CONFIG_QUEUE_NAME_SIZE@
 
@@ -87,6 +87,27 @@ extern "C" {
  * Defines the maximum number of queues allowed in the OS abstraction layer.
  */
 #define OSAL_QUEUE_NUM_MAX @OSAL_CONFIG_QUEUE_NUM_MAX@
+
+/**
+ * @brief Maximum number of the log modules.
+ *
+ * Defines the maximum number of the log modules allowed in the OS abstraction layer.
+ */
+#define OSAL_LOG_MODULE_NUM_MAX @OSAL_CONFIG_LOG_MODULE_NUM_MAX@
+
+/**
+ * @brief The size of log module name.
+ *
+ * Defines the size of the log module name used in the OS abstraction layer.
+ */
+#define OSAL_LOG_MODULE_NAME_SIZE @OSAL_CONFIG_LOG_MODULE_NAME_SIZE@
+
+/**
+ * @brief The size of the log string buffer.
+ *
+ * Defines the size of the log string buffer used in the OS abstraction layer.
+ */
+#define OSAL_LOG_STRING_SIZE @OSAL_CONFIG_LOG_STRING_SIZE@
 
 #ifdef __cplusplus	/* extern "C" */
 }

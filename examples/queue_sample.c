@@ -31,6 +31,7 @@
 #include <dmosal/osal_task.h>
 #include <dmosal/osal_queue.h>
 #include <dmosal/osal_time.h>
+#define OSALOG_MODULE 2
 
 #define QUEUE_NAME "example_queue"
 #define QUEUE_SIZE 10
@@ -43,15 +44,15 @@ static void task_send(void *arg)
 	char msg[MSG_LEN] = {0};
 	int i;
 
-	printf("--task send is started--\n");
+	OSALOG_INFO("--task send is started--\n");
 	for (i = 10; i > 0; i--) {
 		memset(msg, 0, sizeof(msg));
 		snprintf(msg, MSG_LEN, "hello main %d", i);
 		res = osal_queue_send(queue, (uint8_t *)msg, strlen(msg));
 		if (res != OSAL_E_OK) {
-			printf("Send error: %s\n", osal_errstr(res));
+			OSALOG_ERROR("Send error: %s\n", osal_errstr(res));
 		} else {
-			printf("Task sent: %s\n", msg);
+			OSALOG_TRACE("Task sent: %s\n", msg);
 		}
 	}
 }
@@ -62,6 +63,7 @@ int main(void)
 	int err;
 	osal_task_t *task = NULL;
 	osal_queue_t *queue = NULL;
+	osal_log_module_t log_mod;
 	osal_task_cfg_t taskcfg = {
 		.task_handler = &task_send,
 	};
@@ -72,41 +74,54 @@ int main(void)
 	};
 	char msg[MSG_LEN] = {0};
 
-	printf("DMOSAL version: %s\n", osal_version());
-
-	err = osal_init();
+	err = osal_init(NULL);
 	if (err != OSAL_E_OK) {
-		printf("failed to init osal\n");
 		return -1;
 	}
-	printf("osal_init() OK\n");
+
+	memset(&log_mod, 0, sizeof(log_mod));
+	snprintf(log_mod.name, OSAL_LOG_MODULE_NAME_SIZE, "queue");
+	log_mod.enable_ts = true;
+	log_mod.log_level = OSALOG_LEVEL_TRACE;
+	log_mod.module_index = OSALOG_MODULE;
+
+	err = osal_log_init_module(&log_mod);
+	if (err != OSAL_E_OK) {
+		return -1;
+	}
+
+	/* log can work from now */
+
+	OSALOG_INFO("osal_init() OK\n");
+
+	OSALOG_INFO("DMOSAL version: %s\n", osal_version());
 
 	queue = osal_queue_create(&queuecfg);
 	if (queue == NULL) {
-		printf("failed to create queue\n");
+		OSALOG_ERROR("failed to create queue\n");
 		goto exit;
 	}
-	printf("osal_queue_create() OK\n");
+	OSALOG_INFO("osal_queue_create() OK\n");
 
 	taskcfg.task_arg = queue;
 	task = osal_task_create(&taskcfg);
 	if (task == NULL) {
-		printf("failed to create task\n");
+		OSALOG_ERROR("failed to create task\n");
 		goto exit;
 	}
 	osal_print_resource();
 
-	printf("main() waiting message...\n");
+	OSALOG_DEBUG("main() waiting message...\n");
 	while (true) {
 		memset(msg, 0, sizeof(msg));
 		res = osal_queue_recv(queue, (uint8_t *)msg, sizeof(msg), OSAL_SEC_USEC);
 		if (res == OSAL_E_OK) {
-			printf("main() receive: %s\n", msg);
+			OSALOG_TRACE("main() receive: %s\n", msg);
 		} else if ((res == OSAL_E_TIMEOUT) || (res == OSAL_E_QEMPTY)) {
-			printf("main(): %s\n", osal_errstr(res));
+			OSALOG_ERROR("main(): %s\n", osal_errstr(res));
 			break;
 		} else {
-			printf("failed to recv: %s\n", osal_errstr(res));
+			OSALOG_ERROR("failed to recv: %s\n", osal_errstr(res));
 			goto exit;
 		}
 	}
@@ -120,7 +135,7 @@ exit:
 	if (queue) {
 		osal_queue_delete(queue);
 	}
+	OSALOG_INFO("osal_deinit\n");
 	osal_deinit();
-	printf("osal_deinit\n");
 	return res;
 }

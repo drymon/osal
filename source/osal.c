@@ -24,33 +24,77 @@
 * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include <string.h>
+#include <stdio.h>
 #include "osal.h"
 
 static osal_mutex_t *s_shared_mutex;
 static bool s_initialized;
 
-osal_error_t osal_init(void)
+static void log_output_default(char *logstr)
+{
+	printf("%s", logstr);
+}
+
+osal_error_t osal_init(osal_config_t *config)
 {
 	osal_error_t res;
+	osal_log_module_t log_module;
+	osal_log_output_t log_output = log_output_default;
+	osal_log_level_t log_level = OSALOG_LEVEL_INFO;
 
 	if (s_initialized) {
 		return OSAL_E_OK;
 	}
+
+	if (config != NULL) {
+		if (config->log_output != NULL) {
+			log_output = config->log_output;
+		}
+		log_level = config->osal_level;
+	}
+
 	/* mutex must be init first since it is used in other osal modules */
 	res = osal_mutex_init();
 	OSAL_ASSERT(res == OSAL_E_OK);
+
+	/* log initialization */
+	res = osal_log_init(log_output);
+	OSAL_ASSERT(res == OSAL_E_OK);
+
+	/* log module initialization */
+	memset(&log_module, 0, sizeof(log_module));
+	snprintf(log_module.name, OSAL_LOG_MODULE_NAME_SIZE, "osal");
+	log_module.log_level = log_level;
+	log_module.enable_ts = false;
+	log_module.module_index = OSAL_LOG_MODULE_INDEX;
+	res = osal_log_init_module(&log_module);
+	OSAL_ASSERT(res == OSAL_E_OK);
+
+	/* create a shared local mutex */
 	OSAL_ASSERT(s_shared_mutex == NULL);
 	s_shared_mutex = osal_mutex_create();
 	OSAL_ASSERT(s_shared_mutex != NULL);
+
+	/* semaphore initialization */
 	res = osal_sem_init(s_shared_mutex);
 	OSAL_ASSERT(res == OSAL_E_OK);
+
+	/* task initialization */
 	res = osal_task_init(s_shared_mutex);
 	OSAL_ASSERT(res == OSAL_E_OK);
+
+	/* timer initialization */
 	res = osal_timer_init(s_shared_mutex);
 	OSAL_ASSERT(res == OSAL_E_OK);
+
+	/* queue initialization */
 	res = osal_queue_init(s_shared_mutex);
 	OSAL_ASSERT(res == OSAL_E_OK);
+
+	/* initialization done */
 	s_initialized = true;
+
 	return OSAL_E_OK;
 }
 
@@ -96,10 +140,11 @@ void osal_deinit(void)
 	osal_mutex_delete(s_shared_mutex);
 	s_shared_mutex = NULL;
 
-	osal_mutex_deinit();
 	osal_sem_deinit();
 	osal_task_deinit();
 	osal_timer_deinit();
 	osal_queue_deinit();
+	osal_log_deinit();
+	osal_mutex_deinit();
 	s_initialized = false;
 }

@@ -54,6 +54,8 @@ static void test_error(void **state)
 	assert_string_equal(estr, "OSAL_E_QFULL");
 	estr = osal_errstr(OSAL_E_QEMPTY);
 	assert_string_equal(estr, "OSAL_E_QEMPTY");
+	estr = osal_errstr(OSAL_E_INUSE);
+	assert_string_equal(estr, "OSAL_E_INUSE");
 }
 
 int main(void)

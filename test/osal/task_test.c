@@ -35,7 +35,7 @@ static void test_task_init(void **state)
 	uint32_t use;
 	uint32_t avail;
 
-	res = osal_init();
+	res = osal_init(NULL);
 	assert_int_equal(res, OSAL_E_OK);
 	/* reinit should be okay */
 	res = osal_task_init(NULL);
@@ -67,7 +67,7 @@ static void test_task_create(void **state)
 	uint32_t avail;
 	test_task_count = 0;
 
-	res = osal_init();
+	res = osal_init(NULL);
 	assert_int_equal(res, OSAL_E_OK);
 
 	task = osal_task_create(NULL);
@@ -125,7 +125,7 @@ static void test_task_delete(void **state)
 static int setup(void **state)
 {
 	(void)state;
-	osal_init();
+	osal_init(NULL);
 	return 0;
 }
 

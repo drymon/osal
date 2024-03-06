@@ -28,13 +28,15 @@
 #include <dmosal/osal.h>
 #include <dmosal/osal_task.h>
 
+#define OSALOG_MODULE 1
+
 static void task_handler(void *arg)
 {
 	(void)arg;
-	printf("--task is started--\n");
+	OSALOG_INFO("--task is started--\n");
 }
 
-int main()
+int main(void)
 {
 	int res = -1;
 	int err;
@@ -42,26 +44,40 @@ int main()
 	osal_task_cfg_t cfg = {
 		.task_handler = &task_handler,
 	};
+	osal_log_module_t log_mod;
 
-	printf("DMOSAL version: %s\n", osal_version());
-
-	err = osal_init();
+	err = osal_init(NULL);
 	if (err != OSAL_E_OK) {
-		printf("failed to init osal\n");
 		return -1;
 	}
-	printf("osal_init OK\n");
+	memset(&log_mod, 0, sizeof(log_mod));
+	snprintf(log_mod.name, OSAL_LOG_MODULE_NAME_SIZE, "task");
+	log_mod.log_level = OSALOG_LEVEL_DEBUG;
+	log_mod.module_index = OSALOG_MODULE;
+
+	err = osal_log_init_module(&log_mod);
+	if (err != OSAL_E_OK) {
+		return -1;
+	}
+
+	/* log can work from now */
+
+	OSALOG_DEBUG("osal_log_init_module() OK\n");
+
+	OSALOG_DEBUG("osal_init() OK\n");
+
+	OSALOG_INFO("DMOSAL version: %s\n", osal_version());
 
 	task = osal_task_create(&cfg);
 	if (task == NULL) {
-		printf("failed to create task\n");
+		OSALOG_ERROR("failed to create task\n");
 		goto exit;
 	}
 	osal_task_delete(task);
 	res = 0;
 
 exit:
+	OSALOG_DEBUG("osal_deinit\n");
 	osal_deinit();
-	printf("osal_deinit\n");
 	return res;
 }
