@@ -40,6 +40,7 @@ extern "C" {
 #endif
 
 #include <stdint.h>
+#include <stdbool.h>
 #include <stddef.h>
 #include "osal_error.h"
 
@@ -88,6 +89,14 @@ osal_lifo_node_t *osal_lifo_pop(osal_lifo_t *lifo);
  * @return Current size of the LIFO.
  */
 uint32_t osal_lifo_size(osal_lifo_t *lifo);
+
+/**
+ * @brief Checks if the Last-In-First-Out (LIFO) data structure is empty.
+ *
+ * @param lifo Pointer to the LIFO structure to be checked.
+ * @return true if the LIFO is empty, false otherwise.
+ */
+bool osal_lifo_is_empty(osal_lifo_t *lifo);
 
 /**
  * @brief Macro for iterating through a Last-In-First-Out (LIFO) data structure.

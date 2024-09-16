@@ -62,3 +62,8 @@ uint32_t osal_lifo_size(osal_lifo_t *lifo)
 {
 	return lifo->size;
 }
+
+bool osal_lifo_is_empty(osal_lifo_t *lifo)
+{
+	return lifo->size == 0;
+}
