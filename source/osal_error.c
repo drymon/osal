@@ -40,7 +40,6 @@ static const char *s_osal_errstr[OSAL_E_MAX] = {
 	OSAL_E(QFULL),
 	OSAL_E(QEMPTY),
 	OSAL_E(INUSE),
-	OSAL_E(ALREADY_INIT),
 };
 
 const char *osal_errstr(osal_error_t e)
