@@ -32,6 +32,7 @@
 static const char *s_osal_errstr[OSAL_E_MAX] = {
 	OSAL_E(OK),
 	OSAL_E(PARAM),
+	OSAL_E(NOINIT),
 	OSAL_E(RESRC),
 	OSAL_E(FAILURE),
 	OSAL_E(OSCALL),
