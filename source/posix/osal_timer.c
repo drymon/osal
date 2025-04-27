@@ -96,7 +96,7 @@ osal_timer_t *osal_timer_create(void (*expire)(void *arg), void *arg)
 		return NULL;
 	}
 	timer = resrc->data;
-	OSAL_ASSERT(timer != NULL);
+	OSAL_RUNTIME_ASSERT(timer != NULL);
 	memset(timer, 0, sizeof(osal_timer_t));
 
 	timer->resrc = resrc;

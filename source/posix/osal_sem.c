@@ -76,7 +76,7 @@ osal_sem_t *osal_sem_create(void)
 		return NULL;
 	}
 	sem = resrc->data;
-	OSAL_ASSERT(sem != NULL);
+	OSAL_RUNTIME_ASSERT(sem != NULL);
 	sem->resrc = resrc;
 	sem_init(&sem->psem, 0, 0);
 	return sem;
@@ -88,7 +88,7 @@ void osal_sem_delete(osal_sem_t *sem)
 		return;
 	}
 	sem_destroy(&sem->psem);
-	OSAL_ASSERT(sem->resrc != NULL);
+	OSAL_RUNTIME_ASSERT(sem->resrc != NULL);
 	osal_rm_free(&s_sem_man.rm, sem->resrc);
 }
 

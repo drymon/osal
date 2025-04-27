@@ -74,7 +74,7 @@ osal_mutex_t *osal_mutex_create(void)
 		return NULL;
 	}
 	mutex = resrc->data;
-	OSAL_ASSERT(mutex != NULL);
+	OSAL_RUNTIME_ASSERT(mutex != NULL);
 	mutex->resrc = resrc;
 	pthread_mutex_init(&mutex->pthmutex, NULL);
 	return mutex;
@@ -85,7 +85,7 @@ void osal_mutex_delete(osal_mutex_t *mutex)
 	if (mutex == NULL) {
 		return;
 	}
-	OSAL_ASSERT(mutex->resrc != NULL);
+	OSAL_RUNTIME_ASSERT(mutex->resrc != NULL);
 	pthread_mutex_destroy(&mutex->pthmutex);
 
 	pthread_mutex_lock(&s_mutex_man.resrc_mutex);
@@ -101,7 +101,7 @@ osal_error_t osal_mutex_lock(osal_mutex_t *mutex)
 	/* if it fail, mean a fundamental issue occured, we will abort program */
 	if (pthread_mutex_lock(&mutex->pthmutex) < 0) {
 		perror("pthread_mutex_lock()");
-		OSAL_ASSERT(0);
+		OSAL_RUNTIME_ASSERT(0);
 		return OSAL_E_OSCALL;
 	}
 	return OSAL_E_OK;
@@ -115,7 +115,7 @@ osal_error_t osal_mutex_unlock(osal_mutex_t *mutex)
 	/* if it fail, mean a fundamental issue occured, we will abort program */
 	if (pthread_mutex_unlock(&mutex->pthmutex) < 0) {
 		perror("pthread_mutex_unlock()");
-		OSAL_ASSERT(0);
+		OSAL_RUNTIME_ASSERT(0);
 		return OSAL_E_OSCALL;
 	}
 	return OSAL_E_OK;
