@@ -25,7 +25,12 @@
 */
 
 #include "cmocka_include.h"
-#include "osal_error.h"
+#include "osal.h"
+
+OSAL_STATIC_ASSERT(100 > 10);
+OSAL_STATIC_ASSERT(100 >= 100);
+OSAL_STATIC_ASSERT(10+1 > 10);
+OSAL_STATIC_ASSERT(10-1 < 10);
 
 static void test_error(void **state)
 {

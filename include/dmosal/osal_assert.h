@@ -39,26 +39,37 @@
 extern "C" {
 #endif
 
-#ifndef OSAL_ASSERT /* Allow to define this from the outside */
+#ifndef OSAL_RUNTIME_ASSERT /* Allow to define this from the outside */
 #include <stdio.h>
 #include <stdlib.h>
 
 /**
- * @def OSAL_ASSERT(a)
+ * @def OSAL_RUNTIME_ASSERT(cond)
  * @brief Assertion macro for checking conditions.
  *
- * The macro checks the condition `a` and prints an error message with file name
+ * The macro checks the condition `cond` and prints an error message with file name
  * and line number if the condition is not met. It then aborts the program.
  *
- * @param a The condition to be evaluated.
+ * @param cond The condition to be evaluated.
  */
-#define OSAL_ASSERT(a) \
-	if(!(a)) { \
+#define OSAL_RUNTIME_ASSERT(cond) \
+	if(!(cond)) { \
 		printf("assert:%s:%d!!!\n", __FILE__, __LINE__); \
 		abort(); \
 	}
 
-#endif //OSAL_ASSERT
+#endif //OSAL_RUNTIME_ASSERT
+
+/**
+ * @brief Compile-time assertion macro.
+ *
+ * This macro causes a compilation failure if the condition `cond` evaluates to false.
+ * It is typically used to validate assumptions during compilation,
+ * such as structure sizes or constant values.
+ *
+ * @param cond Condition to evaluate at compile time.
+ */
+#define OSAL_STATIC_ASSERT(cond) extern char msg[(cond) ? 1 : -1]
 
 #ifdef __cplusplus	/* extern "C" */
 }

@@ -25,7 +25,7 @@
 */
 
 #include "cmocka_include.h"
-#include "osal_mutex.h"
+#include "osal.h"
 
 static void test_mutex_loop(void)
 {

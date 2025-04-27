@@ -25,7 +25,7 @@
 */
 
 #include "cmocka_include.h"
-#include "osal_rm.h"
+#include "osal.h"
 
 #define MAX_RES 100
 

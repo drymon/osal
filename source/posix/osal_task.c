@@ -89,11 +89,11 @@ osal_task_t *osal_task_create(osal_task_cfg_t *cfg)
 		return NULL;
 	}
 	task = resrc->data;
-	OSAL_ASSERT(task != NULL);
+	OSAL_RUNTIME_ASSERT(task != NULL);
 	task->resrc = resrc;
 	memcpy(&task->taskcfg, cfg, sizeof(osal_task_cfg_t));
 	res = pthread_create(&task->tid, NULL, task_run, task);
-	OSAL_ASSERT(res == 0);
+	OSAL_RUNTIME_ASSERT(res == 0);
 
 	return task;
 }

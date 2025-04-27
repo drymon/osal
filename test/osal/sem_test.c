@@ -26,8 +26,6 @@
 
 #include "cmocka_include.h"
 #include "osal.h"
-#include "osal_sem.h"
-#include "osal_time.h"
 
 static void test_sem_loop(void)
 {

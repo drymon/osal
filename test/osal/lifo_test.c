@@ -25,7 +25,7 @@
 */
 
 #include "cmocka_include.h"
-#include "osal_lifo.h"
+#include "osal.h"
 
 #define NUM_NODES 100
 

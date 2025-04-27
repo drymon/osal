@@ -44,6 +44,7 @@ osal_error_t osal_rm_init(osal_rm_t *rm, osal_rm_cfg_t *cfg)
 		osal_lifo_push(&rm->resrc_pool, &cfg->resrces[i].node);
 	}
 	rm->mutex = cfg->mutex;
+
 	return OSAL_E_OK;
 }
 
@@ -84,7 +85,7 @@ osal_resrc_t *osal_rm_alloc(osal_rm_t *rm)
 
 	resrc = (osal_resrc_t *)osal_lifo_pop(&rm->resrc_pool);
 	if (resrc != NULL) {
-		OSAL_ASSERT(resrc->used == false);
+		OSAL_RUNTIME_ASSERT(resrc->used == false);
 		resrc->used = true;
 	}
 
@@ -134,7 +135,7 @@ uint32_t osal_rm_avail(osal_rm_t *rm)
 	}
 
 	avail = osal_lifo_size(&rm->resrc_pool);
-	OSAL_ASSERT(avail <= rm->n_resrces);
+	OSAL_RUNTIME_ASSERT(avail <= rm->n_resrces);
 
 	if (rm->mutex != NULL) {
 		err = osal_mutex_unlock(rm->mutex);

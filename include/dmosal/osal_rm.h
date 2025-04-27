@@ -149,7 +149,7 @@ uint32_t osal_rm_use(osal_rm_t *rm);
 		rmcfg.n_resrces = userobj_num; \
 		rmcfg.resrces = (userobjman_ptr)->resrces; \
 		res = osal_rm_init(&(userobjman_ptr)->rm, &rmcfg); \
-		OSAL_ASSERT(res == OSAL_E_OK); \
+		OSAL_RUNTIME_ASSERT(res == OSAL_E_OK); \
 	}
 
 #ifdef __cplusplus	/* extern "C" */

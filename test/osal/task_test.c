@@ -25,7 +25,6 @@
 */
 
 #include "cmocka_include.h"
-#include "osal_task.h"
 #include "osal.h"
 
 static void test_task_init(void **state)
