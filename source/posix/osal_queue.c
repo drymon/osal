@@ -93,7 +93,7 @@ osal_queue_t *osal_queue_create(osal_queue_cfg_t *cfg)
 		return NULL;
 	}
 	queue = resrc->data;
-	OSAL_ASSERT(queue != NULL);
+	OSAL_RUNTIME_ASSERT(queue != NULL);
 	memset(queue, 0, sizeof(osal_queue_t));
 	queue->resrc = resrc;
 	snprintf(queue->name, OSAL_QUEUE_NAME_SIZE+1, "/%s", cfg->name);
@@ -107,12 +107,12 @@ osal_queue_t *osal_queue_create(osal_queue_cfg_t *cfg)
 	if (res < 0) {
 		if (errno != EEXIST) {
 			OSALOG_ERROR("mq_open(%s):%s\n", queue->name, strerror(errno));
-			OSAL_ASSERT(false);
+			OSAL_RUNTIME_ASSERT(false);
 		}
 		res = mq_open(queue->name, O_RDWR);
 		if (res < 0) {
 			OSALOG_ERROR("mq_open(%s):%s\n", queue->name, strerror(errno));
-			OSAL_ASSERT(false);
+			OSAL_RUNTIME_ASSERT(false);
 		}
 		OSALOG_INFO("Open existing queue: %s\n", queue->name);
 	} else {

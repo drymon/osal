@@ -57,14 +57,14 @@ void osal_rm_deinit(osal_rm_t *rm)
 	}
 	if (rm->mutex != NULL) {
 		err = osal_mutex_lock(rm->mutex);
-		OSAL_ASSERT(err == OSAL_E_OK);
+		OSAL_RUNTIME_ASSERT(err == OSAL_E_OK);
 	}
 
 	osal_lifo_init(&rm->resrc_pool);
 
 	if (rm->mutex != NULL) {
 		err = osal_mutex_unlock(rm->mutex);
-		OSAL_ASSERT(err == OSAL_E_OK);
+		OSAL_RUNTIME_ASSERT(err == OSAL_E_OK);
 	}
 	rm->mutex = NULL;
 }
@@ -80,7 +80,7 @@ osal_resrc_t *osal_rm_alloc(osal_rm_t *rm)
 
 	if (rm->mutex != NULL) {
 		err = osal_mutex_lock(rm->mutex);
-		OSAL_ASSERT(err == OSAL_E_OK);
+		OSAL_RUNTIME_ASSERT(err == OSAL_E_OK);
 	}
 
 	resrc = (osal_resrc_t *)osal_lifo_pop(&rm->resrc_pool);
@@ -91,7 +91,7 @@ osal_resrc_t *osal_rm_alloc(osal_rm_t *rm)
 
 	if (rm->mutex != NULL) {
 		err = osal_mutex_unlock(rm->mutex);
-		OSAL_ASSERT(err == OSAL_E_OK);
+		OSAL_RUNTIME_ASSERT(err == OSAL_E_OK);
 	}
 
 	return resrc;
@@ -107,16 +107,16 @@ void osal_rm_free(osal_rm_t *rm, osal_resrc_t *resrc)
 
 	if (rm->mutex != NULL) {
 		err = osal_mutex_lock(rm->mutex);
-		OSAL_ASSERT(err == OSAL_E_OK);
+		OSAL_RUNTIME_ASSERT(err == OSAL_E_OK);
 	}
 
-	OSAL_ASSERT(resrc->used == true);
+	OSAL_RUNTIME_ASSERT(resrc->used == true);
 	resrc->used = false;
 	osal_lifo_push(&rm->resrc_pool, &resrc->node);
 
 	if (rm->mutex != NULL) {
 		err = osal_mutex_unlock(rm->mutex);
-		OSAL_ASSERT(err == OSAL_E_OK);
+		OSAL_RUNTIME_ASSERT(err == OSAL_E_OK);
 	}
 }
 
@@ -131,7 +131,7 @@ uint32_t osal_rm_avail(osal_rm_t *rm)
 
 	if (rm->mutex != NULL) {
 		err = osal_mutex_lock(rm->mutex);
-		OSAL_ASSERT(err == OSAL_E_OK);
+		OSAL_RUNTIME_ASSERT(err == OSAL_E_OK);
 	}
 
 	avail = osal_lifo_size(&rm->resrc_pool);
@@ -139,7 +139,7 @@ uint32_t osal_rm_avail(osal_rm_t *rm)
 
 	if (rm->mutex != NULL) {
 		err = osal_mutex_unlock(rm->mutex);
-		OSAL_ASSERT(err == OSAL_E_OK);
+		OSAL_RUNTIME_ASSERT(err == OSAL_E_OK);
 	}
 
 	return avail;

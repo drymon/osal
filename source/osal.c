@@ -55,36 +55,36 @@ osal_error_t osal_init(osal_config_t *config)
 
 	/* mutex must be init first since it is used in other osal modules */
 	res = osal_mutex_init();
-	OSAL_ASSERT(res == OSAL_E_OK);
+	OSAL_RUNTIME_ASSERT(res == OSAL_E_OK);
 
 	/* log initialization */
 	res = osal_log_init(log_output);
-	OSAL_ASSERT(res == OSAL_E_OK);
+	OSAL_RUNTIME_ASSERT(res == OSAL_E_OK);
 
 	/* log module initialization */
 	res = osal_log_module_init(OSAL_LOG_MODULE_INDEX, "osal", log_level, false);
-	OSAL_ASSERT(res == OSAL_E_OK);
+	OSAL_RUNTIME_ASSERT(res == OSAL_E_OK);
 
 	/* create a shared local mutex */
-	OSAL_ASSERT(s_shared_mutex == NULL);
+	OSAL_RUNTIME_ASSERT(s_shared_mutex == NULL);
 	s_shared_mutex = osal_mutex_create();
-	OSAL_ASSERT(s_shared_mutex != NULL);
+	OSAL_RUNTIME_ASSERT(s_shared_mutex != NULL);
 
 	/* semaphore initialization */
 	res = osal_sem_init(s_shared_mutex);
-	OSAL_ASSERT(res == OSAL_E_OK);
+	OSAL_RUNTIME_ASSERT(res == OSAL_E_OK);
 
 	/* task initialization */
 	res = osal_task_init(s_shared_mutex);
-	OSAL_ASSERT(res == OSAL_E_OK);
+	OSAL_RUNTIME_ASSERT(res == OSAL_E_OK);
 
 	/* timer initialization */
 	res = osal_timer_init(s_shared_mutex);
-	OSAL_ASSERT(res == OSAL_E_OK);
+	OSAL_RUNTIME_ASSERT(res == OSAL_E_OK);
 
 	/* queue initialization */
 	res = osal_queue_init(s_shared_mutex);
-	OSAL_ASSERT(res == OSAL_E_OK);
+	OSAL_RUNTIME_ASSERT(res == OSAL_E_OK);
 
 	/* initialization done */
 	s_initialized = true;
@@ -130,7 +130,7 @@ void osal_deinit(void)
 	if (s_initialized == false) {
 		return;
 	}
-	OSAL_ASSERT(s_shared_mutex != NULL);
+	OSAL_RUNTIME_ASSERT(s_shared_mutex != NULL);
 	osal_mutex_delete(s_shared_mutex);
 	s_shared_mutex = NULL;
 
