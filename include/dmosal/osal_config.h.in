@@ -109,6 +109,14 @@ extern "C" {
  */
 #define OSAL_LOG_STRING_SIZE @OSAL_CONFIG_LOG_STRING_SIZE@
 
+/**
+ * @brief Maximum number of the time check point.
+ *
+ * Defines the maximum number of the time check point allowed in the
+ * OS abstraction layer.
+ */
+#define OSAL_TMCHECK_NUM_MAX @OSAL_CONFIG_TMCHECK_NUM_MAX@
+
 #ifdef __cplusplus	/* extern "C" */
 }
 #endif

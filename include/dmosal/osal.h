@@ -49,6 +49,7 @@ extern "C" {
 #include "osal_sem.h"
 #include "osal_queue.h"
 #include "osal_rm.h"
+#include "osal_tmcheck.h"
 #include "osal_lifo.h"
 #include "osal_version.h"
 

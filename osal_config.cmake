@@ -40,3 +40,7 @@ set(OSAL_CONFIG_LOG_MODULE_NAME_SIZE 64
 set(OSAL_CONFIG_LOG_STRING_SIZE 256
     CACHE STRING "The size of the log string buffer"
 )
+
+set(OSAL_CONFIG_TMCHECK_NUM_MAX 64
+    CACHE STRING "Maximum number of the time check point to support"
+)
