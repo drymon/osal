@@ -26,7 +26,6 @@
 
 #include <stdio.h>
 #include <dmosal/osal.h>
-#include <dmosal/osal_task.h>
 
 #define OSALOG_MODULE 1
 

@@ -28,9 +28,6 @@
 #include <stdbool.h>
 #include <string.h>
 #include <dmosal/osal.h>
-#include <dmosal/osal_task.h>
-#include <dmosal/osal_queue.h>
-#include <dmosal/osal_time.h>
 #define OSALOG_MODULE 2
 
 #define QUEUE_NAME "example_queue"
@@ -44,6 +41,8 @@ static void task_send(void *arg)
 	char msg[MSG_LEN] = {0};
 	int i;
 
+	OSAL_TMCHECK_CAPTURE();
+
 	OSALOG_INFO("--task send is started--\n");
 	for (i = 10; i > 0; i--) {
 		memset(msg, 0, sizeof(msg));
@@ -55,6 +54,7 @@ static void task_send(void *arg)
 			OSALOG_TRACE("Task sent: %s\n", msg);
 		}
 	}
+	OSAL_TMCHECK_CAPTURE();
 }
 
 int main(void)
@@ -96,12 +96,16 @@ int main(void)
 	}
 	OSALOG_INFO("osal_queue_create() OK\n");
 
+	OSAL_TMCHECK_CAPTURE();
+
 	taskcfg.task_arg = queue;
 	task = osal_task_create(&taskcfg);
 	if (task == NULL) {
 		OSALOG_ERROR("failed to create task\n");
 		goto exit;
 	}
+	OSAL_TMCHECK_CAPTURE();
+
 	osal_print_resource();
 
 	OSALOG_DEBUG("main() waiting message...\n");
@@ -118,6 +122,9 @@ int main(void)
 			goto exit;
 		}
 	}
+	OSAL_TMCHECK_CAPTURE();
+	osal_tmcheck_print_all();
+	OSAL_TMCHECK_PRINT_DIFF_RESET_ALL();
 
 	res = 0;
 

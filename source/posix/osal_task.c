@@ -26,9 +26,7 @@
 
 #include <pthread.h>
 #include <string.h>
-#include "osal_task.h"
-#include "osal_assert.h"
-#include "osal_rm.h"
+#include "osal.h"
 
 struct osal_task {
 	pthread_t tid;

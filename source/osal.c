@@ -86,6 +86,9 @@ osal_error_t osal_init(osal_config_t *config)
 	res = osal_queue_init(s_shared_mutex);
 	OSAL_RUNTIME_ASSERT(res == OSAL_E_OK);
 
+	res = osal_tmcheck_init(s_shared_mutex);
+	OSAL_RUNTIME_ASSERT(res == OSAL_E_OK);
+
 	/* initialization done */
 	s_initialized = true;
 
@@ -122,6 +125,11 @@ void osal_print_resource(void)
 	use = osal_queue_use();
 	avail = osal_queue_avail();
 	OSALOG_INFO("osal: queue=%u/%u\n", use, use+avail);
+
+	use = osal_tmcheck_use();
+	avail = osal_tmcheck_avail();
+	OSALOG_INFO("osal: tmcheck=%u/%u\n", use, use+avail);
+
 	OSALOG_INFO("osal: ---------------\n");
 }
 
@@ -139,6 +147,8 @@ void osal_deinit(void)
 	osal_timer_deinit();
 	osal_queue_deinit();
 	osal_log_deinit();
+	osal_tmcheck_deinit();
 	osal_mutex_deinit();
+
 	s_initialized = false;
 }
