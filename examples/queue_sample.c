@@ -104,9 +104,9 @@ int main(void)
 		OSALOG_ERROR("failed to create task\n");
 		goto exit;
 	}
-	osal_print_resource();
-
 	OSAL_TMCHECK_CAPTURE();
+
+	osal_print_resource();
 
 	OSALOG_DEBUG("main() waiting message...\n");
 	while (true) {

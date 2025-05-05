@@ -49,16 +49,16 @@ extern "C" {
 #include "osal_config.h"
 
 /**
- * @def CONCATE(x, y)
+ * @def OSAL_CONCATE(x, y)
  * @brief Concatenates two tokens.
  */
-#define CONCATE(x, y) x ## y
+#define OSAL_CONCATE(x, y) x ## y
 
 /**
- * @def CONCATE2(x, y)
+ * @def OSAL_CONCATE2(x, y)
  * @brief Expands and concatenates two tokens.
  */
-#define CONCATE2(x, y) CONCATE(x, y)
+#define OSAL_CONCATE2(x, y) OSAL_CONCATE(x, y)
 
 /**
  * @def OSAL_TMCHECK_CAPTURE()
@@ -68,16 +68,16 @@ extern "C" {
  * name and line number, and the current timestamp is captured for it.
  */
 #define OSAL_TMCHECK_CAPTURE() do { \
-		static int8_t CONCATE2(tmcheck_, __LINE__) = -1; \
-		if (CONCATE2(tmcheck_, __LINE__) == -1) { \
-			char CONCATE2(tmcheck_name, __LINE__)[32]; \
-			snprintf(CONCATE2(tmcheck_name, __LINE__), \
-					 sizeof(CONCATE2(tmcheck_name, __LINE__)), \
+		static int8_t OSAL_CONCATE2(tmcheck_, __LINE__) = -1; \
+		if (OSAL_CONCATE2(tmcheck_, __LINE__) == -1) { \
+			char OSAL_CONCATE2(tmcheck_name, __LINE__)[32]; \
+			snprintf(OSAL_CONCATE2(tmcheck_name, __LINE__), \
+					 sizeof(OSAL_CONCATE2(tmcheck_name, __LINE__)), \
 					 "%s:%d", __func__, __LINE__);			   \
-			CONCATE2(tmcheck_, __LINE__) = \
-				osal_tmcheck_create(CONCATE2(tmcheck_name, __LINE__));	\
+			OSAL_CONCATE2(tmcheck_, __LINE__) = \
+				osal_tmcheck_create(OSAL_CONCATE2(tmcheck_name, __LINE__));	\
 		} \
-		osal_tmcheck_capture_ts(CONCATE2(tmcheck_, __LINE__)); \
+		osal_tmcheck_capture_ts(OSAL_CONCATE2(tmcheck_, __LINE__)); \
 	} while (0)
 
 /**
