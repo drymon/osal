@@ -61,4 +61,3 @@ IndentPPDirectives: None
 # Misc.
 KeepEmptyLinesAtTheStartOfBlocks: false
 ReflowComments: false
-InsertNewlineAtEOF: true
