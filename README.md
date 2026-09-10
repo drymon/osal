@@ -1,5 +1,9 @@
 # OSAL - OS Abstraction Layer for Embedded Systems
 
+[![CI](https://github.com/drymon/osal/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/drymon/osal/actions/workflows/ci.yml)
+[![License: BSD-2-Clause](https://img.shields.io/badge/License-BSD--2--Clause-blue.svg)](LICENSE)
+[![Language: C](https://img.shields.io/badge/language-C-brightgreen.svg)](#)
+
 OSAL (OS Abstraction Layer) is a **lightweight, static resource allocation framework** designed for Real-Time Operating Systems (RTOS) in embedded systems. <br>
 All OS resources are preconfigured within this framework, providing a seamless interface for managing tasks, semaphores, mutexes, timers, and more, all statically defined at initialization. <br>
 Under the permissive BSD-2-Clause license, users can freely utilize and distribute the library without licensing complexities.
