@@ -38,9 +38,7 @@ struct osal_sem {
 };
 
 typedef struct {
-	OSAL_RM_USEROBJMAN_DECLARE(
-		struct osal_sem,
-		OSAL_SEM_NUM_MAX);
+	OSAL_RM_USEROBJMAN_DECLARE(struct osal_sem, OSAL_SEM_NUM_MAX);
 	bool init;
 } sem_man_t;
 
@@ -109,7 +107,7 @@ osal_error_t osal_sem_wait(osal_sem_t *sem)
 	if (sem == NULL) {
 		return OSAL_E_PARAM;
 	}
-	if (sem_wait(&sem->psem) < 0){
+	if (sem_wait(&sem->psem) < 0) {
 		perror("sem_wait");
 		return OSAL_E_OSCALL;
 	}
@@ -126,7 +124,7 @@ osal_error_t osal_sem_waittime(osal_sem_t *sem, uint32_t usec)
 		return OSAL_E_PARAM;
 	}
 
-	if (clock_gettime(CLOCK_REALTIME, &ts) < 0){
+	if (clock_gettime(CLOCK_REALTIME, &ts) < 0) {
 		return OSAL_E_OSCALL;
 	}
 

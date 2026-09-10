@@ -45,12 +45,12 @@ extern "C" {
 /**
  * @brief Defines for converting time units.
  */
-#define OSAL_SEC_NSEC 1000000000ULL /**< Conversion factor: seconds to nanoseconds. */
-#define OSAL_SEC_USEC 1000000ULL /**< Conversion factor: seconds to microseconds. */
-#define OSAL_SEC_MSEC 1000ULL /**< Conversion factor: seconds to milliseconds. */
-#define OSAL_MSEC_NSEC 1000000ULL  /**< Conversion factor: milliseconds to nanoseconds. */
-#define OSAL_MSEC_USEC 1000ULL /**< Conversion factor: milliseconds to microseconds. */
-#define OSAL_USEC_NSEC 1000ULL  /**< Conversion factor: microseconds to nanoseconds. */
+#define OSAL_SEC_NSEC  1000000000ULL /**< Conversion factor: seconds to nanoseconds. */
+#define OSAL_SEC_USEC  1000000ULL	 /**< Conversion factor: seconds to microseconds. */
+#define OSAL_SEC_MSEC  1000ULL		 /**< Conversion factor: seconds to milliseconds. */
+#define OSAL_MSEC_NSEC 1000000ULL	 /**< Conversion factor: milliseconds to nanoseconds. */
+#define OSAL_MSEC_USEC 1000ULL		 /**< Conversion factor: milliseconds to microseconds. */
+#define OSAL_USEC_NSEC 1000ULL		 /**< Conversion factor: microseconds to nanoseconds. */
 
 /**
  * @brief Suspends execution for a specified number of seconds.
@@ -76,7 +76,7 @@ osal_error_t osal_usleep(uint32_t microsec);
  */
 osal_error_t osal_clock_time(uint64_t *nsec);
 
-#ifdef __cplusplus	/* extern "C" */
+#ifdef __cplusplus /* extern "C" */
 }
 #endif
 

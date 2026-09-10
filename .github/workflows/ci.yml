@@ -12,6 +12,33 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  format:
+    name: clang-format check
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install clang-format
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends clang-format
+
+      - name: Run clang-format --dry-run
+        run: |
+          files=$(git ls-files '*.c' '*.h' | grep -v '\.in$')
+          [ -z "$files" ] && exit 0
+          echo "$files" | xargs clang-format --dry-run -Werror
+
+  pre-commit:
+    name: pre-commit hooks
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: pre-commit/action@v3.0.1
+
   build-test:
     name: build+test (${{ matrix.compiler }}, ${{ matrix.build_type }})
     runs-on: ubuntu-22.04

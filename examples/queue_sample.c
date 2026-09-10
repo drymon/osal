@@ -32,7 +32,7 @@
 
 #define QUEUE_NAME "example_queue"
 #define QUEUE_SIZE 10
-#define MSG_LEN 128
+#define MSG_LEN	   128
 
 static void task_send(void *arg)
 {

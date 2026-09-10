@@ -54,7 +54,8 @@ extern "C" {
 #include "osal_version.h"
 
 typedef struct {
-	osal_log_output_t log_output; /**< Pointer to the logging output function. Set NULL to use the default output */
+	osal_log_output_t
+		log_output; /**< Pointer to the logging output function. Set NULL to use the default output */
 	osal_log_level_t osal_level; /**< Log level of the OSAL layer */
 } osal_config_t;
 
@@ -90,7 +91,7 @@ void osal_print_resource(void);
  */
 void osal_deinit(void);
 
-#ifdef __cplusplus	/* extern "C" */
+#ifdef __cplusplus /* extern "C" */
 }
 #endif
 

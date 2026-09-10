@@ -52,10 +52,10 @@ extern "C" {
  *
  * @param cond The condition to be evaluated.
  */
-#define OSAL_RUNTIME_ASSERT(cond) \
-	if(!(cond)) { \
-		printf("assert:%s:%d!!!\n", __FILE__, __LINE__); \
-		abort(); \
+#define OSAL_RUNTIME_ASSERT(cond)                                                                  \
+	if (!(cond)) {                                                                                 \
+		printf("assert:%s:%d!!!\n", __FILE__, __LINE__);                                           \
+		abort();                                                                                   \
 	}
 
 #endif //OSAL_RUNTIME_ASSERT
@@ -71,7 +71,7 @@ extern "C" {
  */
 #define OSAL_STATIC_ASSERT(cond) extern char msg[(cond) ? 1 : -1]
 
-#ifdef __cplusplus	/* extern "C" */
+#ifdef __cplusplus /* extern "C" */
 }
 #endif
 

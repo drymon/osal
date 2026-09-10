@@ -27,7 +27,7 @@
 #include <stddef.h>
 #include "osal_error.h"
 
-#define OSAL_E(e) [OSAL_E_##e] = "OSAL_E_"#e
+#define OSAL_E(e) [OSAL_E_##e] = "OSAL_E_" #e
 
 static const char *s_osal_errstr[OSAL_E_MAX] = {
 	OSAL_E(OK),

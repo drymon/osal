@@ -64,7 +64,7 @@ static void test_rm(bool use_mutex)
 	assert_int_equal(use, 0);
 
 	/* alloc then free */
-	for (i = 0; i < MAX_RES*10; i++) {
+	for (i = 0; i < MAX_RES * 10; i++) {
 		avail = osal_rm_avail(&rm);
 		assert_int_equal(avail, MAX_RES);
 
@@ -82,10 +82,10 @@ static void test_rm(bool use_mutex)
 	/* alloc only */
 	for (i = 0; i < MAX_RES; i++) {
 		avail = osal_rm_avail(&rm);
-		assert_int_equal(avail, MAX_RES-i);
+		assert_int_equal(avail, MAX_RES - i);
 
 		use = osal_rm_use(&rm);
-		assert_int_equal(use, MAX_RES-avail);
+		assert_int_equal(use, MAX_RES - avail);
 
 		resrc = osal_rm_alloc(&rm);
 		assert_non_null(resrc);

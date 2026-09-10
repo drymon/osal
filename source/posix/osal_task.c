@@ -35,9 +35,7 @@ struct osal_task {
 };
 
 typedef struct {
-	OSAL_RM_USEROBJMAN_DECLARE(
-		struct osal_task,
-		OSAL_TASK_NUM_MAX);
+	OSAL_RM_USEROBJMAN_DECLARE(struct osal_task, OSAL_TASK_NUM_MAX);
 	bool init;
 } task_man_t;
 

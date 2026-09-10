@@ -108,27 +108,27 @@ void osal_print_resource(void)
 	use = osal_mutex_use();
 	avail = osal_mutex_avail();
 	OSALOG_INFO("osal: ---resource: <module>=used/total---\n");
-	OSALOG_INFO("osal: mutex=%u/%u\n", use, use+avail);
+	OSALOG_INFO("osal: mutex=%u/%u\n", use, use + avail);
 
 	use = osal_sem_use();
 	avail = osal_sem_avail();
-	OSALOG_INFO("osal: semaphore=%u/%u\n", use, use+avail);
+	OSALOG_INFO("osal: semaphore=%u/%u\n", use, use + avail);
 
 	use = osal_task_use();
 	avail = osal_task_avail();
-	OSALOG_INFO("osal: task=%u/%u\n", use, use+avail);
+	OSALOG_INFO("osal: task=%u/%u\n", use, use + avail);
 
 	use = osal_timer_use();
 	avail = osal_timer_avail();
-	OSALOG_INFO("osal: timer=%u/%u\n", use, use+avail);
+	OSALOG_INFO("osal: timer=%u/%u\n", use, use + avail);
 
 	use = osal_queue_use();
 	avail = osal_queue_avail();
-	OSALOG_INFO("osal: queue=%u/%u\n", use, use+avail);
+	OSALOG_INFO("osal: queue=%u/%u\n", use, use + avail);
 
 	use = osal_tmcheck_use();
 	avail = osal_tmcheck_avail();
-	OSALOG_INFO("osal: tmcheck=%u/%u\n", use, use+avail);
+	OSALOG_INFO("osal: tmcheck=%u/%u\n", use, use + avail);
 
 	OSALOG_INFO("osal: ---------------\n");
 }

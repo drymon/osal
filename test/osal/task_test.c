@@ -51,7 +51,7 @@ static int test_task_count;
 
 static void test_task_handler(void *arg)
 {
-	assert_ptr_equal(arg, (void*)&test_task_handler);
+	assert_ptr_equal(arg, (void *)&test_task_handler);
 	test_task_count++;
 }
 
@@ -82,7 +82,7 @@ static void test_task_create(void **state)
 		use = osal_task_use();
 		assert_int_equal(use, i);
 		avail = osal_task_avail();
-		assert_int_equal(avail, OSAL_TASK_NUM_MAX-i);
+		assert_int_equal(avail, OSAL_TASK_NUM_MAX - i);
 
 		task = osal_task_create(&cfg);
 		assert_non_null(task);
@@ -100,13 +100,11 @@ static void test_task_delete(void **state)
 	uint32_t use;
 	uint32_t avail;
 	osal_task_t *task;
-	osal_task_cfg_t cfg = {
-		.task_handler = test_task_handler,
-		.task_arg = (void *)&test_task_handler
-	};
+	osal_task_cfg_t cfg = {.task_handler = test_task_handler,
+						   .task_arg = (void *)&test_task_handler};
 	test_task_count = 0;
 
-	for (i = 0; i < OSAL_TASK_NUM_MAX*10; i++) {
+	for (i = 0; i < OSAL_TASK_NUM_MAX * 10; i++) {
 		use = osal_task_use();
 		assert_int_equal(use, 0);
 		avail = osal_task_avail();

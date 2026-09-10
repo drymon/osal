@@ -52,7 +52,7 @@ extern "C" {
  * @def OSAL_CONCATE(x, y)
  * @brief Concatenates two tokens.
  */
-#define OSAL_CONCATE(x, y) x ## y
+#define OSAL_CONCATE(x, y) x##y
 
 /**
  * @def OSAL_CONCATE2(x, y)
@@ -67,17 +67,20 @@ extern "C" {
  * A static checkpoint is created (if not already allocated) based on the function
  * name and line number, and the current timestamp is captured for it.
  */
-#define OSAL_TMCHECK_CAPTURE() do { \
-		static int8_t OSAL_CONCATE2(tmcheck_, __LINE__) = -1; \
-		if (OSAL_CONCATE2(tmcheck_, __LINE__) == -1) { \
-			char OSAL_CONCATE2(tmcheck_name, __LINE__)[32]; \
-			snprintf(OSAL_CONCATE2(tmcheck_name, __LINE__), \
-					 sizeof(OSAL_CONCATE2(tmcheck_name, __LINE__)), \
-					 "%s:%d", __func__, __LINE__);			   \
-			OSAL_CONCATE2(tmcheck_, __LINE__) = \
-				osal_tmcheck_create(OSAL_CONCATE2(tmcheck_name, __LINE__));	\
-		} \
-		osal_tmcheck_capture_ts(OSAL_CONCATE2(tmcheck_, __LINE__)); \
+#define OSAL_TMCHECK_CAPTURE()                                                                     \
+	do {                                                                                           \
+		static int8_t OSAL_CONCATE2(tmcheck_, __LINE__) = -1;                                      \
+		if (OSAL_CONCATE2(tmcheck_, __LINE__) == -1) {                                             \
+			char OSAL_CONCATE2(tmcheck_name, __LINE__)[32];                                        \
+			snprintf(OSAL_CONCATE2(tmcheck_name, __LINE__),                                        \
+					 sizeof(OSAL_CONCATE2(tmcheck_name, __LINE__)),                                \
+					 "%s:%d",                                                                      \
+					 __func__,                                                                     \
+					 __LINE__);                                                                    \
+			OSAL_CONCATE2(tmcheck_, __LINE__) =                                                    \
+				osal_tmcheck_create(OSAL_CONCATE2(tmcheck_name, __LINE__));                        \
+		}                                                                                          \
+		osal_tmcheck_capture_ts(OSAL_CONCATE2(tmcheck_, __LINE__));                                \
 	} while (0)
 
 /**
@@ -86,9 +89,10 @@ extern "C" {
  *
  * Prints the time differences between all captured checkpoints and resets them.
  */
-#define OSAL_TMCHECK_PRINT_DIFF_RESET_ALL() do { \
-		osal_tmcheck_print_diff_all();	  \
-		osal_tmcheck_reset_all();		  \
+#define OSAL_TMCHECK_PRINT_DIFF_RESET_ALL()                                                        \
+	do {                                                                                           \
+		osal_tmcheck_print_diff_all();                                                             \
+		osal_tmcheck_reset_all();                                                                  \
 	} while (0)
 
 /**
@@ -216,11 +220,10 @@ uint32_t osal_tmcheck_use(void);
  */
 uint32_t osal_tmcheck_avail(void);
 
-#ifdef __cplusplus	/* extern "C" */
+#ifdef __cplusplus /* extern "C" */
 }
 #endif
 
 #endif /* OSAL_TMCHECK_H */
-
 
 /** @}*/

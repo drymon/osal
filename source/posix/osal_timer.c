@@ -44,9 +44,7 @@ struct osal_timer {
 };
 
 typedef struct {
-	OSAL_RM_USEROBJMAN_DECLARE(
-		struct osal_timer,
-		OSAL_TIMER_NUM_MAX);
+	OSAL_RM_USEROBJMAN_DECLARE(struct osal_timer, OSAL_TIMER_NUM_MAX);
 	bool init;
 } timer_man_t;
 

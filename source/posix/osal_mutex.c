@@ -35,9 +35,7 @@ struct osal_mutex {
 };
 
 typedef struct {
-	OSAL_RM_USEROBJMAN_DECLARE(
-		struct osal_mutex,
-		OSAL_MUTEX_NUM_MAX);
+	OSAL_RM_USEROBJMAN_DECLARE(struct osal_mutex, OSAL_MUTEX_NUM_MAX);
 	/* specical case, we can not use the mutex from resource mananager because
 	 * it use the osal_mutex_create() function that can be used only after
 	 * osal_mutex_init().

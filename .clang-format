@@ -1,0 +1,64 @@
+---
+Language: Cpp
+BasedOnStyle: LLVM
+
+# Indentation: tabs, 4 visual columns wide.
+UseTab: Always
+IndentWidth: 4
+TabWidth: 4
+ContinuationIndentWidth: 4
+ConstructorInitializerIndentWidth: 4
+
+# Linux-style braces: attached everywhere except function definitions,
+# which put the opening brace on its own line.
+BreakBeforeBraces: Linux
+
+# Line length: relaxed to 100 to match existing code without wholesale rewraps.
+ColumnLimit: 100
+
+# Pointer / reference star sticks to the identifier: `osal_task_t *task`.
+PointerAlignment: Right
+DerivePointerAlignment: false
+
+# Control statements: `if (cond)`, not `if(cond)`.
+SpaceBeforeParens: ControlStatements
+SpaceAfterCStyleCast: false
+SpaceBeforeAssignmentOperators: true
+SpacesBeforeTrailingComments: 1
+
+# Never fold short blocks — clarity over compactness.
+AllowShortBlocksOnASingleLine: Never
+AllowShortCaseLabelsOnASingleLine: false
+AllowShortFunctionsOnASingleLine: None
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLoopsOnASingleLine: false
+
+# Case labels align with the `switch` (existing code convention).
+IndentCaseLabels: false
+
+# Don't reorder includes — a few headers depend on order today.
+SortIncludes: Never
+
+# Macros aligned in blocks — helpful for the RM `USEROBJMAN_DECLARE` family.
+AlignConsecutiveMacros: Consecutive
+AlignConsecutiveAssignments: None
+AlignConsecutiveDeclarations: None
+AlignTrailingComments: true
+
+# Preserve the existing "one blank line max between top-level items" feel.
+MaxEmptyLinesToKeep: 1
+
+# Break long function signatures cleanly.
+BinPackArguments: false
+BinPackParameters: false
+AllowAllArgumentsOnNextLine: true
+AllowAllParametersOfDeclarationOnNextLine: true
+AlwaysBreakAfterReturnType: None
+
+# Preprocessor formatting.
+IndentPPDirectives: None
+
+# Misc.
+KeepEmptyLinesAtTheStartOfBlocks: false
+ReflowComments: false
+InsertNewlineAtEOF: true

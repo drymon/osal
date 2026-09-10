@@ -39,14 +39,12 @@ typedef struct {
 
 static osal_log_module_t s_log_modules[OSAL_LOG_MODULE_NUM_MAX];
 static osal_log_output_t s_log_output;
-static const char *s_loglevel_strs[OSALOG_LEVEL_MAX] = {
-	[OSALOG_LEVEL_FATAL] = "fatal",
-	[OSALOG_LEVEL_ERROR] = "error",
-	[OSALOG_LEVEL_WARN] = "warn",
-	[OSALOG_LEVEL_INFO] = "info",
-	[OSALOG_LEVEL_DEBUG] = "debug",
-	[OSALOG_LEVEL_TRACE] = "trace"
-};
+static const char *s_loglevel_strs[OSALOG_LEVEL_MAX] = {[OSALOG_LEVEL_FATAL] = "fatal",
+														[OSALOG_LEVEL_ERROR] = "error",
+														[OSALOG_LEVEL_WARN] = "warn",
+														[OSALOG_LEVEL_INFO] = "info",
+														[OSALOG_LEVEL_DEBUG] = "debug",
+														[OSALOG_LEVEL_TRACE] = "trace"};
 
 osal_error_t osal_log_init(osal_log_output_t log_output)
 {
@@ -66,8 +64,8 @@ void osal_log_deinit(void)
 	memset(s_log_modules, 0, sizeof(s_log_modules));
 }
 
-osal_error_t osal_log_print(uint32_t index, bool ts,
-				osal_log_level_t level, const char *format, ...)
+osal_error_t
+osal_log_print(uint32_t index, bool ts, osal_log_level_t level, const char *format, ...)
 {
 	va_list ap;
 	char logstr[OSAL_LOG_STRING_SIZE] = {0};
@@ -83,12 +81,12 @@ osal_error_t osal_log_print(uint32_t index, bool ts,
 		return OSAL_E_NOINIT;
 	}
 
-	if(level > module->log_level) {
+	if (level > module->log_level) {
 		return OSAL_E_OK;
 	}
 
 	/* add timestamp */
-	if((ts == true) || (module->ts == true)) {
+	if ((ts == true) || (module->ts == true)) {
 		uint64_t now = 0;
 		uint32_t sec_low, usec;
 
@@ -101,18 +99,18 @@ osal_error_t osal_log_print(uint32_t index, bool ts,
 
 	/* add log level string */
 	len = strlen(logstr);
-	snprintf(&logstr[len], OSAL_LOG_STRING_SIZE-len, "%-5s|", s_loglevel_strs[level]);
+	snprintf(&logstr[len], OSAL_LOG_STRING_SIZE - len, "%-5s|", s_loglevel_strs[level]);
 
 	/* add module name */
 	if (module->name[0] != 0) {
 		len = strlen(logstr);
-		snprintf(&logstr[len], OSAL_LOG_STRING_SIZE-len, "%s|", module->name);
+		snprintf(&logstr[len], OSAL_LOG_STRING_SIZE - len, "%s|", module->name);
 	}
 
 	/* add user log */
 	len = strlen(logstr);
 	va_start(ap, format);
-	vsnprintf(&logstr[len], OSAL_LOG_STRING_SIZE-len, format, ap);
+	vsnprintf(&logstr[len], OSAL_LOG_STRING_SIZE - len, format, ap);
 	va_end(ap);
 
 	/* print out */
@@ -121,13 +119,11 @@ osal_error_t osal_log_print(uint32_t index, bool ts,
 	return OSAL_E_OK;
 }
 
-osal_error_t osal_log_module_init(uint32_t index, char *name,
-								  osal_log_level_t level, bool ts)
+osal_error_t osal_log_module_init(uint32_t index, char *name, osal_log_level_t level, bool ts)
 {
 	osal_log_module_t *module;
 
-	if ((level >= OSALOG_LEVEL_MAX) || (level < 0) ||
-		(index >= OSAL_LOG_MODULE_NUM_MAX)) {
+	if ((level >= OSALOG_LEVEL_MAX) || (level < 0) || (index >= OSAL_LOG_MODULE_NUM_MAX)) {
 		return OSAL_E_PARAM;
 	}
 	module = &s_log_modules[index];
@@ -147,8 +143,7 @@ osal_error_t osal_log_module_change(uint32_t index, osal_log_level_t level)
 {
 	osal_log_module_t *module;
 
-	if ((level >= OSALOG_LEVEL_MAX) || (level < 0) ||
-		(index >= OSAL_LOG_MODULE_NUM_MAX)) {
+	if ((level >= OSALOG_LEVEL_MAX) || (level < 0) || (index >= OSAL_LOG_MODULE_NUM_MAX)) {
 		return OSAL_E_PARAM;
 	}
 

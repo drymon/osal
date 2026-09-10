@@ -56,7 +56,7 @@ typedef struct osal_lifo_node {
  */
 typedef struct {
 	osal_lifo_node_t *head; /**< Pointer to the head of the LIFO. */
-	uint32_t size; /**< Current size of the LIFO. */
+	uint32_t size;			/**< Current size of the LIFO. */
 } osal_lifo_t;
 
 /**
@@ -112,10 +112,10 @@ bool osal_lifo_is_empty(osal_lifo_t *lifo);
  * ```
  */
 
-#define OSAL_LIFO_FOREACH(lifo, node) \
-	for((node)=(lifo)->head; (node)!=NULL; (node)=(node)->next)
+#define OSAL_LIFO_FOREACH(lifo, node)                                                              \
+	for ((node) = (lifo)->head; (node) != NULL; (node) = (node)->next)
 
-#ifdef __cplusplus	/* extern "C" */
+#ifdef __cplusplus /* extern "C" */
 }
 #endif
 
