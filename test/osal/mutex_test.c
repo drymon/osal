@@ -52,7 +52,7 @@ static void test_mutex_loop(void)
 		assert_int_equal(use, i);
 
 		avail = osal_mutex_avail();
-		assert_int_equal(avail, OSAL_MUTEX_NUM_MAX-i);
+		assert_int_equal(avail, OSAL_MUTEX_NUM_MAX - i);
 
 		mutex = osal_mutex_create();
 		assert_non_null(mutex);

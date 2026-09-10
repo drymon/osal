@@ -115,7 +115,7 @@ uint32_t osal_sem_use(void);
  */
 uint32_t osal_sem_avail(void);
 
-#ifdef __cplusplus	/* extern "C" */
+#ifdef __cplusplus /* extern "C" */
 }
 #endif
 

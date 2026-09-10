@@ -45,17 +45,17 @@ extern "C" {
  * Defines error codes that can be returned by the OS abstraction layer functions.
  */
 typedef enum {
-	OSAL_E_OK, /**< No error */
-	OSAL_E_PARAM, /**< Invalid parameter */
-	OSAL_E_NOINIT, /**< Resource is not initialized yet */
-	OSAL_E_RESRC, /**< Insufficient resources */
+	OSAL_E_OK,		/**< No error */
+	OSAL_E_PARAM,	/**< Invalid parameter */
+	OSAL_E_NOINIT,	/**< Resource is not initialized yet */
+	OSAL_E_RESRC,	/**< Insufficient resources */
 	OSAL_E_FAILURE, /**< Unspecified failure */
-	OSAL_E_OSCALL, /**< Operating system call error */
+	OSAL_E_OSCALL,	/**< Operating system call error */
 	OSAL_E_TIMEOUT, /**< Timeout error */
-	OSAL_E_QFULL, /**< Queue is full */
-	OSAL_E_QEMPTY, /**< Queue is empty*/
-	OSAL_E_INUSE, /**< Resource is in use */
-	OSAL_E_MAX, /**< Maximum error code (for range checking) */
+	OSAL_E_QFULL,	/**< Queue is full */
+	OSAL_E_QEMPTY,	/**< Queue is empty*/
+	OSAL_E_INUSE,	/**< Resource is in use */
+	OSAL_E_MAX,		/**< Maximum error code (for range checking) */
 } osal_error_t;
 
 /**
@@ -68,7 +68,7 @@ typedef enum {
  */
 const char *osal_errstr(osal_error_t e);
 
-#ifdef __cplusplus	/* extern "C" */
+#ifdef __cplusplus /* extern "C" */
 }
 #endif
 

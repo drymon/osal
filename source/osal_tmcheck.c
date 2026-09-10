@@ -27,13 +27,13 @@
 #include "osal.h"
 #define OSALOG_MODULE OSAL_LOG_MODULE_INDEX
 
-#define TMCHECK_LOCK() \
-	if (s_tmcheck_man.mutex != NULL) { \
-		osal_mutex_lock(s_tmcheck_man.mutex); \
+#define TMCHECK_LOCK()                                                                             \
+	if (s_tmcheck_man.mutex != NULL) {                                                             \
+		osal_mutex_lock(s_tmcheck_man.mutex);                                                      \
 	}
-#define TMCHECK_UNLOCK() \
-	if (s_tmcheck_man.mutex != NULL) { \
-		osal_mutex_unlock(s_tmcheck_man.mutex); \
+#define TMCHECK_UNLOCK()                                                                           \
+	if (s_tmcheck_man.mutex != NULL) {                                                             \
+		osal_mutex_unlock(s_tmcheck_man.mutex);                                                    \
 	}
 
 typedef struct {
@@ -172,7 +172,7 @@ void osal_tmcheck_print_all(void)
 	for (i = 0; i < OSAL_TMCHECK_NUM_MAX; i++) {
 		tmcheck = &s_tmcheck_man.tmchecks[i];
 		if (tmcheck->ts > 0) {
-			OSALOG_INFO("[%s]=%"PRIu64" ns\n", tmcheck->name, tmcheck->ts);
+			OSALOG_INFO("[%s]=%" PRIu64 " ns\n", tmcheck->name, tmcheck->ts);
 		}
 	}
 }
@@ -182,11 +182,13 @@ static void tmcheck_print_diff(tmcheck_t *tmcheck1, tmcheck_t *tmcheck2)
 	if ((tmcheck1->ts > 0) && (tmcheck2->ts > 0)) {
 		if (tmcheck2->ts > tmcheck1->ts) {
 			OSALOG_INFO("[%s]-[%s]=%d ns\n",
-						tmcheck2->name, tmcheck1->name,
+						tmcheck2->name,
+						tmcheck1->name,
 						(int)(tmcheck2->ts - tmcheck1->ts));
 		} else {
 			OSALOG_INFO("[%s]-[%s]=%d ns\n",
-						tmcheck1->name, tmcheck2->name,
+						tmcheck1->name,
+						tmcheck2->name,
 						(int)(tmcheck1->ts - tmcheck2->ts));
 		}
 	}
@@ -197,8 +199,7 @@ void osal_tmcheck_print_diff(int idx1, int idx2)
 	if ((validate_idx(idx1) == false) || (validate_idx(idx2) == false)) {
 		return;
 	}
-	tmcheck_print_diff(&s_tmcheck_man.tmchecks[idx1],
-					   &s_tmcheck_man.tmchecks[idx2]);
+	tmcheck_print_diff(&s_tmcheck_man.tmchecks[idx1], &s_tmcheck_man.tmchecks[idx2]);
 }
 
 static int tmcheck_cmp(const void *a, const void *b)
@@ -224,8 +225,7 @@ void osal_tmcheck_print_diff_all(void)
 	int i;
 
 	memcpy(sort_tmchecks, s_tmcheck_man.tmchecks, sizeof(sort_tmchecks));
-	qsort(sort_tmchecks, OSAL_TMCHECK_NUM_MAX,
-	      sizeof(tmcheck_t), tmcheck_cmp);
+	qsort(sort_tmchecks, OSAL_TMCHECK_NUM_MAX, sizeof(tmcheck_t), tmcheck_cmp);
 
 	for (i = 0; i < OSAL_TMCHECK_NUM_MAX; i++) {
 		if (sort_tmchecks[i].ts == 0) {

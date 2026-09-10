@@ -118,7 +118,7 @@ uint32_t osal_mutex_use(void);
  */
 uint32_t osal_mutex_avail(void);
 
-#ifdef __cplusplus	/* extern "C" */
+#ifdef __cplusplus /* extern "C" */
 }
 #endif
 

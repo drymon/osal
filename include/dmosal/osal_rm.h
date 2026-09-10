@@ -49,17 +49,17 @@ extern "C" {
  */
 typedef struct {
 	osal_lifo_node_t node; /**< Node for managing resources in a LIFO manner. */
-	bool used; /**< Flag indicating if the resource is currently in use. */
-	void *data; /**< Pointer to user-assigned data for the resource. */
+	bool used;			   /**< Flag indicating if the resource is currently in use. */
+	void *data;			   /**< Pointer to user-assigned data for the resource. */
 } osal_resrc_t;
 
 /**
  * @brief Structure defining the resource manager.
  */
 typedef struct {
-	osal_mutex_t *mutex; /**< The mutex used for resource manager synchronization. */
+	osal_mutex_t *mutex;	/**< The mutex used for resource manager synchronization. */
 	osal_lifo_t resrc_pool; /**< Resource pool for managing resources. */
-	uint32_t n_resrces; /**< Number of resources in the pool. */
+	uint32_t n_resrces;		/**< Number of resources in the pool. */
 } osal_rm_t;
 
 /**
@@ -67,7 +67,7 @@ typedef struct {
  */
 typedef struct {
 	osal_mutex_t *mutex; /**< The mutex to protect the rm, set to NULL if protect is not required */
-	uint32_t n_resrces; /**< Number of resources in the resource manager. */
+	uint32_t n_resrces;	 /**< Number of resources in the resource manager. */
 	osal_resrc_t *resrces; /**< Pointer to the array of the global resources */
 } osal_rm_cfg_t;
 
@@ -125,9 +125,9 @@ uint32_t osal_rm_use(osal_rm_t *rm);
  * @param userobj_type Type of user-managed object.
  * @param userobj_num Number of user-managed objects.
  */
-#define OSAL_RM_USEROBJMAN_DECLARE(userobj_type, userobj_num) \
-	userobj_type userobj[userobj_num]; \
-	osal_resrc_t resrces[userobj_num]; \
+#define OSAL_RM_USEROBJMAN_DECLARE(userobj_type, userobj_num)                                      \
+	userobj_type userobj[userobj_num];                                                             \
+	osal_resrc_t resrces[userobj_num];                                                             \
 	osal_rm_t rm;
 
 /**
@@ -137,22 +137,22 @@ uint32_t osal_rm_use(osal_rm_t *rm);
  * @param userobj_num Number of user-managed objects.
  * @param mutex_ptr External mutex if the resource manager should be thread-safe.
  */
-#define OSAL_RM_USEROBJMAN_INIT(userobjman_ptr, userobj_num, mutex_ptr)	\
-	{ \
-		osal_rm_cfg_t rmcfg; \
-		int i; \
-		int res; \
-		for (i = 0; i < userobj_num; i++) { \
-			(userobjman_ptr)->resrces[i].data = &(userobjman_ptr)->userobj[i]; \
-		} \
-		rmcfg.mutex = mutex_ptr; \
-		rmcfg.n_resrces = userobj_num; \
-		rmcfg.resrces = (userobjman_ptr)->resrces; \
-		res = osal_rm_init(&(userobjman_ptr)->rm, &rmcfg); \
-		OSAL_RUNTIME_ASSERT(res == OSAL_E_OK); \
+#define OSAL_RM_USEROBJMAN_INIT(userobjman_ptr, userobj_num, mutex_ptr)                            \
+	{                                                                                              \
+		osal_rm_cfg_t rmcfg;                                                                       \
+		int i;                                                                                     \
+		int res;                                                                                   \
+		for (i = 0; i < userobj_num; i++) {                                                        \
+			(userobjman_ptr)->resrces[i].data = &(userobjman_ptr)->userobj[i];                     \
+		}                                                                                          \
+		rmcfg.mutex = mutex_ptr;                                                                   \
+		rmcfg.n_resrces = userobj_num;                                                             \
+		rmcfg.resrces = (userobjman_ptr)->resrces;                                                 \
+		res = osal_rm_init(&(userobjman_ptr)->rm, &rmcfg);                                         \
+		OSAL_RUNTIME_ASSERT(res == OSAL_E_OK);                                                     \
 	}
 
-#ifdef __cplusplus	/* extern "C" */
+#ifdef __cplusplus /* extern "C" */
 }
 #endif
 

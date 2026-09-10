@@ -53,12 +53,12 @@ typedef struct osal_task osal_task_t;
  * @brief Structure defining the configuration for an OS abstraction layer task.
  */
 typedef struct {
-	void *stack_addr;  /**< Optional pointer to the task's stack memory. */
-	uint32_t stack_size; /**< Optinal size of the task's stack in bytes. */
-	uint16_t priority; /**< Optional priority of the task. */
+	void *stack_addr;				   /**< Optional pointer to the task's stack memory. */
+	uint32_t stack_size;			   /**< Optinal size of the task's stack in bytes. */
+	uint16_t priority;				   /**< Optional priority of the task. */
 	uint8_t name[OSAL_TASK_NAME_SIZE]; /**< Optional name of the task. */
-	void (*task_handler)(void *arg); /**< Pointer to the task's handler function. */
-	void *task_arg; /**< Argument to be passed to the task's handler function. */
+	void (*task_handler)(void *arg);   /**< Pointer to the task's handler function. */
+	void *task_arg;					   /**< Argument to be passed to the task's handler function. */
 } osal_task_cfg_t;
 
 /**
@@ -103,7 +103,7 @@ uint32_t osal_task_use(void);
  */
 uint32_t osal_task_avail(void);
 
-#ifdef __cplusplus	/* extern "C" */
+#ifdef __cplusplus /* extern "C" */
 }
 #endif
 

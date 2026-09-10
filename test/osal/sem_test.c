@@ -56,7 +56,7 @@ static void test_sem_loop(void)
 		assert_int_equal(use, i);
 
 		avail = osal_sem_avail();
-		assert_int_equal(avail, OSAL_SEM_NUM_MAX-i);
+		assert_int_equal(avail, OSAL_SEM_NUM_MAX - i);
 
 		sem = osal_sem_create();
 		assert_non_null(sem);
@@ -99,15 +99,15 @@ static void test_sem_loop(void)
 	for (i = 0; i < 10; i++) {
 		res = osal_clock_time(&ts1);
 		assert_int_equal(res, OSAL_E_OK);
-		wait_nsec += i*100000;
-		res = osal_sem_waittime(sem, wait_nsec/OSAL_USEC_NSEC);
+		wait_nsec += i * 100000;
+		res = osal_sem_waittime(sem, wait_nsec / OSAL_USEC_NSEC);
 		assert_int_equal(res, OSAL_E_TIMEOUT);
 
 		res = osal_clock_time(&ts2);
 		assert_int_equal(res, OSAL_E_OK);
 
-		diff = ts2-ts1;
-		assert_in_range(diff, wait_nsec, wait_nsec+OSAL_USEC_NSEC*300);
+		diff = ts2 - ts1;
+		assert_in_range(diff, wait_nsec, wait_nsec + OSAL_USEC_NSEC * 300);
 	}
 
 	osal_sem_deinit();

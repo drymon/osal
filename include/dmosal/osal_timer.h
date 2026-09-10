@@ -110,7 +110,7 @@ uint32_t osal_timer_use(void);
  */
 uint32_t osal_timer_avail(void);
 
-#ifdef __cplusplus	/* extern "C" */
+#ifdef __cplusplus /* extern "C" */
 }
 #endif
 

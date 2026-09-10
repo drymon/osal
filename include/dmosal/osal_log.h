@@ -45,7 +45,6 @@ extern "C" {
 #include "osal_error.h"
 #include "osal_config.h"
 
-
 /**
  * @brief The log module index reserved for the OSAL module.
  * The application should use the index starts from 1.
@@ -81,9 +80,14 @@ extern "C" {
  * @param args The format string for the log message.
  * @param ... Additional arguments for the log message.
  */
-#define OSALOG_HELPER(level, ts, args, ...) \
-	osal_log_print(OSALOG_MODULE, ts, OSALOG_LEVEL_##level, \
-				   "%s:%d|"args, OSALOG_SRCFILE, __LINE__, ##__VA_ARGS__)
+#define OSALOG_HELPER(level, ts, args, ...)                                                        \
+	osal_log_print(OSALOG_MODULE,                                                                  \
+				   ts,                                                                             \
+				   OSALOG_LEVEL_##level,                                                           \
+				   "%s:%d|" args,                                                                  \
+				   OSALOG_SRCFILE,                                                                 \
+				   __LINE__,                                                                       \
+				   ##__VA_ARGS__)
 
 /**
  * @brief Macro to check if the specified log level is enabled during compilation.
@@ -97,7 +101,7 @@ extern "C" {
  * compilation settings.
  */
 #if OSALOG_IS_BUILT(FATAL)
-#define OSALOG_FATAL(args, ...)	OSALOG_HELPER(FATAL, false, args, ##__VA_ARGS__)
+#define OSALOG_FATAL(args, ...)	  OSALOG_HELPER(FATAL, false, args, ##__VA_ARGS__)
 #define OSALOGTS_FATAL(args, ...) OSALOG_HELPER(FATAL, true, args, ##__VA_ARGS__)
 #else
 #define OSALOG_FATAL(args, ...)
@@ -109,7 +113,7 @@ extern "C" {
  * compilation settings.
  */
 #if OSALOG_IS_BUILT(ERROR)
-#define OSALOG_ERROR(args, ...)	OSALOG_HELPER(ERROR, false, args, ##__VA_ARGS__)
+#define OSALOG_ERROR(args, ...)	  OSALOG_HELPER(ERROR, false, args, ##__VA_ARGS__)
 #define OSALOGTS_ERROR(args, ...) OSALOG_HELPER(ERROR, true, args, ##__VA_ARGS__)
 #else
 #define OSALOG_ERROR(args, ...)
@@ -121,7 +125,7 @@ extern "C" {
  * compilation settings.
  */
 #if OSALOG_IS_BUILT(WARN)
-#define OSALOG_WARN(args, ...) OSALOG_HELPER(WARN, false, args, ##__VA_ARGS__)
+#define OSALOG_WARN(args, ...)	 OSALOG_HELPER(WARN, false, args, ##__VA_ARGS__)
 #define OSALOGTS_WARN(args, ...) OSALOG_HELPER(WARN, true, args, ##__VA_ARGS__)
 #else
 #define OSALOG_WARN(args, ...)
@@ -133,7 +137,7 @@ extern "C" {
  * compilation settings.
  */
 #if OSALOG_IS_BUILT(INFO)
-#define OSALOG_INFO(args, ...) OSALOG_HELPER(INFO, false, args, ##__VA_ARGS__)
+#define OSALOG_INFO(args, ...)	 OSALOG_HELPER(INFO, false, args, ##__VA_ARGS__)
 #define OSALOGTS_INFO(args, ...) OSALOG_HELPER(INFO, true, args, ##__VA_ARGS__)
 #else
 #define OSALOG_INFO(args, ...)
@@ -145,8 +149,8 @@ extern "C" {
  * compilation settings.
  */
 #if OSALOG_IS_BUILT(DEBUG)
-#define OSALOG_DEBUG(args, ...)	OSALOG_HELPER(DEBUG, false, args, ##__VA_ARGS__)
-#define OSALOGTS_DEBUG(args, ...)	OSALOG_HELPER(DEBUG, true, args, ##__VA_ARGS__)
+#define OSALOG_DEBUG(args, ...)	  OSALOG_HELPER(DEBUG, false, args, ##__VA_ARGS__)
+#define OSALOGTS_DEBUG(args, ...) OSALOG_HELPER(DEBUG, true, args, ##__VA_ARGS__)
 #else
 #define OSALOG_DEBUG(args, ...)
 #define OSALOGTS_DEBUG(args, ...)
@@ -157,7 +161,7 @@ extern "C" {
  * compilation settings.
  */
 #if OSALOG_IS_BUILT(TRACE)
-#define OSALOG_TRACE(args, ...) OSALOG_HELPER(TRACE, false, args, ##__VA_ARGS__)
+#define OSALOG_TRACE(args, ...)	  OSALOG_HELPER(TRACE, false, args, ##__VA_ARGS__)
 #define OSALOGTS_TRACE(args, ...) OSALOG_HELPER(TRACE, true, args, ##__VA_ARGS__)
 #else
 #define OSALOG_TRACE(args, ...)
@@ -173,14 +177,14 @@ typedef void (*osal_log_output_t)(char *logstr);
  * @brief Enumeration defining log levels.
  */
 typedef enum {
-	OSALOG_LEVEL_NONE, /**< No log at all */
+	OSALOG_LEVEL_NONE,	/**< No log at all */
 	OSALOG_LEVEL_FATAL, /**< Fatal error level. */
 	OSALOG_LEVEL_ERROR, /**< Error level. */
-	OSALOG_LEVEL_WARN, /**< Warning level. */
-	OSALOG_LEVEL_INFO, /**< Informational level. */
+	OSALOG_LEVEL_WARN,	/**< Warning level. */
+	OSALOG_LEVEL_INFO,	/**< Informational level. */
 	OSALOG_LEVEL_DEBUG, /**< Debugging level. */
 	OSALOG_LEVEL_TRACE, /**< Trace level. */
-	OSALOG_LEVEL_MAX /**< Maximum log level. */
+	OSALOG_LEVEL_MAX	/**< Maximum log level. */
 } osal_log_level_t;
 
 /**
@@ -205,8 +209,7 @@ void osal_log_deinit(void);
  * @param ts Flag indicating whether to include timestamp.
  * @return An error code indicating the status of the initialization.
  */
-osal_error_t osal_log_module_init(uint32_t index, char *name,
-								  osal_log_level_t level, bool ts);
+osal_error_t osal_log_module_init(uint32_t index, char *name, osal_log_level_t level, bool ts);
 
 /**
  * @brief Prints a log message.
@@ -218,8 +221,8 @@ osal_error_t osal_log_module_init(uint32_t index, char *name,
  * @param ... Additional arguments for the log message.
  * @return An error code indicating the status of the print.
  */
-osal_error_t osal_log_print(uint32_t index, bool ts,
-				osal_log_level_t level, const char *format, ...);
+osal_error_t
+osal_log_print(uint32_t index, bool ts, osal_log_level_t level, const char *format, ...);
 
 /**
  * @brief Changes a log level of a module at the runtime.
@@ -230,7 +233,7 @@ osal_error_t osal_log_print(uint32_t index, bool ts,
  */
 osal_error_t osal_log_module_change(uint32_t index, osal_log_level_t level);
 
-#ifdef __cplusplus	/* extern "C" */
+#ifdef __cplusplus /* extern "C" */
 }
 #endif
 

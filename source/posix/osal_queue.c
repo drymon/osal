@@ -27,8 +27,8 @@
 #include <string.h>
 #include <time.h>
 #include <mqueue.h>
-#include <fcntl.h>           /* For O_* constants */
-#include <sys/stat.h>        /* For mode constants */
+#include <fcntl.h>	  /* For O_* constants */
+#include <sys/stat.h> /* For mode constants */
 #include <errno.h>
 #include "osal_time.h"
 #include "osal_queue.h"
@@ -40,15 +40,13 @@
 struct osal_queue {
 	osal_resrc_t *resrc;
 	bool create;
-	char name[OSAL_QUEUE_NAME_SIZE+1];
+	char name[OSAL_QUEUE_NAME_SIZE + 1];
 	uint32_t msglen;
 	mqd_t fd;
 };
 
 typedef struct {
-	OSAL_RM_USEROBJMAN_DECLARE(
-		struct osal_queue,
-		OSAL_QUEUE_NUM_MAX);
+	OSAL_RM_USEROBJMAN_DECLARE(struct osal_queue, OSAL_QUEUE_NUM_MAX);
 	bool init;
 } queue_man_t;
 
@@ -96,14 +94,14 @@ osal_queue_t *osal_queue_create(osal_queue_cfg_t *cfg)
 	OSAL_RUNTIME_ASSERT(queue != NULL);
 	memset(queue, 0, sizeof(osal_queue_t));
 	queue->resrc = resrc;
-	snprintf(queue->name, OSAL_QUEUE_NAME_SIZE+1, "/%s", cfg->name);
+	snprintf(queue->name, OSAL_QUEUE_NAME_SIZE + 1, "/%s", cfg->name);
 	queue->msglen = cfg->msglen;
 	memset(&attr, 0, sizeof(attr));
 	attr.mq_maxmsg = cfg->qsize;
 	attr.mq_msgsize = cfg->msglen;
 	/* Opening queue is very important and happen at the beginning.
 	 * If we can not open the queue, we should terminate the program */
-	res = mq_open(queue->name, O_CREAT|O_RDWR|O_EXCL|O_NONBLOCK, S_IRWXU, &attr);
+	res = mq_open(queue->name, O_CREAT | O_RDWR | O_EXCL | O_NONBLOCK, S_IRWXU, &attr);
 	if (res < 0) {
 		if (errno != EEXIST) {
 			OSALOG_ERROR("mq_open(%s):%s\n", queue->name, strerror(errno));
@@ -116,8 +114,8 @@ osal_queue_t *osal_queue_create(osal_queue_cfg_t *cfg)
 		}
 		OSALOG_INFO("Open existing queue: %s\n", queue->name);
 	} else {
-		OSALOG_INFO("Open new queue: %s qsize=%d msglen=%d\n",
-			   queue->name, cfg->qsize, cfg->msglen);
+		OSALOG_INFO(
+			"Open new queue: %s qsize=%d msglen=%d\n", queue->name, cfg->qsize, cfg->msglen);
 		queue->create = true;
 	}
 	queue->fd = res;
@@ -129,8 +127,8 @@ osal_error_t osal_queue_send(osal_queue_t *queue, uint8_t *msg, uint32_t msglen)
 {
 	int res;
 
-	if ((queue == NULL) || (queue->fd <= 0) || (msg == NULL) ||
-		(msglen == 0) || (msglen > queue->msglen)) {
+	if ((queue == NULL) || (queue->fd <= 0) || (msg == NULL) || (msglen == 0) ||
+		(msglen > queue->msglen)) {
 		return OSAL_E_PARAM;
 	}
 	res = mq_send(queue->fd, (const char *)msg, msglen, 0);
@@ -144,15 +142,14 @@ osal_error_t osal_queue_send(osal_queue_t *queue, uint8_t *msg, uint32_t msglen)
 	return OSAL_E_OK;
 }
 
-osal_error_t osal_queue_recv(osal_queue_t *queue, uint8_t *buf,
-							 uint32_t bufsize, uint32_t timeout_usec)
+osal_error_t
+osal_queue_recv(osal_queue_t *queue, uint8_t *buf, uint32_t bufsize, uint32_t timeout_usec)
 {
 	int res;
 	struct timeval tvtout;
 	fd_set rfds;
 
-	if ((queue == NULL) || (queue->fd <= 0) ||
-		(buf == NULL) || (bufsize == 0)) {
+	if ((queue == NULL) || (queue->fd <= 0) || (buf == NULL) || (bufsize == 0)) {
 		return OSAL_E_PARAM;
 	}
 
@@ -162,7 +159,7 @@ osal_error_t osal_queue_recv(osal_queue_t *queue, uint8_t *buf,
 	tvtout.tv_sec = timeout_usec / OSAL_SEC_USEC;
 	tvtout.tv_usec = timeout_usec % OSAL_SEC_USEC;
 
-	res = select(queue->fd+1, &rfds, NULL, NULL, &tvtout);
+	res = select(queue->fd + 1, &rfds, NULL, NULL, &tvtout);
 	if (res < 0) {
 		OSALOG_ERROR("select:%s\n", strerror(errno));
 		return OSAL_E_OSCALL;

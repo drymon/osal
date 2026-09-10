@@ -48,19 +48,19 @@ static void test_lifo(void **state)
 	assert_int_equal(size, 0);
 
 	for (i = 0; i < NUM_NODES; i++) {
-		lifodatas[i].data = i+1;
+		lifodatas[i].data = i + 1;
 		osal_lifo_push(&lifo, &lifodatas[i].node);
 		size = osal_lifo_size(&lifo);
-		assert_int_equal(size, i+1);
+		assert_int_equal(size, i + 1);
 	}
 
 	for (i = 0; i < NUM_NODES; i++) {
 		size = osal_lifo_size(&lifo);
-		assert_int_equal(size, NUM_NODES-i);
+		assert_int_equal(size, NUM_NODES - i);
 
 		nodedata = (lifo_data_t *)osal_lifo_pop(&lifo);
 		assert_non_null(nodedata);
-		assert_int_equal(nodedata->data, NUM_NODES-i);
+		assert_int_equal(nodedata->data, NUM_NODES - i);
 	}
 	size = osal_lifo_size(&lifo);
 	assert_int_equal(size, 0);

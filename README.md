@@ -39,6 +39,25 @@ Under the permissive BSD-2-Clause license, users can freely utilize and distribu
 OSAL aims to enhance application code reliability by effectively managing OS resources,
 ensuring portability across multiple operating systems.
 
+## Prerequisites
+
+On Ubuntu/Debian:
+
+```
+$ sudo apt install cmake libcmocka-dev doxygen
+```
+
+- `cmake` — build system.
+- `libcmocka-dev` — test framework used by `make check`. Tested with libcmocka 1.1.5-2.
+- `doxygen` — generates API documentation via `make doc`.
+
+Optional, for local style/lint checks (see [Style checks](#style-checks) below):
+
+```
+$ sudo apt install clang-format python3-pip
+$ pip install pre-commit
+```
+
 ## Compilation
 
 - Build the lib:
@@ -84,6 +103,40 @@ The examples code can be built as:
 $ make examples
 ```
 
+## Style checks
+
+Style is described by `.clang-format` at the repo root. CI enforces it, but
+you can check locally too.
+
+- Check without changing files:
+
+```
+$ git ls-files '*.c' '*.h' | grep -v '\.in$' | xargs clang-format --dry-run -Werror
+```
+
+- Auto-format in place:
+
+```
+$ git ls-files '*.c' '*.h' | grep -v '\.in$' | xargs clang-format -i
+```
+
+Optional `pre-commit` hooks (trailing whitespace, EOL fixer, clang-format,
+etc.) are configured in `.pre-commit-config.yaml`. To enable them:
+
+```
+$ pre-commit install                    # run hooks automatically on `git commit`
+$ pre-commit run --all-files            # run once against the whole tree
+```
+
+**If a pre-commit hook fails on `git commit`:** most hooks auto-fix the files
+(clang-format, trailing whitespace, end-of-file). Just re-stage and commit again:
+
+```
+$ git commit -m "..."                   # hook edits some files and blocks the commit
+$ git add -u                            # re-stage the hook's fixes
+$ git commit -m "..."                   # commit succeeds
+```
+
 ## Doc
 
 To generate the documentation, execute the following command.
@@ -92,16 +145,6 @@ The output can be located in the build directory.
 ```
 $ make doc
 ```
-
-## Dependencies
-
-To run the test code, cmocka is required. Install it on Ubuntu using:
-
-```
-$ sudo apt install libcmocka-dev
-```
-
-The OSAL is tested with the libcmocka 1.1.5-2
 
 ## License
 

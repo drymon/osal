@@ -54,7 +54,7 @@ typedef struct osal_queue osal_queue_t;
  */
 typedef struct {
 	uint8_t name[OSAL_QUEUE_NAME_SIZE]; /**< name of the queue. */
-	uint32_t msglen; /**< len of the message */
+	uint32_t msglen;					/**< len of the message */
 	uint32_t qsize /**< size of the queue */;
 } osal_queue_cfg_t;
 
@@ -105,8 +105,8 @@ osal_error_t osal_queue_send(osal_queue_t *queue, uint8_t *msg, uint32_t msglen)
  * @param timeout_usec Timeout to wait on queue when having no message
  * @return An error code indicating the status of the receive.
  */
-osal_error_t osal_queue_recv(osal_queue_t *queue, uint8_t *buf,
-							 uint32_t bufsize, uint32_t timeout_usec);
+osal_error_t
+osal_queue_recv(osal_queue_t *queue, uint8_t *buf, uint32_t bufsize, uint32_t timeout_usec);
 /**
  * @brief Retrieves the count of used queues.
  *
@@ -121,7 +121,7 @@ uint32_t osal_queue_use(void);
  */
 uint32_t osal_queue_avail(void);
 
-#ifdef __cplusplus	/* extern "C" */
+#ifdef __cplusplus /* extern "C" */
 }
 #endif
 
