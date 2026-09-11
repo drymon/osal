@@ -275,11 +275,8 @@ static void tmcheck_mt_task(void *arg)
 
 	unique_name(name, sizeof(name), "mt", (int)i);
 	idx = osal_tmcheck_create(name);
+	assert_true(idx >= 0);
 	g_mt_idx[i] = idx;
-	if (idx < 0) {
-		g_mt_ok[i] = false;
-		return;
-	}
 	/* Each task only touches its own checkpoint slot, so this stresses
 	 * the create/delete pool locking concurrently across threads without
 	 * racing on a single tmcheck_t's fields (which are documented as
