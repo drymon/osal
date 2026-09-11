@@ -1,0 +1,9 @@
+{
+   glibc_timer_create_sigev_thread_helper
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:calloc
+   ...
+   fun:allocate_stack
+   fun:pthread_create@@GLIBC_*
+}

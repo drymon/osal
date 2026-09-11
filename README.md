@@ -61,6 +61,11 @@ $ pip install pre-commit
 
 ## Compilation
 
+> **Quick start:** if you have [`just`](https://github.com/casey/just) installed,
+> run `just build`, `just check`, `just check-valgrind`, etc. from the repo
+> root — see the [`justfile`](justfile) for all available recipes. The steps
+> below show the equivalent raw CMake commands.
+
 - Build the lib:
 
 ```
@@ -93,6 +98,8 @@ The test can be run after the compilation steps above:
 ```
 $ make check
 ```
+
+Or simply `just check` from the repo root.
 
 ## Examples
 

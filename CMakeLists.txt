@@ -168,6 +168,8 @@ if(VALGRIND_BIN)
       CACHE FILEPATH "Memory-check command")
   set(MEMORYCHECK_COMMAND_OPTIONS "--leak-check=full --error-exitcode=1"
       CACHE STRING "Memory-check command options")
+  set(MEMORYCHECK_SUPPRESSIONS_FILE "${CMAKE_SOURCE_DIR}/test/valgrind.supp"
+      CACHE FILEPATH "Memory-check suppressions file")
 endif()
 
 # include(CTest) generates DartConfiguration.tcl and calls enable_testing().
