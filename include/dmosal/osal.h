@@ -71,7 +71,7 @@ typedef struct {
  * @return An error code of type ::osal_error_t indicating the status of the
  *   initialization.
  */
-osal_error_t osal_init(osal_config_t *config);
+osal_error_t osal_init(const osal_config_t *config);
 
 /**
  * @brief Retrieves the version of the OS abstraction layer.

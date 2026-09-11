@@ -87,7 +87,7 @@ void osal_task_deinit(void);
  * @return Pointer to the created task, or NULL if @p cfg / @c task_handler is
  * NULL or the task pool is exhausted.
  */
-osal_task_t *osal_task_create(osal_task_cfg_t *cfg);
+osal_task_t *osal_task_create(const osal_task_cfg_t *cfg);
 
 /**
  * @brief Deletes a task from the OS abstraction layer.

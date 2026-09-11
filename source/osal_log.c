@@ -70,7 +70,7 @@ osal_log_print(uint32_t index, bool ts, osal_log_level_t level, const char *form
 	va_list ap;
 	char logstr[OSAL_LOG_STRING_SIZE] = {0};
 	osal_log_module_t *module;
-	int len;
+	size_t len;
 
 	if (index >= OSAL_LOG_MODULE_NUM_MAX) {
 		return OSAL_E_PARAM;
@@ -91,8 +91,8 @@ osal_log_print(uint32_t index, bool ts, osal_log_level_t level, const char *form
 		uint32_t sec_low, usec;
 
 		osal_clock_time(&now);
-		sec_low = (now / OSAL_SEC_NSEC) % 100000;
-		usec = (now % OSAL_SEC_NSEC) / OSAL_USEC_NSEC;
+		sec_low = (uint32_t)((now / OSAL_SEC_NSEC) % 100000);
+		usec = (uint32_t)((now % OSAL_SEC_NSEC) / OSAL_USEC_NSEC);
 
 		snprintf(logstr, OSAL_LOG_STRING_SIZE, "%05u-%06u|", sec_low, usec);
 	}
@@ -119,7 +119,7 @@ osal_log_print(uint32_t index, bool ts, osal_log_level_t level, const char *form
 	return OSAL_E_OK;
 }
 
-osal_error_t osal_log_module_init(uint32_t index, char *name, osal_log_level_t level, bool ts)
+osal_error_t osal_log_module_init(uint32_t index, const char *name, osal_log_level_t level, bool ts)
 {
 	osal_log_module_t *module;
 

@@ -79,7 +79,7 @@ typedef struct {
  *   resulting @p rm is not thread-safe (caller must serialize externally).
  * @return OSAL_E_OK on success, OSAL_E_PARAM if either argument is NULL.
  */
-osal_error_t osal_rm_init(osal_rm_t *rm, osal_rm_cfg_t *cfg);
+osal_error_t osal_rm_init(osal_rm_t *rm, const osal_rm_cfg_t *cfg);
 
 /**
  * @brief Deinitializes the resource manager.
@@ -130,7 +130,7 @@ uint32_t osal_rm_use(osal_rm_t *rm);
 #define OSAL_RM_USEROBJMAN_DECLARE(userobj_type, userobj_num)                                      \
 	userobj_type userobj[userobj_num];                                                             \
 	osal_resrc_t resrces[userobj_num];                                                             \
-	osal_rm_t rm;
+	osal_rm_t rm
 
 /**
  * @brief Macro for initializing a user-managed object array with the resource manager.
@@ -143,7 +143,7 @@ uint32_t osal_rm_use(osal_rm_t *rm);
 	{                                                                                              \
 		osal_rm_cfg_t rmcfg;                                                                       \
 		int i;                                                                                     \
-		int res;                                                                                   \
+		osal_error_t res;                                                                          \
 		for (i = 0; i < userobj_num; i++) {                                                        \
 			(userobjman_ptr)->resrces[i].data = &(userobjman_ptr)->userobj[i];                     \
 		}                                                                                          \

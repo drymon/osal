@@ -70,7 +70,7 @@ static void *task_run(void *arg)
 	return NULL;
 }
 
-osal_task_t *osal_task_create(osal_task_cfg_t *cfg)
+osal_task_t *osal_task_create(const osal_task_cfg_t *cfg)
 {
 	osal_task_t *task;
 	osal_resrc_t *resrc;

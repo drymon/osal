@@ -36,7 +36,7 @@ static void log_output_default(char *logstr)
 	printf("%s", logstr);
 }
 
-osal_error_t osal_init(osal_config_t *config)
+osal_error_t osal_init(const osal_config_t *config)
 {
 	osal_error_t res;
 	osal_log_output_t log_output = log_output_default;

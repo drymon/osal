@@ -133,8 +133,8 @@ osal_error_t osal_sem_waittime(osal_sem_t *sem, uint32_t usec)
 	}
 
 	ns = (uint64_t)ts.tv_nsec + ((uint64_t)usec * OSAL_USEC_NSEC);
-	ts.tv_sec += ns / OSAL_SEC_NSEC;
-	ts.tv_nsec = ns % OSAL_SEC_NSEC;
+	ts.tv_sec += (time_t)(ns / OSAL_SEC_NSEC);
+	ts.tv_nsec = (long)(ns % OSAL_SEC_NSEC);
 
 	res = sem_timedwait(&sem->psem, &ts);
 	if (res < 0) {
