@@ -224,7 +224,7 @@ find_package(Doxygen)
 if(NOT DOXYGEN_FOUND)
   message(WARNING "Doxygen is not found!")
 else()
-  configure_file(doc/doxygen.cfg.in ${PROJECT_BINARY_DIR}/Doxyfile @ONLY)
+  configure_file(docs/doxygen.cfg.in ${PROJECT_BINARY_DIR}/Doxyfile @ONLY)
   add_custom_target(doxygen-doc
     COMMAND ${DOXYGEN_EXECUTABLE} ${PROJECT_BINARY_DIR}/Doxyfile
     SOURCES ${PROJECT_BINARY_DIR}/Doxyfile)
