@@ -173,8 +173,8 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends \
             cmake doxygen graphviz
-      - name: Configure
-        run: cmake -S . -B build
+      - name: Configure (docs only, no tests)
+        run: cmake -S . -B build -DBUILD_TESTING=OFF
       - name: Build doxygen HTML
         run: cmake --build build --target doc -j "$(nproc)"
       - name: Upload docs as artifact

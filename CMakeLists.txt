@@ -160,19 +160,38 @@ add_custom_target(uninstall
 ##############################################################################
 # tests
 ##############################################################################
-enable_testing()
-add_custom_target(check COMMAND ctest -V)
-add_dependencies(check dmosal)
-add_subdirectory(test EXCLUDE_FROM_ALL)
-
+# Memcheck config must be set as CACHE variables BEFORE include(CTest) so
+# it makes it into DartConfiguration.tcl, which ctest -T memcheck reads.
 find_program(VALGRIND_BIN valgrind)
 if(VALGRIND_BIN)
-  set(MEMORYCHECK_COMMAND         ${VALGRIND_BIN})
-  set(MEMORYCHECK_COMMAND_OPTIONS "--leak-check=full --error-exitcode=1")
+  set(MEMORYCHECK_COMMAND "${VALGRIND_BIN}"
+      CACHE FILEPATH "Memory-check command")
+  set(MEMORYCHECK_COMMAND_OPTIONS "--leak-check=full --error-exitcode=1"
+      CACHE STRING "Memory-check command options")
+endif()
+
+# include(CTest) generates DartConfiguration.tcl and calls enable_testing().
+include(CTest)
+
+add_custom_target(check COMMAND ctest -V)
+add_dependencies(check dmosal)
+
+# Tests require cmocka; wrap in BUILD_TESTING so docs-only / production
+# consumers can configure without the cmocka dependency
+# (pass -DBUILD_TESTING=OFF). BUILD_TESTING is set by include(CTest) above.
+if(BUILD_TESTING)
+  add_subdirectory(test EXCLUDE_FROM_ALL)
+endif()
+
+# Collect the test target names registered by add_subdirectory(test) so the
+# extra check-* targets can depend on them and actually build the binaries.
+get_property(_dm_tests DIRECTORY test PROPERTY TESTS)
+
+if(VALGRIND_BIN)
   add_custom_target(check-valgrind
     COMMAND ${CMAKE_COMMAND} -E chdir ${CMAKE_BINARY_DIR}
       ctest --output-on-failure -T memcheck)
-  add_dependencies(check-valgrind dmosal)
+  add_dependencies(check-valgrind dmosal ${_dm_tests})
 endif()
 
 find_program(LCOV_BIN    lcov)
@@ -187,7 +206,7 @@ if(DMOSAL_ENABLE_COVERAGE AND LCOV_BIN AND GENHTML_BIN)
     COMMAND ${GENHTML_BIN} coverage.filtered.info -o coverage
     COMMENT "Coverage HTML: ${CMAKE_BINARY_DIR}/coverage/index.html"
   )
-  add_dependencies(check-coverage dmosal)
+  add_dependencies(check-coverage dmosal ${_dm_tests})
 endif()
 
 ##############################################################################
