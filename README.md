@@ -1,6 +1,7 @@
 # OSAL - OS Abstraction Layer for Embedded Systems
 
 [![CI](https://github.com/drymon/osal/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/drymon/osal/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/drymon/osal/branch/main/graph/badge.svg)](https://codecov.io/gh/drymon/osal)
 [![License: BSD-2-Clause](https://img.shields.io/badge/License-BSD--2--Clause-blue.svg)](LICENSE)
 [![Language: C](https://img.shields.io/badge/language-C-brightgreen.svg)](#)
 

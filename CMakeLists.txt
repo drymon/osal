@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.12)
+cmake_minimum_required(VERSION 3.10)
 project(dmosal C)
 
 # OSAL version
@@ -179,13 +179,14 @@ add_dependencies(check dmosal)
 # Tests require cmocka; wrap in BUILD_TESTING so docs-only / production
 # consumers can configure without the cmocka dependency
 # (pass -DBUILD_TESTING=OFF). BUILD_TESTING is set by include(CTest) above.
-if(BUILD_TESTING)
-  add_subdirectory(test EXCLUDE_FROM_ALL)
-endif()
-
 # Collect the test target names registered by add_subdirectory(test) so the
 # extra check-* targets can depend on them and actually build the binaries.
-get_property(_dm_tests DIRECTORY test PROPERTY TESTS)
+# When BUILD_TESTING=OFF the test/ directory isn't added, so this stays empty.
+set(_dm_tests "")
+if(BUILD_TESTING)
+  add_subdirectory(test EXCLUDE_FROM_ALL)
+  get_property(_dm_tests DIRECTORY test PROPERTY TESTS)
+endif()
 
 if(VALGRIND_BIN)
   add_custom_target(check-valgrind
