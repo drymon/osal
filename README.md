@@ -5,19 +5,9 @@
 [![License: BSD-2-Clause](https://img.shields.io/badge/License-BSD--2--Clause-blue.svg)](LICENSE)
 [![Language: C](https://img.shields.io/badge/language-C-brightgreen.svg)](#)
 
-OSAL (OS Abstraction Layer) is a **lightweight, static resource allocation framework** designed for Real-Time Operating Systems (RTOS) in embedded systems. <br>
-All OS resources are preconfigured within this framework, providing a seamless interface for managing tasks, semaphores, mutexes, timers, and more, all statically defined at initialization. <br>
-Under the permissive BSD-2-Clause license, users can freely utilize and distribute the library without licensing complexities.
-
-## Features
-
-- **Static Resource Definition:** Allocate resources at initialization, promoting efficiency and predictability in resource-constrained environments.
-- **Simple and Lightweight**: OSAL offers easily understandable source code and effortless integration into your application..
-- **POSIX Compatibility:** Currently supports POSIX-based systems and designed for easy adaptation to other OS environments.
-- **High Portability:** Flexible design facilitates adaptation to various RTOS and embedded platforms.
-- **OS components:** Supports mutex, semaphore, task, timer and time.
-
-## Usage
+A small, portable embedded C abstraction layer providing deterministic/bounded
+resource management and consistent concurrency, timing, and communication
+semantics across POSIX and RTOS platforms. Licensed BSD-2-Clause.
 
 ```
    +-------------------------------+
@@ -37,130 +27,43 @@ Under the permissive BSD-2-Clause license, users can freely utilize and distribu
    +-------------------------------+
 ```
 
-OSAL aims to enhance application code reliability by effectively managing OS resources,
-ensuring portability across multiple operating systems.
+## Build & test
 
-## Prerequisites
-
-On Ubuntu/Debian:
+Requires `cmake`, `libcmocka-dev`, `doxygen` (`sudo apt install cmake
+libcmocka-dev doxygen` on Ubuntu/Debian).
 
 ```
-$ sudo apt install cmake libcmocka-dev doxygen
+$ just check          # configure + build + run tests
 ```
 
-- `cmake` — build system.
-- `libcmocka-dev` — test framework used by `make check`. Tested with libcmocka 1.1.5-2.
-- `doxygen` — generates API documentation via `make doc`.
+No [`just`](https://github.com/casey/just)? See the [`justfile`](justfile)
+for the equivalent raw `cmake`/`ctest` commands, or use the pinned
+[`Dockerfile`](Dockerfile) for a reproducible toolchain
+(`docker build -t dmosal-dev . && docker run --rm -v "$PWD":/workspace -w
+/workspace dmosal-dev just check`).
 
-Optional, for local style/lint checks (see [Style checks](#style-checks) below):
+Other recipes: `just check-valgrind`, `just check-asan`, `just check-tsan`,
+`just check-coverage`, `just doc`, `just format`, `just tidy` — run `just
+--list` for the full set.
 
-```
-$ sudo apt install clang-format python3-pip
-$ pip install pre-commit
-```
-
-## Compilation
-
-> **Quick start:** if you have [`just`](https://github.com/casey/just) installed,
-> run `just build`, `just check`, `just check-valgrind`, etc. from the repo
-> root — see the [`justfile`](justfile) for all available recipes. The steps
-> below show the equivalent raw CMake commands.
-
-- Build the lib:
-
-```
-$ mkdir build
-$ cd build
-$ cmake ..
-$ make
-```
-
-You can configure OSAL resource limitations via the command line.
-For detailed information on configuration parameters and how to set them up,
-please consult the [osal_config.cmake](osal_config.cmake) file.
-
-- Install the lib:
-
-```
-$ sudo make install # install into `/usr/local/`
-```
-
-- Uninstall the lib:
-
-```
-$ sudo make uninstall # uninstall
-```
-
-## Test
-
-The test can be run after the compilation steps above:
-
-```
-$ make check
-```
-
-Or simply `just check` from the repo root.
+Resource limits (max tasks, queues, etc.) are configured at CMake time; see
+[osal_config.cmake](osal_config.cmake).
 
 ## Examples
 
-Please refer to the `examples` dir for how to use the OSAL APIs.
+See [examples/](examples/) for sample programs. Build with `just build`
+(CMake target `examples`).
 
-The examples code can be built as:
+## Documentation
 
-```
-$ make examples
-```
+- API reference (Doxygen): `just doc`, output in `build/doc/html/`.
+- Design/behavioral docs: [docs/](docs/README.md) (architecture, API spec,
+  resource lifetime, thread-safety, porting guide).
 
-## Style checks
+## Contributing
 
-Style is described by `.clang-format` at the repo root. CI enforces it, but
-you can check locally too.
-
-- Check without changing files:
-
-```
-$ git ls-files '*.c' '*.h' | grep -v '\.in$' | xargs clang-format --dry-run -Werror
-```
-
-- Auto-format in place:
-
-```
-$ git ls-files '*.c' '*.h' | grep -v '\.in$' | xargs clang-format -i
-```
-
-Optional `pre-commit` hooks (trailing whitespace, EOL fixer, clang-format,
-etc.) are configured in `.pre-commit-config.yaml`. To enable them:
-
-```
-$ pre-commit install                    # run hooks automatically on `git commit`
-$ pre-commit run --all-files            # run once against the whole tree
-```
-
-**If a pre-commit hook fails on `git commit`:** most hooks auto-fix the files
-(clang-format, trailing whitespace, end-of-file). Just re-stage and commit again:
-
-```
-$ git commit -m "..."                   # hook edits some files and blocks the commit
-$ git add -u                            # re-stage the hook's fixes
-$ git commit -m "..."                   # commit succeeds
-```
-
-## Doc
-
-Design and behavioral documentation (architecture, API spec, resource
-lifetime, thread-safety, porting guide) lives in [docs/](docs/README.md).
-
-To generate the Doxygen API reference, execute the following command.
-The output can be located in the build directory.
-
-```
-$ make doc
-```
+See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## License
 
-This library is licensed under the BSD-2-Clause license. See the LICENSE file for details.
-
-## Contributions
-
-Contributions are welcome! If you find any bugs or have suggestions for improvements, feel free to open an issue or create a pull request.
+BSD-2-Clause — see [LICENSE](LICENSE).
