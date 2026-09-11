@@ -69,10 +69,14 @@ osal_error_t osal_sleep(uint32_t sec);
 osal_error_t osal_usleep(uint32_t microsec);
 
 /**
- * @brief Retrieves the current clock time in nanoseconds.
+ * @brief Retrieves the current monotonic clock time in nanoseconds.
  *
- * @param nsec Pointer to a variable where the clock time in nanoseconds will be stored.
- * @return An error code indicating the status of the clock time retrieval.
+ * The clock is monotonically non-decreasing and unaffected by wall-clock
+ * adjustments. Suitable for measuring elapsed intervals; not suitable for
+ * real-world wall-clock timestamps.
+ *
+ * @param nsec Output pointer; receives the current clock reading in nanoseconds.
+ * @return OSAL_E_OK on success, OSAL_E_OSCALL on a backend failure.
  */
 osal_error_t osal_clock_time(uint64_t *nsec);
 

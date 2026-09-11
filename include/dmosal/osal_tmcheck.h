@@ -165,13 +165,14 @@ void osal_tmcheck_reset(int idx);
 void osal_tmcheck_reset_all(void);
 
 /**
- * @brief Gets the time difference between two checkpoint indices.
+ * @brief Gets the time difference between two checkpoint indices, in nanoseconds.
  *
  * @param idx1 Index of the first checkpoint.
  * @param idx2 Index of the second checkpoint.
- * @return Time difference in nanoseconds
+ * @param out_ns Output pointer receiving the diff `ts[idx2] - ts[idx1]` in nanoseconds.
+ * @return OSAL_E_OK on success, OSAL_E_PARAM if `out_ns` is NULL or an index is invalid.
  */
-int32_t osal_tmcheck_get_diff(int idx1, int idx2);
+osal_error_t osal_tmcheck_get_diff(int idx1, int idx2, int64_t *out_ns);
 
 /**
  * @brief Prints the time difference between two named checkpoints.
@@ -182,13 +183,14 @@ int32_t osal_tmcheck_get_diff(int idx1, int idx2);
 void osal_tmcheck_name_print_diff(char *name1, char *name2);
 
 /**
- * @brief Gets the time difference between two named checkpoints.
+ * @brief Gets the time difference between two named checkpoints, in nanoseconds.
  *
  * @param name1 Name of the first checkpoint.
  * @param name2 Name of the second checkpoint.
- * @return Time difference in nanoseconds.
+ * @param out_ns Output pointer receiving the diff `ts[name2] - ts[name1]` in nanoseconds.
+ * @return OSAL_E_OK on success, OSAL_E_PARAM on bad input or if either name is not found.
  */
-int32_t osal_tmcheck_name_get_diff(char *name1, char *name2);
+osal_error_t osal_tmcheck_name_get_diff(const char *name1, const char *name2, int64_t *out_ns);
 
 /**
  * @brief Gets the last captured timestamp for a given checkpoint index.

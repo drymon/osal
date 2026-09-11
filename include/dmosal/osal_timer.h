@@ -66,9 +66,13 @@ void osal_timer_deinit(void);
 /**
  * @brief Creates a timer in the OS abstraction layer.
  *
- * @param expire Function pointer to the timer expiration callback.
- * @param arg Pointer to the argument to be passed to the expiration callback.
- * @return Pointer to the created timer.
+ * @param expire Timer expiration callback. Must be non-NULL. The callback
+ *   is invoked from an unspecified context managed by the backend, not
+ *   the caller's thread; user code must not assume it runs on any
+ *   particular thread.
+ * @param arg Opaque pointer passed unchanged as the argument to @p expire.
+ * @return Pointer to the created timer, or NULL if @p expire is NULL, the
+ *   timer pool is exhausted, or the backend fails to create the timer.
  */
 osal_timer_t *osal_timer_create(void (*expire)(void *arg), void *arg);
 
@@ -76,9 +80,11 @@ osal_timer_t *osal_timer_create(void (*expire)(void *arg), void *arg);
  * @brief Starts a timer with a specified timeout and repetition setting.
  *
  * @param timer Pointer to the timer to be started.
- * @param usec Time in microseconds for the timer's timeout.
- * @param repeat Boolean flag indicating whether the timer should repeat after expiration.
- * @return An error code indicating the status of the timer start operation.
+ * @param usec Time in microseconds until the first expiration. Must be > 0.
+ * @param repeat If true, the timer re-arms with the same interval after each
+ *   expiration. If false, the timer fires once.
+ * @return OSAL_E_OK on success. OSAL_E_PARAM if @p timer is NULL or @p usec is 0.
+ *   OSAL_E_OSCALL if the backend cannot arm the timer.
  */
 osal_error_t osal_timer_start(osal_timer_t *timer, uint32_t usec, bool repeat);
 
@@ -93,6 +99,13 @@ void osal_timer_stop(osal_timer_t *timer);
  * @brief Deletes a timer from the OS abstraction layer.
  *
  * @param timer Pointer to the timer to be deleted.
+ *
+ * @warning Must not be called while the timer's expire callback is running
+ * (from within the callback itself or concurrently from any other thread).
+ * Doing so aborts the process via @ref OSAL_RUNTIME_ASSERT — the delete
+ * would free the timer out from under the callback. To retire a timer
+ * safely, stop it first with @ref osal_timer_stop and ensure any in-flight
+ * callback has returned before calling this function.
  */
 void osal_timer_delete(osal_timer_t *timer);
 

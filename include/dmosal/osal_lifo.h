@@ -53,6 +53,9 @@ typedef struct osal_lifo_node {
 
 /**
  * @brief Structure defining a Last-In-First-Out (LIFO) data structure.
+ *
+ * @note The LIFO API is intentionally lock-free; callers are responsible for
+ * their own synchronization if the LIFO is shared between threads.
  */
 typedef struct {
 	osal_lifo_node_t *head; /**< Pointer to the head of the LIFO. */

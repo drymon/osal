@@ -139,15 +139,24 @@ void osal_deinit(void)
 		return;
 	}
 	OSAL_RUNTIME_ASSERT(s_shared_mutex != NULL);
-	osal_mutex_delete(s_shared_mutex);
-	s_shared_mutex = NULL;
 
+	/* Tear down subsystems that use the shared mutex FIRST — their
+	 * osal_rm_deinit locks the shared mutex. Deleting the shared mutex
+	 * before this point would leave those locks operating on a destroyed
+	 * mutex.
+	 */
 	osal_sem_deinit();
 	osal_task_deinit();
 	osal_timer_deinit();
 	osal_queue_deinit();
-	osal_log_deinit();
 	osal_tmcheck_deinit();
+
+	/* Log is independent of the shared mutex. */
+	osal_log_deinit();
+
+	/* Now safe to destroy the shared mutex and tear down the mutex pool. */
+	osal_mutex_delete(s_shared_mutex);
+	s_shared_mutex = NULL;
 	osal_mutex_deinit();
 
 	s_initialized = false;

@@ -73,7 +73,7 @@ extern "C" {
 
 /**
  * @brief Macro to provide a generic logging helper function.
- * User needs to define OSALOG_MODULE at the begining of the source file.
+ * User needs to define OSALOG_MODULE at the beginning of the source file.
  *
  * @param level The log level (FATAL, ERROR, WARN, INFO, DEBUG, TRACE).
  * @param ts Flag indicating whether to include timestamp in the log.

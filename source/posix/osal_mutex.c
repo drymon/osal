@@ -96,8 +96,8 @@ osal_error_t osal_mutex_lock(osal_mutex_t *mutex)
 	if (mutex == NULL) {
 		return OSAL_E_PARAM;
 	}
-	/* if it fail, mean a fundamental issue occured, we will abort program */
-	if (pthread_mutex_lock(&mutex->pthmutex) < 0) {
+	/* pthread_mutex_lock returns 0 on success or a positive errno on failure. */
+	if (pthread_mutex_lock(&mutex->pthmutex) != 0) {
 		perror("pthread_mutex_lock()");
 		OSAL_RUNTIME_ASSERT(0);
 		return OSAL_E_OSCALL;
@@ -110,8 +110,8 @@ osal_error_t osal_mutex_unlock(osal_mutex_t *mutex)
 	if (mutex == NULL) {
 		return OSAL_E_PARAM;
 	}
-	/* if it fail, mean a fundamental issue occured, we will abort program */
-	if (pthread_mutex_unlock(&mutex->pthmutex) < 0) {
+	/* pthread_mutex_unlock returns 0 on success or a positive errno on failure. */
+	if (pthread_mutex_unlock(&mutex->pthmutex) != 0) {
 		perror("pthread_mutex_unlock()");
 		OSAL_RUNTIME_ASSERT(0);
 		return OSAL_E_OSCALL;

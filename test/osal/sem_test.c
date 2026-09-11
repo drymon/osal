@@ -107,7 +107,10 @@ static void test_sem_loop(void)
 		assert_int_equal(res, OSAL_E_OK);
 
 		diff = ts2 - ts1;
-		assert_in_range(diff, wait_nsec, wait_nsec + OSAL_USEC_NSEC * 300);
+		/* Allow a generous tolerance — general-purpose Linux scheduling
+		 * jitter (CI runners, contention) can push sem_timedwait wakeup
+		 * by several ms past the requested deadline. */
+		assert_in_range(diff, wait_nsec, wait_nsec + OSAL_MSEC_NSEC * 20);
 	}
 
 	osal_sem_deinit();

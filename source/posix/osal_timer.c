@@ -35,12 +35,19 @@
 #include "osal_rm.h"
 #include "osal_timer.h"
 #include "osal_time.h"
+#include "osal_log.h"
+#define OSALOG_MODULE OSAL_LOG_MODULE_INDEX
 
 struct osal_timer {
 	osal_resrc_t *resrc;
 	void (*expire)(void *arg);
 	void *arg;
 	timer_t timerid;
+	/* True while this timer's expire callback is executing. Used to reject
+	 * osal_timer_delete calls made from within the callback (or from any
+	 * other thread while the callback is still running).
+	 */
+	bool in_callback;
 };
 
 typedef struct {
@@ -74,9 +81,17 @@ static void timer_handler(union sigval sv)
 {
 	osal_timer_t *timer = sv.sival_ptr;
 
-	if (timer->expire) {
+	/* Mark the timer as inside its callback so osal_timer_delete can reject
+	 * a concurrent delete. Users must serialize delete against callback
+	 * execution externally (e.g. osal_timer_stop first).
+	 */
+	timer->in_callback = true;
+
+	if (timer->expire != NULL) {
 		timer->expire(timer->arg);
 	}
+
+	timer->in_callback = false;
 }
 
 osal_timer_t *osal_timer_create(void (*expire)(void *arg), void *arg)
@@ -116,14 +131,26 @@ osal_timer_t *osal_timer_create(void (*expire)(void *arg), void *arg)
 
 void osal_timer_delete(osal_timer_t *timer)
 {
+	osal_resrc_t *resrc;
+
 	if (timer == NULL) {
 		return;
 	}
+	/* Reject delete while the callback is executing. Freeing the timer out
+	 * from under the still-running callback is a programming error, whether
+	 * the delete is called from the callback itself or from another thread.
+	 */
+	if (timer->in_callback) {
+		OSALOG_ERROR("osal_timer_delete: called while the timer's callback is running\n");
+		OSAL_RUNTIME_ASSERT(0);
+	}
+	/* Stop future expirations so no new SIGEV_THREAD handler fires. */
 	if (timer->timerid) {
 		timer_delete(timer->timerid);
 	}
+	resrc = timer->resrc;
 	memset(timer, 0, sizeof(osal_timer_t));
-	osal_rm_free(&s_timer_man.rm, timer->resrc);
+	osal_rm_free(&s_timer_man.rm, resrc);
 }
 
 osal_error_t osal_timer_start(osal_timer_t *timer, uint32_t usec, bool repeat)

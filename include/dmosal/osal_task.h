@@ -51,10 +51,14 @@ typedef struct osal_task osal_task_t;
 
 /**
  * @brief Structure defining the configuration for an OS abstraction layer task.
+ *
+ * @note @c stack_addr, @c stack_size, @c priority, and @c name are hints
+ * that may or may not be honoured by a given backend. @c task_handler is
+ * always required.
  */
 typedef struct {
 	void *stack_addr;				   /**< Optional pointer to the task's stack memory. */
-	uint32_t stack_size;			   /**< Optinal size of the task's stack in bytes. */
+	uint32_t stack_size;			   /**< Optional size of the task's stack in bytes. */
 	uint16_t priority;				   /**< Optional priority of the task. */
 	uint8_t name[OSAL_TASK_NAME_SIZE]; /**< Optional name of the task. */
 	void (*task_handler)(void *arg);   /**< Pointer to the task's handler function. */
@@ -77,15 +81,22 @@ void osal_task_deinit(void);
 /**
  * @brief Creates a task in the OS abstraction layer.
  *
- * @param cfg Pointer to the task configuration.
- * @return Pointer to the created task.
+ * The task starts running immediately after creation.
+ *
+ * @param cfg Pointer to the task configuration. @c task_handler must be non-NULL.
+ * @return Pointer to the created task, or NULL if @p cfg / @c task_handler is
+ * NULL or the task pool is exhausted.
  */
 osal_task_t *osal_task_create(osal_task_cfg_t *cfg);
 
 /**
  * @brief Deletes a task from the OS abstraction layer.
  *
- * @param task Pointer to the task to be deleted.
+ * Stops the task if still running, waits for it to unwind, and returns the
+ * task-pool slot for reuse. Safe to call on a task whose handler has
+ * already returned.
+ *
+ * @param task Pointer to the task to be deleted. No-op if NULL.
  */
 void osal_task_delete(osal_task_t *task);
 

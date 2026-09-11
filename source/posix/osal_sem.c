@@ -76,7 +76,11 @@ osal_sem_t *osal_sem_create(void)
 	sem = resrc->data;
 	OSAL_RUNTIME_ASSERT(sem != NULL);
 	sem->resrc = resrc;
-	sem_init(&sem->psem, 0, 0);
+	if (sem_init(&sem->psem, 0, 0) < 0) {
+		perror("sem_init");
+		osal_rm_free(&s_sem_man.rm, resrc);
+		return NULL;
+	}
 	return sem;
 }
 
