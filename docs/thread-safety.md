@@ -115,7 +115,7 @@ generally safe on most systems.
 
 | Function | Class |
 |---|---|
-| All `osal_lifo_*` | **[owner]** — the LIFO API is intentionally lock-free; caller synchronizes |
+| All `osal_lifo_*` | **[owner]** — the LIFO performs no internal synchronization (plain linked list, not atomics-based); caller synchronizes |
 
 ## Tmcheck
 

@@ -140,7 +140,10 @@ $ git commit -m "..."                   # commit succeeds
 
 ## Doc
 
-To generate the documentation, execute the following command.
+Design and behavioral documentation (architecture, API spec, resource
+lifetime, thread-safety, porting guide) lives in [docs/](docs/README.md).
+
+To generate the Doxygen API reference, execute the following command.
 The output can be located in the build directory.
 
 ```
