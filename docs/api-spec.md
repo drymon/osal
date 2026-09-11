@@ -166,9 +166,9 @@ common pattern.
 
 ## LIFO
 
-Intrusive stack over `osal_lifo_node_t`. Lock-free by design; callers
-synchronize externally if the LIFO is shared. Used by `osal_rm` as the
-free-list backing.
+Intrusive stack over `osal_lifo_node_t`. Not internally synchronized
+(a plain linked list, no atomics); callers synchronize externally if the
+LIFO is shared. Used by `osal_rm` as the free-list backing.
 
 ## Tmcheck
 

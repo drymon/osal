@@ -157,13 +157,12 @@ without further pool ops.
 
 - This makes lifetime analysis local: each resource is created once,
   used until shutdown, and (optionally) deleted at the very end.
-- It also matches the deferred `osal_lock_runtime()` design (see
-  [architecture.md](architecture.md)) where creates and deletes are
-  forbidden outside the init phase.
 
 Dynamic create/delete during operation is legal — the pools are
 thread-safe — but it makes lifetime reasoning harder and is not the
-intended primary use case.
+intended primary use case. There is currently no API to lock a resource
+manager into a "no more creates/deletes" runtime-only mode; that is
+purely a usage convention, not something the library enforces.
 
 ## What the library will NOT do for you
 
