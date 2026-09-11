@@ -99,11 +99,13 @@ static void test_rm(bool use_mutex)
 	use = osal_rm_use(&rm);
 	assert_int_equal(use, MAX_RES);
 
+	/* Tear down the rm before deleting the mutex it references —
+	 * osal_rm_deinit locks that mutex to serialize the pool reset. */
+	osal_rm_deinit(&rm);
 	if (use_mutex) {
 		osal_mutex_delete(rmcfg.mutex);
 		osal_mutex_deinit();
 	}
-	osal_rm_deinit(&rm);
 }
 
 static void test_rm_run(void **state)
