@@ -142,7 +142,7 @@ void osal_timer_delete(osal_timer_t *timer)
 	 */
 	if (timer->in_callback) {
 		OSALOG_ERROR("osal_timer_delete: called while the timer's callback is running\n");
-		OSAL_RUNTIME_ASSERT(0);
+		return;
 	}
 	/* Stop future expirations so no new SIGEV_THREAD handler fires. */
 	if (timer->timerid) {
