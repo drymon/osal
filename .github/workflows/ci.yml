@@ -75,3 +75,111 @@ jobs:
 
       - name: Build examples
         run: cmake --build build --target examples -j "$(nproc)"
+
+  asan:
+    name: asan
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends cmake libcmocka-dev
+      - name: Configure with ASan
+        run: cmake -S . -B build -DDMOSAL_ENABLE_ASAN=ON
+      - name: Build + test
+        run: cmake --build build --target check -j "$(nproc)"
+
+  tsan:
+    name: tsan
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends cmake libcmocka-dev
+      - name: Adjust ASLR for TSan shadow memory
+        run: sudo sysctl -w vm.mmap_rnd_bits=28 || true
+      - name: Configure with TSan
+        run: cmake -S . -B build -DDMOSAL_ENABLE_TSAN=ON
+      - name: Build + test
+        run: cmake --build build --target check -j "$(nproc)"
+
+  valgrind:
+    name: valgrind
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends cmake libcmocka-dev valgrind
+      - name: Configure
+        run: cmake -S . -B build
+      - name: Build
+        run: cmake --build build -j "$(nproc)"
+      - name: Run tests under valgrind memcheck
+        run: cmake --build build --target check-valgrind -j "$(nproc)"
+
+  coverage:
+    name: coverage
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends cmake libcmocka-dev lcov
+      - name: Configure with coverage
+        run: cmake -S . -B build -DDMOSAL_ENABLE_COVERAGE=ON
+      - name: Build + test + generate report
+        run: cmake --build build --target check-coverage -j "$(nproc)"
+      - name: Upload HTML coverage report as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-html
+          path: build/coverage/
+          if-no-files-found: error
+
+  tidy:
+    name: clang-tidy
+    runs-on: ubuntu-22.04
+    # Informational until we clean up the findings; do not block PRs.
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            cmake libcmocka-dev clang-tidy
+      - name: Configure (with compile_commands.json)
+        run: cmake -S . -B build -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+      - name: Build (generate configure-time headers)
+        run: cmake --build build --target dmosal -j "$(nproc)"
+      - name: Run clang-tidy over library sources
+        run: |
+          files=$(git ls-files 'source/*.c' 'source/posix/*.c')
+          clang-tidy -p build $files
+
+  docs:
+    name: docs (build)
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            cmake doxygen graphviz
+      - name: Configure
+        run: cmake -S . -B build
+      - name: Build doxygen HTML
+        run: cmake --build build --target doc -j "$(nproc)"
+      - name: Upload docs as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: doxygen-html
+          path: build/doc/html/
+          if-no-files-found: error
