@@ -76,8 +76,9 @@ osal_queue_t *osal_queue_create(osal_queue_cfg_t *cfg)
 {
 	osal_queue_t *queue;
 	osal_resrc_t *resrc;
-	int res = 0;
+	mqd_t fd;
 	struct mq_attr attr;
+	struct mq_attr existing_attr;
 
 	if (cfg == NULL) {
 		return NULL;
@@ -99,18 +100,34 @@ osal_queue_t *osal_queue_create(osal_queue_cfg_t *cfg)
 	memset(&attr, 0, sizeof(attr));
 	attr.mq_maxmsg = cfg->qsize;
 	attr.mq_msgsize = cfg->msglen;
-	/* Opening queue is very important and happen at the beginning.
-	 * If we can not open the queue, we should terminate the program */
-	res = mq_open(queue->name, O_CREAT | O_RDWR | O_EXCL | O_NONBLOCK, S_IRWXU, &attr);
-	if (res < 0) {
+	/* Try to create the queue exclusively; if it already exists, attach to it. */
+	fd = mq_open(queue->name, O_CREAT | O_RDWR | O_EXCL | O_NONBLOCK, S_IRWXU, &attr);
+	if (fd == (mqd_t)-1) {
 		if (errno != EEXIST) {
 			OSALOG_ERROR("mq_open(%s):%s\n", queue->name, strerror(errno));
-			OSAL_RUNTIME_ASSERT(false);
+			osal_rm_free(&s_queue_man.rm, resrc);
+			return NULL;
 		}
-		res = mq_open(queue->name, O_RDWR);
-		if (res < 0) {
+		fd = mq_open(queue->name, O_RDWR | O_NONBLOCK);
+		if (fd == (mqd_t)-1) {
 			OSALOG_ERROR("mq_open(%s):%s\n", queue->name, strerror(errno));
-			OSAL_RUNTIME_ASSERT(false);
+			osal_rm_free(&s_queue_man.rm, resrc);
+			return NULL;
+		}
+		if (mq_getattr(fd, &existing_attr) == 0) {
+			if ((existing_attr.mq_msgsize != (long)cfg->msglen) ||
+				(existing_attr.mq_maxmsg != (long)cfg->qsize)) {
+				OSALOG_ERROR("mq attr mismatch on %s: existing "
+							 "msgsize=%ld maxmsg=%ld, cfg msglen=%u qsize=%u\n",
+							 queue->name,
+							 existing_attr.mq_msgsize,
+							 existing_attr.mq_maxmsg,
+							 cfg->msglen,
+							 cfg->qsize);
+				mq_close(fd);
+				osal_rm_free(&s_queue_man.rm, resrc);
+				return NULL;
+			}
 		}
 		OSALOG_INFO("Open existing queue: %s\n", queue->name);
 	} else {
@@ -118,7 +135,7 @@ osal_queue_t *osal_queue_create(osal_queue_cfg_t *cfg)
 			"Open new queue: %s qsize=%d msglen=%d\n", queue->name, cfg->qsize, cfg->msglen);
 		queue->create = true;
 	}
-	queue->fd = res;
+	queue->fd = fd;
 
 	return queue;
 }
@@ -180,6 +197,8 @@ osal_queue_recv(osal_queue_t *queue, uint8_t *buf, uint32_t bufsize, uint32_t ti
 
 void osal_queue_delete(osal_queue_t *queue)
 {
+	osal_resrc_t *resrc;
+
 	if (queue == NULL) {
 		return;
 	}
@@ -189,8 +208,9 @@ void osal_queue_delete(osal_queue_t *queue)
 	if (queue->create) {
 		mq_unlink(queue->name);
 	}
+	resrc = queue->resrc;
 	memset(queue, 0, sizeof(osal_queue_t));
-	osal_rm_free(&s_queue_man.rm, queue->resrc);
+	osal_rm_free(&s_queue_man.rm, resrc);
 }
 
 uint32_t osal_queue_use(void)

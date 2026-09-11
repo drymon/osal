@@ -75,8 +75,9 @@ typedef struct {
  * @brief Initializes the resource manager.
  *
  * @param rm Pointer to the resource manager structure to be initialized.
- * @param cfg Pointer to the configuration for initializing the resource manager.
- * @return An error code indicating the status of the initialization.
+ * @param cfg Pointer to the configuration. If @c cfg->mutex is NULL, the
+ *   resulting @p rm is not thread-safe (caller must serialize externally).
+ * @return OSAL_E_OK on success, OSAL_E_PARAM if either argument is NULL.
  */
 osal_error_t osal_rm_init(osal_rm_t *rm, osal_rm_cfg_t *cfg);
 
@@ -91,7 +92,8 @@ void osal_rm_deinit(osal_rm_t *rm);
  * @brief Allocates a resource from the resource manager.
  *
  * @param rm Pointer to the resource manager.
- * @return Pointer to the allocated resource.
+ * @return Pointer to the allocated resource, or NULL if the pool is exhausted
+ * or @p rm is NULL.
  */
 osal_resrc_t *osal_rm_alloc(osal_rm_t *rm);
 

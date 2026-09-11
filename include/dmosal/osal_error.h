@@ -53,18 +53,18 @@ typedef enum {
 	OSAL_E_OSCALL,	/**< Operating system call error */
 	OSAL_E_TIMEOUT, /**< Timeout error */
 	OSAL_E_QFULL,	/**< Queue is full */
-	OSAL_E_QEMPTY,	/**< Queue is empty*/
+	OSAL_E_QEMPTY,	/**< Queue is empty */
 	OSAL_E_INUSE,	/**< Resource is in use */
 	OSAL_E_MAX,		/**< Maximum error code (for range checking) */
 } osal_error_t;
 
 /**
- * @brief Retrieves the error description for a given error code.
+ * @brief Retrieves the human-readable description for an OSAL error code.
  *
- * This function returns a pointer to a string representing the description of the provided error code.
- *
- * @param e The error code of type ::osal_error_t for which the description is required.
- * @return A pointer to a string representing the error description.
+ * @param e The error code of type ::osal_error_t.
+ * @return Pointer to a static, null-terminated string. Never returns NULL —
+ * for out-of-range codes returns the literal `"OSAL_UNKNOWN"`. Owned by the
+ * library; the caller must not free it.
  */
 const char *osal_errstr(osal_error_t e);
 

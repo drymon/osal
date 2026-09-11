@@ -65,7 +65,10 @@ void osal_sem_deinit(void);
 /**
  * @brief Creates a semaphore in the OS abstraction layer.
  *
- * @return Pointer to the created semaphore.
+ * The semaphore is created with an initial count of 0.
+ *
+ * @return Pointer to the created semaphore, or NULL if the semaphore pool
+ *   is exhausted or the backend fails to create the semaphore.
  */
 osal_sem_t *osal_sem_create(void);
 
@@ -96,8 +99,9 @@ osal_error_t osal_sem_wait(osal_sem_t *sem);
  * @brief Waits on a semaphore for a specified time.
  *
  * @param sem Pointer to the semaphore to be waited upon.
- * @param usec Time in microseconds to wait.
- * @return An error code indicating the status of the semaphore wait operation.
+ * @param usec Timeout in microseconds.
+ * @return OSAL_E_OK on success, OSAL_E_TIMEOUT if the deadline elapses,
+ *   OSAL_E_OSCALL on other backend errors, OSAL_E_PARAM if @p sem is NULL.
  */
 osal_error_t osal_sem_waittime(osal_sem_t *sem, uint32_t usec);
 

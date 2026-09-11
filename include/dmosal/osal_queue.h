@@ -53,9 +53,9 @@ typedef struct osal_queue osal_queue_t;
  * @brief Structure defining the configuration for an OS abstraction layer queue.
  */
 typedef struct {
-	uint8_t name[OSAL_QUEUE_NAME_SIZE]; /**< name of the queue. */
-	uint32_t msglen;					/**< len of the message */
-	uint32_t qsize /**< size of the queue */;
+	uint8_t name[OSAL_QUEUE_NAME_SIZE]; /**< Name of the queue (null-terminated). */
+	uint32_t msglen;					/**< Maximum length in bytes of a single message. */
+	uint32_t qsize;						/**< Maximum number of messages the queue can hold. */
 } osal_queue_cfg_t;
 
 /**
@@ -74,36 +74,55 @@ void osal_queue_deinit(void);
 /**
  * @brief Creates a queue in the OS abstraction layer.
  *
- * @param cfg Pointer to the queue configuration.
- * @return Pointer to the created queue.
+ * If a system-visible queue with the same name already exists, this
+ * function attaches to it; in that case @c cfg->msglen and @c cfg->qsize
+ * must match the existing queue's configuration or the call fails.
+ *
+ * @param cfg Pointer to the queue configuration. @c name, @c msglen, and
+ *   @c qsize must all be non-empty / non-zero.
+ * @return Pointer to the created queue, or NULL on bad config, pool
+ *   exhaustion, a backend error, or a name-clash size mismatch.
  */
 osal_queue_t *osal_queue_create(osal_queue_cfg_t *cfg);
 
 /**
  * @brief Deletes a queue from the OS abstraction layer.
  *
- * @param queue Pointer to the queue to be deleted.
+ * Closes this handle. If this handle originally created the queue (rather
+ * than attaching to a pre-existing one), the queue's system name is also
+ * released so it becomes free for reuse.
+ *
+ * @param queue Pointer to the queue to be deleted. No-op if NULL.
  */
 void osal_queue_delete(osal_queue_t *queue);
 
 /**
  * @brief Sends a message into the queue.
  *
+ * Non-blocking: returns @ref OSAL_E_QFULL immediately if the queue is full.
+ *
  * @param queue Pointer to the queue.
- * @param msg Pointer to the message data.
- * @param msglen Length of the message.
- * @return An error code indicating the status of the send.
+ * @param msg Pointer to the message data. Must be non-NULL.
+ * @param msglen Length of the message in bytes. Must be > 0 and
+ *   <= the @c msglen configured in @ref osal_queue_cfg_t.
+ * @return OSAL_E_OK on success, OSAL_E_QFULL if the queue is full,
+ *   OSAL_E_PARAM on invalid arguments, OSAL_E_OSCALL on other errors.
  */
 osal_error_t osal_queue_send(osal_queue_t *queue, uint8_t *msg, uint32_t msglen);
 
 /**
  * @brief Receives a message from the queue.
  *
+ * Blocks up to @p timeout_usec waiting for a message.
+ *
  * @param queue Pointer to the queue.
- * @param buf Pointer to the received buffer.
- * @param bufsize Size of the buffer.
- * @param timeout_usec Timeout to wait on queue when having no message
- * @return An error code indicating the status of the receive.
+ * @param buf Buffer to receive into. Must be non-NULL.
+ * @param bufsize Size of @p buf in bytes.
+ * @param timeout_usec Maximum time to wait in microseconds. 0 means
+ *   effectively non-blocking / immediate poll.
+ * @return OSAL_E_OK on success, OSAL_E_TIMEOUT if no message arrived within
+ *   the timeout, OSAL_E_QEMPTY if woken without a readable message,
+ *   OSAL_E_PARAM on invalid arguments, OSAL_E_OSCALL on other errors.
  */
 osal_error_t
 osal_queue_recv(osal_queue_t *queue, uint8_t *buf, uint32_t bufsize, uint32_t timeout_usec);

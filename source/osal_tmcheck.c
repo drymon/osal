@@ -132,9 +132,10 @@ void osal_tmcheck_delete(int idx)
 		return;
 	}
 	TMCHECK_LOCK();
-	memset(&s_tmcheck_man.tmchecks[idx], 0, sizeof(tmcheck_t));
-	s_tmcheck_man.tmchecks[idx].inuse = 0;
-	s_tmcheck_man.n_tmchecks--;
+	if (s_tmcheck_man.tmchecks[idx].inuse != 0) {
+		memset(&s_tmcheck_man.tmchecks[idx], 0, sizeof(tmcheck_t));
+		s_tmcheck_man.n_tmchecks--;
+	}
 	TMCHECK_UNLOCK();
 }
 
@@ -181,15 +182,15 @@ static void tmcheck_print_diff(tmcheck_t *tmcheck1, tmcheck_t *tmcheck2)
 {
 	if ((tmcheck1->ts > 0) && (tmcheck2->ts > 0)) {
 		if (tmcheck2->ts > tmcheck1->ts) {
-			OSALOG_INFO("[%s]-[%s]=%d ns\n",
+			OSALOG_INFO("[%s]-[%s]=%" PRId64 " ns\n",
 						tmcheck2->name,
 						tmcheck1->name,
-						(int)(tmcheck2->ts - tmcheck1->ts));
+						(int64_t)(tmcheck2->ts - tmcheck1->ts));
 		} else {
-			OSALOG_INFO("[%s]-[%s]=%d ns\n",
+			OSALOG_INFO("[%s]-[%s]=%" PRId64 " ns\n",
 						tmcheck1->name,
 						tmcheck2->name,
-						(int)(tmcheck1->ts - tmcheck2->ts));
+						(int64_t)(tmcheck1->ts - tmcheck2->ts));
 		}
 	}
 }
@@ -262,12 +263,16 @@ void osal_tmcheck_reset_all(void)
 	}
 }
 
-int32_t osal_tmcheck_get_diff(int idx1, int idx2)
+osal_error_t osal_tmcheck_get_diff(int idx1, int idx2, int64_t *out_ns)
 {
-	if ((validate_idx(idx1) == false) || (validate_idx(idx2) == false)) {
-		return -1;
+	if (out_ns == NULL) {
+		return OSAL_E_PARAM;
 	}
-	return s_tmcheck_man.tmchecks[idx2].ts - s_tmcheck_man.tmchecks[idx1].ts;
+	if ((validate_idx(idx1) == false) || (validate_idx(idx2) == false)) {
+		return OSAL_E_PARAM;
+	}
+	*out_ns = (int64_t)s_tmcheck_man.tmchecks[idx2].ts - (int64_t)s_tmcheck_man.tmchecks[idx1].ts;
+	return OSAL_E_OK;
 }
 
 void osal_tmcheck_name_print_diff(char *name1, char *name2)
@@ -293,12 +298,15 @@ void osal_tmcheck_name_print_diff(char *name1, char *name2)
 	}
 }
 
-int32_t osal_tmcheck_name_get_diff(char *name1, char *name2)
+osal_error_t osal_tmcheck_name_get_diff(const char *name1, const char *name2, int64_t *out_ns)
 {
 	int i;
 	tmcheck_t *tmcheck1 = NULL;
 	tmcheck_t *tmcheck2 = NULL;
 
+	if ((name1 == NULL) || (name2 == NULL) || (out_ns == NULL)) {
+		return OSAL_E_PARAM;
+	}
 	for (i = 0; i < OSAL_TMCHECK_NUM_MAX; i++) {
 		if (strcmp(s_tmcheck_man.tmchecks[i].name, name1) == 0) {
 			tmcheck1 = &s_tmcheck_man.tmchecks[i];
@@ -309,11 +317,12 @@ int32_t osal_tmcheck_name_get_diff(char *name1, char *name2)
 			break;
 		}
 	}
-	if ((tmcheck1 != NULL) && (tmcheck2 != NULL)) {
-		return tmcheck2->ts - tmcheck1->ts;
+	if ((tmcheck1 == NULL) || (tmcheck2 == NULL)) {
+		OSALOG_ERROR("Invalid checkpoint name %s or %s\n", name1, name2);
+		return OSAL_E_PARAM;
 	}
-	OSALOG_ERROR("Invalid checkpoint name %s or %s\n", name1, name2);
-	return -1;
+	*out_ns = (int64_t)tmcheck2->ts - (int64_t)tmcheck1->ts;
+	return OSAL_E_OK;
 }
 
 uint64_t osal_tmcheck_get_captured_ts(int idx)
