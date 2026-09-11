@@ -65,6 +65,10 @@ osal_mutex_t *osal_mutex_create(void)
 	osal_resrc_t *resrc;
 	osal_mutex_t *mutex;
 
+	if (s_mutex_man.init == false) {
+		return NULL;
+	}
+
 	pthread_mutex_lock(&s_mutex_man.resrc_mutex);
 	resrc = osal_rm_alloc(&s_mutex_man.rm);
 	pthread_mutex_unlock(&s_mutex_man.resrc_mutex);

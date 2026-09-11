@@ -48,11 +48,17 @@ static void test_task_init(void **state)
 }
 
 static int test_task_count;
+static osal_mutex_t *test_task_count_mtx;
 
 static void test_task_handler(void *arg)
 {
 	assert_ptr_equal(arg, (void *)&test_task_handler);
+	/* Handlers run concurrently across N task threads. Guard the counter
+	 * with an OSAL mutex so the increment is atomic (portable across
+	 * whatever backend OSAL is built on). */
+	osal_mutex_lock(test_task_count_mtx);
 	test_task_count++;
+	osal_mutex_unlock(test_task_count_mtx);
 }
 
 static void test_task_create(void **state)
@@ -61,6 +67,7 @@ static void test_task_create(void **state)
 	int res;
 	int i;
 	osal_task_t *task;
+	osal_task_t *tasks[OSAL_TASK_NUM_MAX];
 	osal_task_cfg_t cfg = {0};
 	uint32_t use;
 	uint32_t avail;
@@ -84,12 +91,20 @@ static void test_task_create(void **state)
 		avail = osal_task_avail();
 		assert_int_equal(avail, OSAL_TASK_NUM_MAX - i);
 
-		task = osal_task_create(&cfg);
-		assert_non_null(task);
+		tasks[i] = osal_task_create(&cfg);
+		assert_non_null(tasks[i]);
 		usleep(1000);
 	}
 	task = osal_task_create(&cfg);
 	assert_null(task);
+
+	/* Join every task so pthreads are reclaimed (avoids TSan thread-leak
+	 * warnings and returns pool slots for the next test). Join *before*
+	 * reading test_task_count so the read happens-after every handler's
+	 * write — otherwise the main-thread read races the last handler. */
+	for (i = 0; i < OSAL_TASK_NUM_MAX; i++) {
+		osal_task_delete(tasks[i]);
+	}
 	assert_int_equal(test_task_count, OSAL_TASK_NUM_MAX);
 }
 
@@ -117,18 +132,25 @@ static void test_task_delete(void **state)
 	}
 	task = osal_task_create(&cfg);
 	assert_non_null(task);
+	/* Match the create with a delete so the pthread is joined. */
+	osal_task_delete(task);
 }
 
 static int setup(void **state)
 {
 	(void)state;
 	osal_init(NULL);
+	test_task_count_mtx = osal_mutex_create();
 	return 0;
 }
 
 static int teardown(void **state)
 {
 	(void)state;
+	if (test_task_count_mtx != NULL) {
+		osal_mutex_delete(test_task_count_mtx);
+		test_task_count_mtx = NULL;
+	}
 	osal_deinit();
 	return 0;
 }
