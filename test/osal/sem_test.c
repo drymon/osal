@@ -125,6 +125,25 @@ static void test_sem(void **state)
 	}
 }
 
+static void test_sem_null_params(void **state)
+{
+	(void)state;
+	osal_error_t res;
+
+	/* NULL-pointer parameter paths must be rejected safely. */
+	res = osal_sem_post(NULL);
+	assert_int_equal(res, OSAL_E_PARAM);
+
+	res = osal_sem_wait(NULL);
+	assert_int_equal(res, OSAL_E_PARAM);
+
+	res = osal_sem_waittime(NULL, 1000);
+	assert_int_equal(res, OSAL_E_PARAM);
+
+	/* delete(NULL) is documented as a safe no-op. */
+	osal_sem_delete(NULL);
+}
+
 static int setup(void **state)
 {
 	(void)state;
@@ -145,6 +164,7 @@ int main(void)
 
 	const struct CMUnitTest tests[] = {
 		cmocka_unit_test_setup_teardown(test_sem, setup, teardown),
+		cmocka_unit_test_setup_teardown(test_sem_null_params, setup, teardown),
 	};
 	return cmocka_run_group_tests(tests, NULL, NULL);
 }

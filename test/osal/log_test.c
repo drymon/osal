@@ -209,6 +209,47 @@ static void test_log_deinit_safety(void **state)
 	assert_int_equal(g_log_calls, 1);
 }
 
+static void test_log_module_change_invalid(void **state)
+{
+	(void)state;
+	osal_error_t res;
+
+	/* Out-of-range index or level must be rejected. */
+	res = osal_log_module_change(OSAL_LOG_MODULE_NUM_MAX, OSALOG_LEVEL_INFO);
+	assert_int_equal(res, OSAL_E_PARAM);
+
+	res = osal_log_module_change(TEST_MODULE_IDX, OSALOG_LEVEL_MAX);
+	assert_int_equal(res, OSAL_E_PARAM);
+
+	/* Changing the level of a module that was never registered (inuse ==
+	 * false) must report NOINIT rather than silently "succeeding". */
+	res = osal_log_module_change(TEST_MODULE_IDX, OSALOG_LEVEL_INFO);
+	assert_int_equal(res, OSAL_E_NOINIT);
+}
+
+static void test_log_print_invalid_params(void **state)
+{
+	(void)state;
+	osal_error_t res;
+
+	res = osal_log_module_init(TEST_MODULE_IDX, "test", OSALOG_LEVEL_INFO, false);
+	assert_int_equal(res, OSAL_E_OK);
+
+	/* Out-of-range module index is rejected. Level is only compared
+	 * against the module threshold (no range validation), so an
+	 * excessively verbose level is simply filtered out (no print, but
+	 * still OSAL_E_OK). */
+	reset_capture();
+	res = osal_log_print(OSAL_LOG_MODULE_NUM_MAX, false, OSALOG_LEVEL_INFO, "x\n");
+	assert_int_equal(res, OSAL_E_PARAM);
+	assert_int_equal(g_log_calls, 0);
+
+	reset_capture();
+	res = osal_log_print(TEST_MODULE_IDX, false, OSALOG_LEVEL_MAX, "x\n");
+	assert_int_equal(res, OSAL_E_OK);
+	assert_int_equal(g_log_calls, 0);
+}
+
 static int setup_clean(void **state)
 {
 	(void)state;
@@ -245,6 +286,8 @@ int main(void)
 		cmocka_unit_test_setup_teardown(test_log_macros, setup_ready, teardown),
 		cmocka_unit_test_setup_teardown(test_log_print_unregistered_module, setup_ready, teardown),
 		cmocka_unit_test_setup_teardown(test_log_deinit_safety, setup_ready, teardown),
+		cmocka_unit_test_setup_teardown(test_log_module_change_invalid, setup_ready, teardown),
+		cmocka_unit_test_setup_teardown(test_log_print_invalid_params, setup_ready, teardown),
 	};
 	return cmocka_run_group_tests(tests, NULL, NULL);
 }

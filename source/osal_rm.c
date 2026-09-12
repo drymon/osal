@@ -28,7 +28,7 @@
 #include "osal_assert.h"
 #include "osal_rm.h"
 
-osal_error_t osal_rm_init(osal_rm_t *rm, osal_rm_cfg_t *cfg)
+osal_error_t osal_rm_init(osal_rm_t *rm, const osal_rm_cfg_t *cfg)
 {
 	uint32_t i;
 

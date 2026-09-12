@@ -72,7 +72,7 @@ void osal_queue_deinit(void)
 	s_queue_man.init = false;
 }
 
-osal_queue_t *osal_queue_create(osal_queue_cfg_t *cfg)
+osal_queue_t *osal_queue_create(const osal_queue_cfg_t *cfg)
 {
 	osal_queue_t *queue;
 	osal_resrc_t *resrc;
@@ -186,7 +186,7 @@ osal_queue_recv(osal_queue_t *queue, uint8_t *buf, uint32_t bufsize, uint32_t ti
 	if (FD_ISSET(queue->fd, &rfds) == false) {
 		return OSAL_E_QEMPTY;
 	}
-	res = mq_receive(queue->fd, (char *)buf, bufsize, NULL);
+	res = (int)mq_receive(queue->fd, (char *)buf, bufsize, NULL);
 	if (res < 0) {
 		OSALOG_ERROR("mq_receive:%s", strerror(errno));
 		return OSAL_E_OSCALL;

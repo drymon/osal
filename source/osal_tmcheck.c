@@ -67,7 +67,7 @@ void osal_tmcheck_deinit(void)
 	memset(&s_tmcheck_man, 0, sizeof(s_tmcheck_man));
 }
 
-int osal_tmcheck_create(char *name)
+int osal_tmcheck_create(const char *name)
 {
 	int new_idx = -1;
 	tmcheck_t *tmcheck;
@@ -178,7 +178,7 @@ void osal_tmcheck_print_all(void)
 	}
 }
 
-static void tmcheck_print_diff(tmcheck_t *tmcheck1, tmcheck_t *tmcheck2)
+static void tmcheck_print_diff(const tmcheck_t *tmcheck1, const tmcheck_t *tmcheck2)
 {
 	if ((tmcheck1->ts > 0) && (tmcheck2->ts > 0)) {
 		if (tmcheck2->ts > tmcheck1->ts) {
@@ -275,7 +275,7 @@ osal_error_t osal_tmcheck_get_diff(int idx1, int idx2, int64_t *out_ns)
 	return OSAL_E_OK;
 }
 
-void osal_tmcheck_name_print_diff(char *name1, char *name2)
+void osal_tmcheck_name_print_diff(const char *name1, const char *name2)
 {
 	int i;
 	tmcheck_t *tmcheck1 = NULL;
@@ -333,7 +333,7 @@ uint64_t osal_tmcheck_get_captured_ts(int idx)
 	return s_tmcheck_man.tmchecks[idx].ts;
 }
 
-uint64_t osal_tmcheck_name_get_captured_ts(char *name)
+uint64_t osal_tmcheck_name_get_captured_ts(const char *name)
 {
 	int i;
 	tmcheck_t *tmcheck = NULL;

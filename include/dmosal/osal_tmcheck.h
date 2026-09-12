@@ -114,7 +114,7 @@ void osal_tmcheck_deinit(void);
  * @param name A unique name identifying the checkpoint.
  * @return Index of the checkpoint, or -1 on error.
  */
-int osal_tmcheck_create(char *name);
+int osal_tmcheck_create(const char *name);
 
 /**
  * @brief Deletes a previously created time checkpoint.
@@ -180,7 +180,7 @@ osal_error_t osal_tmcheck_get_diff(int idx1, int idx2, int64_t *out_ns);
  * @param name1 Name of the first checkpoint.
  * @param name2 Name of the second checkpoint.
  */
-void osal_tmcheck_name_print_diff(char *name1, char *name2);
+void osal_tmcheck_name_print_diff(const char *name1, const char *name2);
 
 /**
  * @brief Gets the time difference between two named checkpoints, in nanoseconds.
@@ -206,7 +206,7 @@ uint64_t osal_tmcheck_get_captured_ts(int idx);
  * @param name Name of the checkpoint.
  * @return Captured timestamp in nanosecond unit
  */
-uint64_t osal_tmcheck_name_get_captured_ts(char *name);
+uint64_t osal_tmcheck_name_get_captured_ts(const char *name);
 
 /**
  * @brief Retrieves the count of used tmcheck points.

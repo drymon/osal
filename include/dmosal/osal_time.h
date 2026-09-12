@@ -76,7 +76,8 @@ osal_error_t osal_usleep(uint32_t microsec);
  * real-world wall-clock timestamps.
  *
  * @param nsec Output pointer; receives the current clock reading in nanoseconds.
- * @return OSAL_E_OK on success, OSAL_E_OSCALL on a backend failure.
+ * @return OSAL_E_OK on success, OSAL_E_PARAM if @p nsec is NULL,
+ * OSAL_E_OSCALL on a backend failure.
  */
 osal_error_t osal_clock_time(uint64_t *nsec);
 

@@ -83,7 +83,7 @@ void osal_queue_deinit(void);
  * @return Pointer to the created queue, or NULL on bad config, pool
  *   exhaustion, a backend error, or a name-clash size mismatch.
  */
-osal_queue_t *osal_queue_create(osal_queue_cfg_t *cfg);
+osal_queue_t *osal_queue_create(const osal_queue_cfg_t *cfg);
 
 /**
  * @brief Deletes a queue from the OS abstraction layer.

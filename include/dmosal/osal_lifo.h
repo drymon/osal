@@ -93,7 +93,7 @@ osal_lifo_node_t *osal_lifo_pop(osal_lifo_t *lifo);
  * @param lifo Pointer to the LIFO structure for which the size will be retrieved.
  * @return Current size of the LIFO.
  */
-uint32_t osal_lifo_size(osal_lifo_t *lifo);
+uint32_t osal_lifo_size(const osal_lifo_t *lifo);
 
 /**
  * @brief Checks if the Last-In-First-Out (LIFO) data structure is empty.
@@ -101,7 +101,7 @@ uint32_t osal_lifo_size(osal_lifo_t *lifo);
  * @param lifo Pointer to the LIFO structure to be checked.
  * @return true if the LIFO is empty, false otherwise.
  */
-bool osal_lifo_is_empty(osal_lifo_t *lifo);
+bool osal_lifo_is_empty(const osal_lifo_t *lifo);
 
 /**
  * @brief Macro for iterating through a Last-In-First-Out (LIFO) data structure.

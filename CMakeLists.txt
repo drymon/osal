@@ -38,6 +38,19 @@ include("${CMAKE_CURRENT_SOURCE_DIR}/osal_config.cmake")
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -Werror=implicit-function-declaration")
 
+# Extra warnings for the library sources only (verified clean on gcc and
+# clang). Not applied to tests/examples since cmocka/test code is outside
+# our control for some of these (e.g. -Wpedantic on generated test macros).
+set(DMOSAL_EXTRA_WARNING_FLAGS
+  -Wshadow
+  -Wconversion
+  -Wpedantic
+  -Wcast-align
+  -Wpointer-arith
+  -Wstrict-prototypes
+  -Wmissing-prototypes
+)
+
 # Sanitizers / coverage — one flag string shared between compile and link.
 set(_dm_extra "")
 if(DMOSAL_ENABLE_ASAN)
@@ -104,6 +117,7 @@ else()
   add_library(dmosal STATIC ${osal_SRC})
 endif()
 target_link_libraries(dmosal ${CMAKE_THREAD_LIBS_INIT} rt)
+target_compile_options(dmosal PRIVATE ${DMOSAL_EXTRA_WARNING_FLAGS})
 set_target_properties(dmosal PROPERTIES
   VERSION ${DMOSAL_VERSION} SOVERSION ${DMOSAL_MAJOR_VERSION})
 
@@ -222,11 +236,18 @@ add_subdirectory(examples EXCLUDE_FROM_ALL)
 # doc
 ##############################################################################
 add_custom_target(doc)
-find_package(Doxygen)
+find_package(Doxygen OPTIONAL_COMPONENTS dot)
 if(NOT DOXYGEN_FOUND)
   message(WARNING "Doxygen is not found!")
 else()
-  configure_file(doxygen.cfg.in ${PROJECT_BINARY_DIR}/Doxyfile @ONLY)
+  if(DOXYGEN_DOT_FOUND)
+    set(DMOSAL_DOXYGEN_HAVE_DOT YES)
+  else()
+    set(DMOSAL_DOXYGEN_HAVE_DOT NO)
+  endif()
+  set(DMOSAL_INCLUDE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/include/dmosal")
+  set(DMOSAL_DOCS_PATH "${CMAKE_CURRENT_SOURCE_DIR}/docs")
+  configure_file(docs/doxygen.cfg.in ${PROJECT_BINARY_DIR}/Doxyfile @ONLY)
   add_custom_target(doxygen-doc
     COMMAND ${DOXYGEN_EXECUTABLE} ${PROJECT_BINARY_DIR}/Doxyfile
     SOURCES ${PROJECT_BINARY_DIR}/Doxyfile)

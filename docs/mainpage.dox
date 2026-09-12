@@ -1,0 +1,21 @@
+/**
+ * @mainpage dmosal
+ *
+ * A small, portable embedded C abstraction layer providing deterministic/bounded
+ * resource management and consistent concurrency, timing, and communication
+ * semantics across POSIX and RTOS platforms.
+ *
+ * This page indexes the API reference below. For narrative documentation, see
+ * the Markdown docs in `docs/` (also linked from the project README):
+ *
+ * - architecture.md &mdash; layered design, subsystem overview, resource-manager
+ *   pattern, callback threading model, backend model.
+ * - thread-safety.md &mdash; per-API table classifying every public call as
+ *   thread-safe, single-owner, or init-thread-only.
+ * - lifetime.md &mdash; init/deinit ordering, resource ownership, when it is
+ *   safe to use/release a resource.
+ * - api-spec.md &mdash; behavioral specification per subsystem: functions,
+ *   states, error codes, invariants.
+ * - porting.md &mdash; how to add a new backend (e.g. an RTOS or bare-metal
+ *   target).
+ */
