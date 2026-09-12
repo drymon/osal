@@ -247,7 +247,7 @@ else()
   endif()
   set(DMOSAL_INCLUDE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/include/dmosal")
   set(DMOSAL_DOCS_PATH "${CMAKE_CURRENT_SOURCE_DIR}/docs")
-  configure_file(doxygen.cfg.in ${PROJECT_BINARY_DIR}/Doxyfile @ONLY)
+  configure_file(docs/doxygen.cfg.in ${PROJECT_BINARY_DIR}/Doxyfile @ONLY)
   add_custom_target(doxygen-doc
     COMMAND ${DOXYGEN_EXECUTABLE} ${PROJECT_BINARY_DIR}/Doxyfile
     SOURCES ${PROJECT_BINARY_DIR}/Doxyfile)
