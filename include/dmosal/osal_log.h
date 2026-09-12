@@ -97,8 +97,13 @@ extern "C" {
 #define OSALOG_IS_BUILT(level) (OSALOG_BUILD_LEVEL >= OSALOG_LEVEL_##level)
 
 /**
- * @brief Macro to log FATAL messages with or without timestamp based on
- * compilation settings.
+ * @def OSALOG_FATAL(args, ...)
+ * @brief Macro to log FATAL messages without a timestamp, compiled out
+ * when FATAL is above ::OSALOG_BUILD_LEVEL.
+ *
+ * @def OSALOGTS_FATAL(args, ...)
+ * @brief Macro to log FATAL messages with a timestamp, compiled out
+ * when FATAL is above ::OSALOG_BUILD_LEVEL.
  */
 #if OSALOG_IS_BUILT(FATAL)
 #define OSALOG_FATAL(args, ...)	  OSALOG_HELPER(FATAL, false, args, ##__VA_ARGS__)
@@ -109,8 +114,13 @@ extern "C" {
 #endif
 
 /**
- * @brief Macro to log ERROR messages with or without timestamp based on
- * compilation settings.
+ * @def OSALOG_ERROR(args, ...)
+ * @brief Macro to log ERROR messages without a timestamp, compiled out
+ * when ERROR is above ::OSALOG_BUILD_LEVEL.
+ *
+ * @def OSALOGTS_ERROR(args, ...)
+ * @brief Macro to log ERROR messages with a timestamp, compiled out
+ * when ERROR is above ::OSALOG_BUILD_LEVEL.
  */
 #if OSALOG_IS_BUILT(ERROR)
 #define OSALOG_ERROR(args, ...)	  OSALOG_HELPER(ERROR, false, args, ##__VA_ARGS__)
@@ -121,8 +131,13 @@ extern "C" {
 #endif
 
 /**
- * @brief Macro to log WARN messages with or without timestamp based on
- * compilation settings.
+ * @def OSALOG_WARN(args, ...)
+ * @brief Macro to log WARN messages without a timestamp, compiled out
+ * when WARN is above ::OSALOG_BUILD_LEVEL.
+ *
+ * @def OSALOGTS_WARN(args, ...)
+ * @brief Macro to log WARN messages with a timestamp, compiled out
+ * when WARN is above ::OSALOG_BUILD_LEVEL.
  */
 #if OSALOG_IS_BUILT(WARN)
 #define OSALOG_WARN(args, ...)	 OSALOG_HELPER(WARN, false, args, ##__VA_ARGS__)
@@ -133,8 +148,13 @@ extern "C" {
 #endif
 
 /**
- * @brief Macro to log INFO messages with or without timestamp based on
- * compilation settings.
+ * @def OSALOG_INFO(args, ...)
+ * @brief Macro to log INFO messages without a timestamp, compiled out
+ * when INFO is above ::OSALOG_BUILD_LEVEL.
+ *
+ * @def OSALOGTS_INFO(args, ...)
+ * @brief Macro to log INFO messages with a timestamp, compiled out
+ * when INFO is above ::OSALOG_BUILD_LEVEL.
  */
 #if OSALOG_IS_BUILT(INFO)
 #define OSALOG_INFO(args, ...)	 OSALOG_HELPER(INFO, false, args, ##__VA_ARGS__)
@@ -145,8 +165,13 @@ extern "C" {
 #endif
 
 /**
- * @brief Macro to log DEBUG messages with or without timestamp based on
- * compilation settings.
+ * @def OSALOG_DEBUG(args, ...)
+ * @brief Macro to log DEBUG messages without a timestamp, compiled out
+ * when DEBUG is above ::OSALOG_BUILD_LEVEL.
+ *
+ * @def OSALOGTS_DEBUG(args, ...)
+ * @brief Macro to log DEBUG messages with a timestamp, compiled out
+ * when DEBUG is above ::OSALOG_BUILD_LEVEL.
  */
 #if OSALOG_IS_BUILT(DEBUG)
 #define OSALOG_DEBUG(args, ...)	  OSALOG_HELPER(DEBUG, false, args, ##__VA_ARGS__)
@@ -157,8 +182,13 @@ extern "C" {
 #endif
 
 /**
- * @brief Macro to log TRACE messages with or without timestamp based on
- * compilation settings.
+ * @def OSALOG_TRACE(args, ...)
+ * @brief Macro to log TRACE messages without a timestamp, compiled out
+ * when TRACE is above ::OSALOG_BUILD_LEVEL.
+ *
+ * @def OSALOGTS_TRACE(args, ...)
+ * @brief Macro to log TRACE messages with a timestamp, compiled out
+ * when TRACE is above ::OSALOG_BUILD_LEVEL.
  */
 #if OSALOG_IS_BUILT(TRACE)
 #define OSALOG_TRACE(args, ...)	  OSALOG_HELPER(TRACE, false, args, ##__VA_ARGS__)
