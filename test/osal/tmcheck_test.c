@@ -33,6 +33,21 @@ static void unique_name(char *out, size_t outsize, const char *tag, int idx)
 	snprintf(out, outsize, "tmc_%d_%s_%d", (int)getpid(), tag, idx);
 }
 
+static char g_log_buf[OSAL_LOG_STRING_SIZE];
+static int g_log_calls;
+
+static void capture_log_output(char *logstr)
+{
+	g_log_calls++;
+	snprintf(g_log_buf, sizeof(g_log_buf), "%s", logstr);
+}
+
+static void reset_capture(void)
+{
+	g_log_calls = 0;
+	g_log_buf[0] = 0;
+}
+
 static void test_tmcheck_init(void **state)
 {
 	(void)state;
@@ -314,10 +329,224 @@ static void test_tmcheck_multithread_capture(void **state)
 	}
 }
 
-static int setup(void **state)
+static void test_tmcheck_print_diff(void **state)
 {
 	(void)state;
-	osal_init(NULL);
+	int idx1;
+	int idx2;
+	char name1[32];
+	char name2[32];
+
+	unique_name(name1, sizeof(name1), "pdiff_a", 0);
+	unique_name(name2, sizeof(name2), "pdiff_b", 0);
+	idx1 = osal_tmcheck_create(name1);
+	assert_true(idx1 >= 0);
+	idx2 = osal_tmcheck_create(name2);
+	assert_true(idx2 >= 0);
+
+	osal_tmcheck_capture_ts(idx1);
+	usleep(20000);
+	osal_tmcheck_capture_ts(idx2);
+
+	reset_capture();
+	osal_tmcheck_print_diff(idx1, idx2);
+	assert_int_equal(g_log_calls, 1);
+	assert_non_null(strstr(g_log_buf, name1));
+	assert_non_null(strstr(g_log_buf, name2));
+
+	/* Invalid indices are rejected: validate_idx() itself logs one error
+	 * line, but no diff line is emitted for it. */
+	reset_capture();
+	osal_tmcheck_print_diff(-1, idx2);
+	assert_int_equal(g_log_calls, 1);
+	assert_null(strstr(g_log_buf, name2));
+
+	osal_tmcheck_delete(idx1);
+	osal_tmcheck_delete(idx2);
+}
+
+static void test_tmcheck_print_diff_uncaptured(void **state)
+{
+	(void)state;
+	int idx1;
+	int idx2;
+	char name1[32];
+	char name2[32];
+
+	unique_name(name1, sizeof(name1), "pdiff_unc_a", 0);
+	unique_name(name2, sizeof(name2), "pdiff_unc_b", 0);
+	idx1 = osal_tmcheck_create(name1);
+	assert_true(idx1 >= 0);
+	idx2 = osal_tmcheck_create(name2);
+	assert_true(idx2 >= 0);
+
+	/* Neither checkpoint has been captured (ts == 0): print_diff must be a
+	 * silent no-op rather than printing a bogus "0 ns" diff. */
+	reset_capture();
+	osal_tmcheck_print_diff(idx1, idx2);
+	assert_int_equal(g_log_calls, 0);
+
+	osal_tmcheck_delete(idx1);
+	osal_tmcheck_delete(idx2);
+}
+
+static void test_tmcheck_print_all(void **state)
+{
+	(void)state;
+	int idx;
+	char name[32];
+
+	unique_name(name, sizeof(name), "pall", 0);
+	idx = osal_tmcheck_create(name);
+	assert_true(idx >= 0);
+
+	/* Uncaptured checkpoint (ts == 0) must not be printed. */
+	reset_capture();
+	osal_tmcheck_print_all();
+	assert_int_equal(g_log_calls, 0);
+
+	osal_tmcheck_capture_ts(idx);
+	reset_capture();
+	osal_tmcheck_print_all();
+	assert_true(g_log_calls >= 1);
+	assert_non_null(strstr(g_log_buf, name));
+
+	osal_tmcheck_delete(idx);
+}
+
+static void test_tmcheck_print_diff_all(void **state)
+{
+	(void)state;
+	int idx1;
+	int idx2;
+	int idx3;
+	char name1[32];
+	char name2[32];
+	char name3[32];
+
+	unique_name(name1, sizeof(name1), "pdiffall_a", 0);
+	unique_name(name2, sizeof(name2), "pdiffall_b", 0);
+	unique_name(name3, sizeof(name3), "pdiffall_c", 0);
+	idx1 = osal_tmcheck_create(name1);
+	assert_true(idx1 >= 0);
+	idx2 = osal_tmcheck_create(name2);
+	assert_true(idx2 >= 0);
+	idx3 = osal_tmcheck_create(name3);
+	assert_true(idx3 >= 0);
+
+	osal_tmcheck_capture_ts(idx1);
+	usleep(10000);
+	osal_tmcheck_capture_ts(idx2);
+	usleep(10000);
+	osal_tmcheck_capture_ts(idx3);
+
+	/* With 3 captured checkpoints, print_diff_all prints consecutive
+	 * diffs plus a final wrap-around (last-to-first) diff: 3 lines total. */
+	reset_capture();
+	osal_tmcheck_print_diff_all();
+	assert_true(g_log_calls >= 3);
+
+	osal_tmcheck_delete(idx1);
+	osal_tmcheck_delete(idx2);
+	osal_tmcheck_delete(idx3);
+}
+
+static void test_tmcheck_reset_all(void **state)
+{
+	(void)state;
+	int idx1;
+	int idx2;
+	char name1[32];
+	char name2[32];
+
+	unique_name(name1, sizeof(name1), "resetall_a", 0);
+	unique_name(name2, sizeof(name2), "resetall_b", 0);
+	idx1 = osal_tmcheck_create(name1);
+	assert_true(idx1 >= 0);
+	idx2 = osal_tmcheck_create(name2);
+	assert_true(idx2 >= 0);
+
+	osal_tmcheck_capture_ts(idx1);
+	osal_tmcheck_capture_ts(idx2);
+	assert_true(osal_tmcheck_get_captured_ts(idx1) > 0);
+	assert_true(osal_tmcheck_get_captured_ts(idx2) > 0);
+
+	osal_tmcheck_reset_all();
+	assert_int_equal(osal_tmcheck_get_captured_ts(idx1), 0);
+	assert_int_equal(osal_tmcheck_get_captured_ts(idx2), 0);
+
+	/* Checkpoints remain allocated after reset_all (only ts is cleared). */
+	assert_int_equal(osal_tmcheck_use(), 2u);
+
+	osal_tmcheck_delete(idx1);
+	osal_tmcheck_delete(idx2);
+}
+
+static void test_tmcheck_name_print_diff(void **state)
+{
+	(void)state;
+	int idx1;
+	int idx2;
+	char name1[32];
+	char name2[32];
+
+	unique_name(name1, sizeof(name1), "npdiff_a", 0);
+	unique_name(name2, sizeof(name2), "npdiff_b", 0);
+	idx1 = osal_tmcheck_create(name1);
+	assert_true(idx1 >= 0);
+	idx2 = osal_tmcheck_create(name2);
+	assert_true(idx2 >= 0);
+
+	osal_tmcheck_capture_ts(idx1);
+	usleep(20000);
+	osal_tmcheck_capture_ts(idx2);
+
+	reset_capture();
+	osal_tmcheck_name_print_diff(name1, name2);
+	assert_int_equal(g_log_calls, 1);
+	assert_non_null(strstr(g_log_buf, name1));
+	assert_non_null(strstr(g_log_buf, name2));
+
+	/* An unknown checkpoint name must log an error, not a diff line, and
+	 * must not crash on a NULL name. */
+	reset_capture();
+	osal_tmcheck_name_print_diff(name1, "no-such-checkpoint");
+	assert_int_equal(g_log_calls, 1);
+	assert_null(strstr(g_log_buf, name2));
+
+	osal_tmcheck_delete(idx1);
+	osal_tmcheck_delete(idx2);
+}
+
+static void test_tmcheck_get_captured_ts_invalid(void **state)
+{
+	(void)state;
+
+	assert_int_equal(osal_tmcheck_get_captured_ts(-1), 0);
+	assert_int_equal(osal_tmcheck_get_captured_ts(OSAL_TMCHECK_NUM_MAX), 0);
+}
+
+static void test_tmcheck_name_get_captured_ts_invalid(void **state)
+{
+	(void)state;
+	uint64_t ts;
+
+	reset_capture();
+	ts = osal_tmcheck_name_get_captured_ts("no-such-checkpoint");
+	assert_int_equal(ts, 0);
+	assert_int_equal(g_log_calls, 1);
+}
+
+static int setup(void **state)
+{
+	osal_config_t cfg;
+
+	(void)state;
+	memset(&cfg, 0, sizeof(cfg));
+	cfg.log_output = capture_log_output;
+	cfg.osal_level = OSALOG_LEVEL_INFO;
+	osal_init(&cfg);
+	reset_capture();
 	return 0;
 }
 
@@ -343,6 +572,14 @@ int main(void)
 		cmocka_unit_test_setup_teardown(test_tmcheck_name_apis, setup, teardown),
 		cmocka_unit_test_setup_teardown(test_tmcheck_diff_ns_large, setup, teardown),
 		cmocka_unit_test_setup_teardown(test_tmcheck_multithread_capture, setup, teardown),
+		cmocka_unit_test_setup_teardown(test_tmcheck_print_diff, setup, teardown),
+		cmocka_unit_test_setup_teardown(test_tmcheck_print_diff_uncaptured, setup, teardown),
+		cmocka_unit_test_setup_teardown(test_tmcheck_print_all, setup, teardown),
+		cmocka_unit_test_setup_teardown(test_tmcheck_print_diff_all, setup, teardown),
+		cmocka_unit_test_setup_teardown(test_tmcheck_reset_all, setup, teardown),
+		cmocka_unit_test_setup_teardown(test_tmcheck_name_print_diff, setup, teardown),
+		cmocka_unit_test_setup_teardown(test_tmcheck_get_captured_ts_invalid, setup, teardown),
+		cmocka_unit_test_setup_teardown(test_tmcheck_name_get_captured_ts_invalid, setup, teardown),
 	};
 	return cmocka_run_group_tests(tests, NULL, NULL);
 }

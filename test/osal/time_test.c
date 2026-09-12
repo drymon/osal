@@ -90,6 +90,15 @@ static void test_sleep_zero_returns(void **state)
 	assert_true((ts2 - ts1) < OSAL_SEC_NSEC);
 }
 
+static void test_clock_time_null_param(void **state)
+{
+	(void)state;
+	osal_error_t res;
+
+	res = osal_clock_time(NULL);
+	assert_int_equal(res, OSAL_E_PARAM);
+}
+
 int main(void)
 {
 	setenv("CMOCKA_TEST_ABORT", "1", 1);
@@ -98,6 +107,7 @@ int main(void)
 		cmocka_unit_test(test_clock_time_nondecreasing),
 		cmocka_unit_test(test_usleep_duration),
 		cmocka_unit_test(test_sleep_zero_returns),
+		cmocka_unit_test(test_clock_time_null_param),
 	};
 	return cmocka_run_group_tests(tests, NULL, NULL);
 }

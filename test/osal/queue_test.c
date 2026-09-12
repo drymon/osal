@@ -285,6 +285,56 @@ static void test_queue_pool_exhaustion(void **state)
 	}
 }
 
+static void test_queue_send_recv_invalid_params(void **state)
+{
+	(void)state;
+	osal_queue_cfg_t cfg;
+	osal_queue_t *queue;
+	osal_error_t res;
+	uint8_t msg[16] = "abc";
+	uint8_t buf[16];
+
+	memset(&cfg, 0, sizeof(cfg));
+	unique_name((char *)cfg.name, sizeof(cfg.name), "inv_params", 0);
+	cfg.msglen = sizeof(buf);
+	cfg.qsize = 2;
+
+	queue = osal_queue_create(&cfg);
+	assert_non_null(queue);
+
+	res = osal_queue_send(NULL, msg, sizeof(msg));
+	assert_int_equal(res, OSAL_E_PARAM);
+
+	res = osal_queue_send(queue, NULL, sizeof(msg));
+	assert_int_equal(res, OSAL_E_PARAM);
+
+	res = osal_queue_send(queue, msg, 0);
+	assert_int_equal(res, OSAL_E_PARAM);
+
+	/* A message larger than the queue's configured msglen is rejected. */
+	res = osal_queue_send(queue, msg, cfg.msglen + 1);
+	assert_int_equal(res, OSAL_E_PARAM);
+
+	res = osal_queue_recv(NULL, buf, sizeof(buf), 1000);
+	assert_int_equal(res, OSAL_E_PARAM);
+
+	res = osal_queue_recv(queue, NULL, sizeof(buf), 1000);
+	assert_int_equal(res, OSAL_E_PARAM);
+
+	res = osal_queue_recv(queue, buf, 0, 1000);
+	assert_int_equal(res, OSAL_E_PARAM);
+
+	osal_queue_delete(queue);
+}
+
+static void test_queue_delete_null(void **state)
+{
+	(void)state;
+
+	/* delete(NULL) is documented as a safe no-op. */
+	osal_queue_delete(NULL);
+}
+
 static int setup(void **state)
 {
 	(void)state;
@@ -313,6 +363,8 @@ int main(void)
 		cmocka_unit_test_setup_teardown(test_queue_reopen_mismatch, setup, teardown),
 		cmocka_unit_test_setup_teardown(test_queue_delete_unlinks, setup, teardown),
 		cmocka_unit_test_setup_teardown(test_queue_pool_exhaustion, setup, teardown),
+		cmocka_unit_test_setup_teardown(test_queue_send_recv_invalid_params, setup, teardown),
+		cmocka_unit_test_setup_teardown(test_queue_delete_null, setup, teardown),
 	};
 	return cmocka_run_group_tests(tests, NULL, NULL);
 }

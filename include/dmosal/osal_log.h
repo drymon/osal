@@ -239,8 +239,7 @@ void osal_log_deinit(void);
  * @param ts Flag indicating whether to include timestamp.
  * @return An error code indicating the status of the initialization.
  */
-osal_error_t
-osal_log_module_init(uint32_t index, const char *name, osal_log_level_t level, bool ts);
+osal_error_t osal_log_module_init(uint32_t index, const char *name, osal_log_level_t level, bool ts);
 
 /**
  * @brief Prints a log message.

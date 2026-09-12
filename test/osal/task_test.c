@@ -136,6 +136,14 @@ static void test_task_delete(void **state)
 	osal_task_delete(task);
 }
 
+static void test_task_delete_null(void **state)
+{
+	(void)state;
+
+	/* delete(NULL) is documented as a safe no-op. */
+	osal_task_delete(NULL);
+}
+
 static int setup(void **state)
 {
 	(void)state;
@@ -163,6 +171,7 @@ int main(void)
 		cmocka_unit_test_setup_teardown(test_task_init, setup, teardown),
 		cmocka_unit_test_setup_teardown(test_task_create, setup, teardown),
 		cmocka_unit_test_setup_teardown(test_task_delete, setup, teardown),
+		cmocka_unit_test_setup_teardown(test_task_delete_null, setup, teardown),
 	};
 	return cmocka_run_group_tests(tests, NULL, NULL);
 }

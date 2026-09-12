@@ -1,4 +1,4 @@
-# OSAL - OS Abstraction Layer for Embedded Systems
+# dmosal — OS Abstraction Layer
 
 [![CI](https://github.com/drymon/osal/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/drymon/osal/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/drymon/osal/branch/main/graph/badge.svg)](https://codecov.io/gh/drymon/osal)
@@ -7,7 +7,13 @@
 
 A small, portable embedded C abstraction layer providing deterministic/bounded
 resource management and consistent concurrency, timing, and communication
-semantics across POSIX and RTOS platforms. Licensed BSD-2-Clause.
+semantics across POSIX and RTOS platforms.
+
+Everything (tasks, mutexes, semaphores, queues, timers, ...) is allocated
+statically up front through a central resource manager, so there's no malloc
+on the hot path and the worst-case memory usage is known ahead of time. A
+POSIX/Linux backend is included; other targets can be added behind the same
+API without breaking existing callers.
 
 ```
    +-------------------------------+
@@ -27,42 +33,56 @@ semantics across POSIX and RTOS platforms. Licensed BSD-2-Clause.
    +-------------------------------+
 ```
 
-## Build & test
+## Getting started
 
-Requires `cmake`, `libcmocka-dev`, `doxygen` (`sudo apt install cmake
-libcmocka-dev doxygen` on Ubuntu/Debian).
+You'll need `cmake`, `libcmocka-dev`, and `doxygen`:
 
 ```
-$ just check          # configure + build + run tests
+sudo apt install cmake libcmocka-dev doxygen
 ```
 
-No [`just`](https://github.com/casey/just)? See the [`justfile`](justfile)
-for the equivalent raw `cmake`/`ctest` commands, or use the pinned
-[`Dockerfile`](Dockerfile) for a reproducible toolchain
-(`docker build -t dmosal-dev . && docker run --rm -v "$PWD":/workspace -w
-/workspace dmosal-dev just check`).
+Then build the library, run the tests, and check out the examples:
 
-Other recipes: `just check-valgrind`, `just check-asan`, `just check-tsan`,
-`just check-coverage`, `just doc`, `just format`, `just tidy` — run `just
---list` for the full set.
+```
+just check          # configure + build + run tests
+just build           # build the examples target
+```
 
-Resource limits (max tasks, queues, etc.) are configured at CMake time; see
-[osal_config.cmake](osal_config.cmake).
+If you'd rather not install a toolchain locally, there's a pinned
+[`Dockerfile`](Dockerfile):
+
+```
+docker build -t dmosal-dev .
+docker run --rm -v "$PWD":/workspace -w /workspace dmosal-dev just check
+```
+
+Don't have [`just`](https://github.com/casey/just) installed? Check the
+[`justfile`](justfile) — every recipe there is just a couple of plain
+`cmake`/`ctest` commands you can run directly.
+
+There are a few more recipes worth knowing about: `just check-valgrind`,
+`just check-asan`, `just check-tsan`, `just check-coverage`, `just doc`,
+`just format`, `just tidy`. Run `just --list` to see everything.
+
+Resource limits (how many tasks, queues, etc. you get) are set at CMake
+configure time — see [osal_config.cmake](osal_config.cmake).
 
 ## Examples
 
-See [examples/](examples/) for sample programs. Build with `just build`
+Sample programs live in [examples/](examples/). Build them with `just build`
 (CMake target `examples`).
 
 ## Documentation
 
-- API reference (Doxygen): `just doc`, output in `build/doc/html/`.
-- Design/behavioral docs: [docs/](docs/README.md) (architecture, API spec,
-  resource lifetime, thread-safety, porting guide).
+- API reference (Doxygen): run `just doc`, output ends up in
+  `build/doc/html/`.
+- Design docs: [docs/](docs/README.md) — architecture, API spec, resource
+  lifetime, thread-safety, porting guide.
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md).
+Bug reports, patches, ideas — all welcome. See [CONTRIBUTING.md](CONTRIBUTING.md)
+for how to build, test, and keep the style consistent.
 
 ## License
 

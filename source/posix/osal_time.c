@@ -45,6 +45,10 @@ osal_error_t osal_clock_time(uint64_t *nsec)
 {
 	struct timespec nowts;
 
+	if (nsec == NULL) {
+		return OSAL_E_PARAM;
+	}
+
 	if (clock_gettime(CLOCK_MONOTONIC, &nowts) < 0) {
 		perror("clock_gettime");
 		return OSAL_E_OSCALL;

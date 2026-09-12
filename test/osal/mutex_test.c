@@ -94,6 +94,25 @@ static void test_mutex_loop(void)
 	osal_mutex_deinit();
 }
 
+static void test_mutex_null_params(void **state)
+{
+	(void)state;
+	int res;
+
+	(void)state;
+
+	/* NULL-pointer parameter paths for the lock/unlock/delete APIs must
+	 * be rejected safely rather than crashing. */
+	res = osal_mutex_lock(NULL);
+	assert_int_equal(res, OSAL_E_PARAM);
+
+	res = osal_mutex_unlock(NULL);
+	assert_int_equal(res, OSAL_E_PARAM);
+
+	/* delete(NULL) is documented as a safe no-op. */
+	osal_mutex_delete(NULL);
+}
+
 static void test_mutex(void **state)
 {
 	int i;
@@ -109,6 +128,7 @@ int main(void)
 
 	const struct CMUnitTest tests[] = {
 		cmocka_unit_test(test_mutex),
+		cmocka_unit_test(test_mutex_null_params),
 	};
 	return cmocka_run_group_tests(tests, NULL, NULL);
 }

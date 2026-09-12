@@ -108,6 +108,33 @@ static void test_rm(bool use_mutex)
 	}
 }
 
+static void test_rm_null_params(void **state)
+{
+	(void)state;
+	osal_rm_t rm;
+	osal_rm_cfg_t rmcfg;
+	osal_resrc_t resrc;
+	osal_error_t err;
+
+	memset(&rmcfg, 0, sizeof(rmcfg));
+
+	err = osal_rm_init(NULL, &rmcfg);
+	assert_int_equal(err, OSAL_E_PARAM);
+
+	err = osal_rm_init(&rm, NULL);
+	assert_int_equal(err, OSAL_E_PARAM);
+
+	/* NULL-pointer parameter paths for the remaining APIs must be
+	 * rejected/no-op safely rather than crashing. */
+	assert_null(osal_rm_alloc(NULL));
+	assert_int_equal(osal_rm_avail(NULL), 0);
+
+	osal_rm_free(NULL, &resrc);
+	osal_rm_free(&rm, NULL);
+
+	osal_rm_deinit(NULL);
+}
+
 static void test_rm_run(void **state)
 {
 	(void)state;
@@ -125,6 +152,7 @@ int main(void)
 
 	const struct CMUnitTest tests[] = {
 		cmocka_unit_test(test_rm_run),
+		cmocka_unit_test(test_rm_null_params),
 	};
 	return cmocka_run_group_tests(tests, NULL, NULL);
 }
