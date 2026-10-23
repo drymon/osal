@@ -77,8 +77,8 @@ on the virtual `native_sim` board, so no hardware is needed, and everything
 (including the Zephyr source) runs inside Docker:
 
 ```
-zephyr/docker.sh build   # build the examples for Zephyr
-zephyr/docker.sh run     # run them
+just zephyr-build       # build the examples for Zephyr native_sim (Docker)
+just zephyr-run         # run the Zephyr examples
 ```
 
 See [zephyr/README.md](zephyr/README.md) for setup, configuration and how the
