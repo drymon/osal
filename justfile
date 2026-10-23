@@ -94,6 +94,18 @@ zephyr-run:
 zephyr-shell:
     zephyr/docker.sh shell
 
+# Build the examples for Zephyr native_sim inside Docker (EXAMPLE=<name> for one)
+zephyr-build:
+    zephyr/docker.sh build
+
+# Run the Zephyr examples on native_sim
+zephyr-run:
+    zephyr/docker.sh run
+
+# Open a shell in the Zephyr container
+zephyr-shell:
+    zephyr/docker.sh shell
+
 # Remove the default build directory
 clean:
     rm -rf {{build_dir}}
