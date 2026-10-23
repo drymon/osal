@@ -11,9 +11,14 @@
 #   just check-asan         # build + run tests with ASan/UBSan enabled
 #   just check-tsan         # build + run tests with ThreadSanitizer enabled
 #   just check-coverage     # build + run tests with gcov coverage, generate html
+#   just examples           # build the Linux examples
+#   just run-examples       # build + run every Linux example
 #   just doc                # generate Doxygen HTML docs
 #   just format             # apply clang-format to the whole tree
 #   just tidy               # run clang-tidy
+#   just zephyr-build       # build the examples for Zephyr native_sim (Docker)
+#   just zephyr-run         # run the Zephyr examples
+#   just zephyr-shell       # shell inside the Zephyr container
 #   just clean              # remove build directories
 
 build_dir := "build"
@@ -55,6 +60,14 @@ check-coverage:
     just configure -DDMOSAL_ENABLE_COVERAGE=ON
     cmake --build {{build_dir}} --target check-coverage -j{{jobs}}
 
+# Build the Linux examples (binaries in build/examples)
+examples: configure
+    cmake --build {{build_dir}} --target examples -j{{jobs}}
+
+# Build and run every Linux example
+run-examples: examples
+    for ex in {{build_dir}}/examples/*_sample; do echo "== $ex"; "$ex" || exit 1; done
+
 # Generate Doxygen HTML documentation
 doc: configure
     cmake --build {{build_dir}} --target doc
@@ -67,10 +80,22 @@ format:
 tidy:
     pre-commit run clang-tidy --all-files
 
+# Build the examples for Zephyr native_sim inside Docker (EXAMPLE=<name> for one)
+zephyr-build:
+    zephyr/docker.sh build
+
+# Run the Zephyr examples on native_sim
+zephyr-run:
+    zephyr/docker.sh run
+
+# Open a shell in the Zephyr container
+zephyr-shell:
+    zephyr/docker.sh shell
+
 # Remove the default build directory
 clean:
     rm -rf {{build_dir}}
 
 # Remove all build directories (default + sanitizer variants)
 distclean:
-    rm -rf {{build_dir}} build-asan build-tsan
+    rm -rf {{build_dir}} build-asan build-tsan build-zephyr
