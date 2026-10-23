@@ -77,7 +77,7 @@ doc: configure
 format:
     pre-commit run clang-format --all-files
 
-# Run clang-tidy over the portable + POSIX sources via pre-commit
+# Run clang-tidy over the portable + Linux sources via pre-commit
 tidy:
     cmake -S . -B {{build_dir}} -DCMAKE_BUILD_TYPE={{build_type}} -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
     cmake --build {{build_dir}} --target dmosal -j{{jobs}}

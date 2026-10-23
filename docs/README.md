@@ -8,7 +8,7 @@ Doxygen-generated API reference (built via `make doc`).
 | [architecture.md](architecture.md) | Layered design, subsystem overview, resource-manager pattern, callback threading model, backend model. |
 | [api-spec.md](api-spec.md) | Behavioral specification per subsystem — functions, states, error codes, invariants. |
 | [lifetime.md](lifetime.md) | Init/deinit ordering, resource ownership, when it is safe to use / release a resource. |
-| [porting.md](porting.md) | How to add a new backend (e.g. an RTOS or bare-metal target). Reference: the POSIX backend. |
+| [porting.md](porting.md) | How to add a new backend (e.g. an RTOS or bare-metal target). Reference: the Linux backend. |
 | [thread-safety.md](thread-safety.md) | Per-API table classifying every public call as thread-safe, single-owner, or init-thread-only. |
 
 If you're just getting started, read them in this order:

@@ -12,8 +12,8 @@ normal Linux process, no real hardware). Only Docker is needed on the host.
 | `zephyr/app/` | Zephyr app (CMake + `prj.conf` only). Builds a file from `examples/`, shared with all platforms. |
 | `zephyr/docker.sh`, `zephyr/Dockerfile` | Slim build container + helper. |
 
-The portable code (`source/*.c`) is shared with the POSIX build; do not edit it
-for Zephyr. Use `source/posix/*.c` as the reference for behaviour.
+The portable code (`source/*.c`) is shared with the Linux build; do not edit it
+for Zephyr. Use `source/linux/*.c` as the reference for behaviour.
 
 ## Quick start
 
