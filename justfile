@@ -54,7 +54,8 @@ check-asan:
 # Build and run tests with ThreadSanitizer
 check-tsan:
     just build_dir=build-tsan configure -DDMOSAL_ENABLE_TSAN=ON
-    just build_dir=build-tsan check
+    # TSan aborts with "unexpected memory mapping" when ASLR is on; disable it for the run.
+    setarch "$(uname -m)" -R just build_dir=build-tsan check
 
 # Build and run tests with gcov coverage, generate HTML report
 check-coverage:

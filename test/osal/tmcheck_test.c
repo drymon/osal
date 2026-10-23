@@ -280,6 +280,7 @@ static void test_tmcheck_diff_ns_large(void **state)
 
 static int g_mt_idx[TMCHECK_MT_TASKS];
 static bool g_mt_ok[TMCHECK_MT_TASKS];
+static osal_sem_t *g_mt_done;
 
 static void tmcheck_mt_task(void *arg)
 {
@@ -299,6 +300,7 @@ static void tmcheck_mt_task(void *arg)
 	osal_tmcheck_capture_ts(idx);
 	ts = osal_tmcheck_get_captured_ts(idx);
 	g_mt_ok[i] = (ts > 0);
+	osal_sem_post(g_mt_done);
 }
 
 static void test_tmcheck_multithread_capture(void **state)
@@ -310,6 +312,8 @@ static void test_tmcheck_multithread_capture(void **state)
 
 	memset(g_mt_idx, 0xff, sizeof(g_mt_idx));
 	memset(g_mt_ok, 0, sizeof(g_mt_ok));
+	g_mt_done = osal_sem_create();
+	assert_non_null(g_mt_done);
 
 	for (i = 0; i < TMCHECK_MT_TASKS; i++) {
 		memset(&cfg, 0, sizeof(cfg));
@@ -318,11 +322,11 @@ static void test_tmcheck_multithread_capture(void **state)
 		tasks[i] = osal_task_create(&cfg);
 		assert_non_null(tasks[i]);
 	}
+	/* Backends differ on whether delete waits for the task, so wait for each to finish. */
 	for (i = 0; i < TMCHECK_MT_TASKS; i++) {
-		/* Backends differ on whether delete waits for the task, so wait explicitly. */
-		for (int wait = 0; wait < 1000 && !g_mt_ok[i]; wait++) {
-			osal_usleep(1000);
-		}
+		assert_int_equal(osal_sem_waittime(g_mt_done, 5000000), OSAL_E_OK);
+	}
+	for (i = 0; i < TMCHECK_MT_TASKS; i++) {
 		osal_task_delete(tasks[i]);
 	}
 
@@ -331,6 +335,7 @@ static void test_tmcheck_multithread_capture(void **state)
 		assert_true(g_mt_idx[i] >= 0);
 		osal_tmcheck_delete(g_mt_idx[i]);
 	}
+	osal_sem_delete(g_mt_done);
 }
 
 static void test_tmcheck_print_diff(void **state)
