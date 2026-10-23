@@ -168,6 +168,32 @@ jobs:
           files=$(git ls-files 'source/*.c' ':!source/zephyr')
           clang-tidy -p build $files
 
+  zephyr:
+    name: zephyr native_sim (examples + tests)
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Cache the Zephyr build image
+        id: image-cache
+        uses: actions/cache@v4
+        with:
+          path: /tmp/dmosal-zephyr.tar
+          key: zephyr-image-${{ hashFiles('zephyr/Dockerfile') }}
+      - name: Load cached image
+        if: steps.image-cache.outputs.cache-hit == 'true'
+        run: docker load -i /tmp/dmosal-zephyr.tar
+      - name: Build the Zephyr image
+        if: steps.image-cache.outputs.cache-hit != 'true'
+        run: |
+          docker build -t dmosal-zephyr:local -f zephyr/Dockerfile zephyr
+          docker save -o /tmp/dmosal-zephyr.tar dmosal-zephyr:local
+      - name: Build examples
+        run: zephyr/docker.sh build
+      - name: Run examples
+        run: zephyr/docker.sh run
+      - name: Build and run cmocka tests
+        run: zephyr/docker.sh test
+
   docs:
     name: docs (build)
     runs-on: ubuntu-22.04

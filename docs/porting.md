@@ -5,7 +5,7 @@ under `source/`. The rest of the library — the resource manager, LIFO,
 logging, error strings, tmcheck, and top-level init — is portable C and
 unchanged across backends.
 
-The reference implementation lives at `source/linux/` and targets Linux /
+The reference implementation lives at `source/posix/` and targets Linux /
 glibc. This document walks through what a new backend must provide.
 
 ## Files a backend must implement
@@ -31,7 +31,7 @@ For each function, honour the behavior documented in
 [lifetime.md](lifetime.md). Concretely:
 
 - **Pool ops must be thread-safe** — `_create` and `_delete` need to
-  serialize their pool touches. On Linux we do this by threading the
+  serialize their pool touches. On POSIX we do this by threading the
   shared `osal_mutex_t *mutex` through each `_man_t`'s `osal_rm_t`. Reuse
   that pattern via `OSAL_RM_USEROBJMAN_DECLARE` / `_INIT` if the target
   OS has a mutex primitive.
@@ -43,7 +43,7 @@ For each function, honour the behavior documented in
     without a helper-thread mechanism, provide one (e.g. a dedicated
     timer dispatch task).
 - **`osal_timer_delete` must reject in-callback invocation.** Use the
-  `in_callback` bool pattern from the Linux backend: set true around the
+  `in_callback` bool pattern from the POSIX backend: set true around the
   callback invocation, `OSAL_RUNTIME_ASSERT` in delete if it's true.
 
 ## Steps
@@ -61,13 +61,13 @@ For each function, honour the behavior documented in
 
 2. **Add sources to `CMakeLists.txt`.** Extend the `osal_SRC` list to
    include `source/mybackend/*.c` when the target backend is selected.
-   The simplest scheme: add an option `DMOSAL_BACKEND=linux|mybackend`
+   The simplest scheme: add an option `DMOSAL_BACKEND=posix|mybackend`
    and switch the source glob accordingly. Only one backend is compiled
    in at a time.
 
 3. **Implement `osal_mutex.c` first.** Everything else depends on it —
    the shared mutex from this pool is passed to every other subsystem's
-   init. See `source/linux/osal_mutex.c` for the reference:
+   init. See `source/posix/osal_mutex.c` for the reference:
    - `s_mutex_man` static holding the pool.
    - A bare backend-level mutex (`s_mutex_man.resrc_mutex`) is used
      inside `osal_mutex_create` because it can't recursively use its own
@@ -77,11 +77,11 @@ For each function, honour the behavior documented in
 
 4. **Implement `osal_sem.c`, `osal_task.c`, `osal_timer.c`, `osal_queue.c`,
    `osal_time.c`.** Each mirrors the same `_man_t` + `osal_rm_t` structure.
-   Copy the Linux file and swap the OS calls.
+   Copy the POSIX file and swap the OS calls.
 
 5. **Wire in the build.** `CMakeLists.txt` is the only place where the
    backend directory is referenced. Neither the public headers nor the
-   portable `source/*.c` files hard-code Linux.
+   portable `source/*.c` files hard-code POSIX.
 
 6. **Run the existing test suite.** All six cmocka tests exercise only
    the public API and should pass unchanged. If they fail, the failure
@@ -96,8 +96,8 @@ Some behaviors are inherently backend-specific and may need adjustment:
   the microsecond field will just always show 0 — no code change needed.
 - **`osal_task_cfg_t` hints** — `stack_addr`, `stack_size`, `priority`,
   `name` are best-effort. Honour them if your target OS supports them.
-  The Linux reference implementation ignores them.
-- **Timer callback thread** — the Linux backend spawns one helper thread
+  The POSIX reference implementation ignores them.
+- **Timer callback thread** — the POSIX backend spawns one helper thread
   per expiration (`SIGEV_THREAD`). On memory-constrained targets, use a
   single dedicated timer-dispatch task that walks a pending list.
 

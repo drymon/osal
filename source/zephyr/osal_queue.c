@@ -36,7 +36,7 @@
 #include "osal_assert.h"
 #include "osal_config.h"
 
-/* Shared by every handle created with the same name (mirrors Linux mq_open attach). */
+/* Shared by every handle created with the same name (mirrors POSIX mq_open attach). */
 typedef struct {
 	struct k_msgq msgq;
 	char buf[CONFIG_DMOSAL_QUEUE_BUF_SIZE] __aligned(sizeof(void *));

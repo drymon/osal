@@ -12,8 +12,8 @@ normal Linux process, no real hardware). Only Docker is needed on the host.
 | `zephyr/app/` | Zephyr app (CMake + `prj.conf` only). Builds a file from `examples/`, shared with all platforms. |
 | `zephyr/docker.sh`, `zephyr/Dockerfile` | Slim build container + helper. |
 
-The portable code (`source/*.c`) is shared with the Linux build; do not edit it
-for Zephyr. Use `source/linux/*.c` as the reference for behaviour.
+The portable code (`source/*.c`) is shared with the POSIX build; do not edit it
+for Zephyr. Use `source/posix/*.c` as the reference for behaviour.
 
 ## Quick start
 
@@ -22,6 +22,8 @@ zephyr/docker.sh build   # first run builds the image (~1.8 GB, Zephyr v4.0.0 in
 zephyr/docker.sh run     # run every example
 zephyr/docker.sh shell   # interactive shell (west, cmake, gcc available)
 EXAMPLE=task_sample zephyr/docker.sh build   # just one example; same for run
+zephyr/docker.sh test    # build + run every test/osal/*_test.c on native_sim
+TEST=mutex_test zephyr/docker.sh test   # just one test
 ```
 
 `run` passes `-stop_at=3` (3 s of simulated time) because `zephyr.exe` never exits on its own.
@@ -52,5 +54,10 @@ Add new examples under `examples/` (portable code only) and select them with `EX
 - The app finds the module via `ZEPHYR_EXTRA_MODULES` in
   `zephyr/app/CMakeLists.txt`. Your own app does the same and sets `CONFIG_DMOSAL=y`.
 - Zephyr source: inside the image at `/opt/zephyrws/zephyr` (browse with `zephyr/docker.sh shell`).
+- Tests: `test/osal/*_test.c` are portable cmocka tests shared with the Linux build; they use
+  only the OSAL API. Backend-specific tests live in `test/<backend>/` (for example
+  `test/linux/`) and are not built for Zephyr. `zephyr/app` builds one test with
+  `-DTEST=<name>`, compiling cmocka from the image (`/opt/cmocka`) against the host libc
+  (`zephyr/app/test.conf`); `test_main.c` runs the test's `main` and exits with its result.
 - Only one `main()` per Zephyr image; run extra "apps" as OSAL tasks.
 - Log level, `osal_log_*` etc. come from the portable code and print via stdout.

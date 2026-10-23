@@ -18,7 +18,7 @@ behaviour matters more than dynamic flexibility.
    |          dmosal (public API)  |
    +---------------+---------------+
    |    portable   |    backend    |
-   |    layer      |    (Linux...) |
+   |    layer      |    (POSIX...) |
    +---------------+---------------+
    |         OS user-space API     |
    +-------------------------------+
@@ -34,7 +34,7 @@ behaviour matters more than dynamic flexibility.
   across every backend (resource manager, LIFO free-list, error strings,
   logging, time-checkpoint utility, top-level init).
 - **Backend** — `source/<backend>/*.c`. Only these files touch OS-specific
-  APIs. The Linux backend under `source/linux/` is the reference
+  APIs. The POSIX backend under `source/posix/` is the reference
   implementation.
 
 ## Subsystems
@@ -93,7 +93,7 @@ Two subsystems invoke user code from a thread other than the caller's:
 - **Task** — `osal_task_create(cfg)` spawns a new thread that runs
   `cfg->task_handler`. The handler runs to completion on that thread.
 - **Timer** — the timer callback fires on a backend-managed context, not
-  the caller's thread. On the Linux backend that means a fresh helper
+  the caller's thread. On the POSIX backend that means a fresh helper
   thread per expiration (via `SIGEV_THREAD`). User code must not assume
   any particular thread identity inside the callback.
 

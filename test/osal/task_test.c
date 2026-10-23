@@ -93,7 +93,7 @@ static void test_task_create(void **state)
 
 		tasks[i] = osal_task_create(&cfg);
 		assert_non_null(tasks[i]);
-		usleep(1000);
+		osal_usleep(1000);
 	}
 	task = osal_task_create(&cfg);
 	assert_null(task);
@@ -127,7 +127,7 @@ static void test_task_delete(void **state)
 
 		task = osal_task_create(&cfg);
 		assert_non_null(task);
-		usleep(1000);
+		osal_usleep(1000);
 		osal_task_delete(task);
 	}
 	task = osal_task_create(&cfg);

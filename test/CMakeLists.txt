@@ -79,3 +79,10 @@ add_executable(${OSAL_TEST} osal/osal_test.c)
 target_link_libraries(${OSAL_TEST} dmosal ${CMOCKA_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
 add_dependencies(check ${OSAL_TEST})
 add_test(${OSAL_TEST} ${OSAL_TEST})
+
+# Linux-backend-only tests (not portable to other backends).
+set(QUEUE_UNLINK_TEST queue_unlink_test)
+add_executable(${QUEUE_UNLINK_TEST} linux/queue_unlink_test.c)
+target_link_libraries(${QUEUE_UNLINK_TEST} dmosal ${CMOCKA_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
+add_dependencies(check ${QUEUE_UNLINK_TEST})
+add_test(${QUEUE_UNLINK_TEST} ${QUEUE_UNLINK_TEST})

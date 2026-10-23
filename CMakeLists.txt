@@ -78,12 +78,12 @@ set(osal_SRC
   source/osal_log.c
   source/osal_rm.c
   source/osal_tmcheck.c
-  source/linux/osal_mutex.c
-  source/linux/osal_queue.c
-  source/linux/osal_sem.c
-  source/linux/osal_task.c
-  source/linux/osal_time.c
-  source/linux/osal_timer.c
+  source/posix/osal_mutex.c
+  source/posix/osal_queue.c
+  source/posix/osal_sem.c
+  source/posix/osal_task.c
+  source/posix/osal_time.c
+  source/posix/osal_timer.c
 )
 
 # Generated headers live under the build tree — never in the source tree.

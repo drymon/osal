@@ -123,8 +123,7 @@ generally safe on most systems.
 |---|---|
 | `osal_tmcheck_init`, `osal_tmcheck_deinit` | **[init]** |
 | `osal_tmcheck_create`, `osal_tmcheck_delete` | **[any]** — internally locked |
-| all `osal_tmcheck_*_print*`, `osal_tmcheck_name_get_diff`, `osal_tmcheck_name_get_captured_ts` | **[any]** — cold path, internally locked (names and the in-use flag are read under the shared mutex) |
-| `osal_tmcheck_capture_ts`, `osal_tmcheck_reset`, `osal_tmcheck_reset_all`, `osal_tmcheck_get_diff`, `osal_tmcheck_get_captured_ts` | **[owner]** — hot path, intentionally lock-free so measurement is not perturbed; the caller serializes access to a given checkpoint. Data may be slightly inconsistent if racing against `_delete` |
+| `osal_tmcheck_capture_ts`, `osal_tmcheck_reset`, `osal_tmcheck_reset_all`, all `osal_tmcheck_*_print*`, `osal_tmcheck_get_diff`, `osal_tmcheck_name_get_diff`, `osal_tmcheck_get_captured_ts`, `osal_tmcheck_name_get_captured_ts` | **[owner]** — diagnostic-only paths intentionally unlocked. Data may be slightly inconsistent if racing against `_delete` |
 | `osal_tmcheck_use`, `osal_tmcheck_avail` | **[any]** |
 
 ## Assert

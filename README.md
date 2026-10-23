@@ -12,7 +12,7 @@ semantics across POSIX and RTOS platforms.
 Everything (tasks, mutexes, semaphores, queues, timers, ...) is allocated
 statically up front through a central resource manager, so there's no malloc
 on the hot path and the worst-case memory usage is known ahead of time. A
-Linux backend and a Zephyr backend are included; other targets can be
+POSIX/Linux backend and a Zephyr backend are included; other targets can be
 added behind the same API without breaking existing callers.
 
 ```
@@ -87,7 +87,7 @@ backend maps to Zephyr primitives.
 ## Examples
 
 Sample programs live in [examples/](examples/). Build them with `just build`
-(CMake target `examples`) for Linux, or with `zephyr/docker.sh build` for
+(CMake target `examples`) for POSIX, or with `zephyr/docker.sh build` for
 Zephyr.
 
 ## Documentation

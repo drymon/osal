@@ -133,7 +133,7 @@ create -> [started/stopped, callback fires 0+ times] -> stop -> delete
 create --opens or attaches--> [send/recv N times] --unlinks if creator--> delete
 ```
 
-- On the Linux backend, `osal_queue_create` may either create the
+- On the POSIX backend, `osal_queue_create` may either create the
   underlying kernel queue or attach to an existing one with the same
   name. `osal_queue_delete` unlinks the kernel queue only when this
   handle originally created it.

@@ -165,68 +165,15 @@ void osal_tmcheck_capture_ts(int idx)
 	}
 }
 
-/*
- * Cold-path functions (print and name lookup) take the lock because they read
- * names / the inuse flag that create and delete modify. capture_ts, get_captured_ts,
- * reset, reset_all and get_diff are the hot path and stay lock-free: the caller serializes
- * access to a given checkpoint.
- */
-static void snapshot_all(tmcheck_t *dst)
-{
-	TMCHECK_LOCK();
-	memcpy(dst, s_tmcheck_man.tmchecks, sizeof(s_tmcheck_man.tmchecks));
-	TMCHECK_UNLOCK();
-}
-
-static bool snapshot_idx(int idx, tmcheck_t *dst)
-{
-	if (validate_idx(idx) == false) {
-		return false;
-	}
-	TMCHECK_LOCK();
-	*dst = s_tmcheck_man.tmchecks[idx];
-	TMCHECK_UNLOCK();
-	return true;
-}
-
-/* Look up two names under the lock; returns true when both are found. */
-static bool snapshot_names(const char *name1, const char *name2, tmcheck_t *dst1, tmcheck_t *dst2)
-{
-	bool found1 = false;
-	bool found2 = false;
-	int i;
-
-	TMCHECK_LOCK();
-	for (i = 0; i < OSAL_TMCHECK_NUM_MAX; i++) {
-		const tmcheck_t *entry = &s_tmcheck_man.tmchecks[i];
-
-		if (entry->inuse == 0) {
-			continue;
-		}
-		if (!found1 && strcmp(entry->name, name1) == 0) {
-			*dst1 = *entry;
-			found1 = true;
-		} else if (!found2 && strcmp(entry->name, name2) == 0) {
-			*dst2 = *entry;
-			found2 = true;
-		}
-		if (found1 && found2) {
-			break;
-		}
-	}
-	TMCHECK_UNLOCK();
-	return found1 && found2;
-}
-
 void osal_tmcheck_print_all(void)
 {
-	tmcheck_t snap[OSAL_TMCHECK_NUM_MAX];
 	int i;
+	tmcheck_t *tmcheck = NULL;
 
-	snapshot_all(snap);
 	for (i = 0; i < OSAL_TMCHECK_NUM_MAX; i++) {
-		if (snap[i].ts > 0) {
-			OSALOG_INFO("[%s]=%" PRIu64 " ns\n", snap[i].name, snap[i].ts);
+		tmcheck = &s_tmcheck_man.tmchecks[i];
+		if (tmcheck->ts > 0) {
+			OSALOG_INFO("[%s]=%" PRIu64 " ns\n", tmcheck->name, tmcheck->ts);
 		}
 	}
 }
@@ -250,13 +197,10 @@ static void tmcheck_print_diff(const tmcheck_t *tmcheck1, const tmcheck_t *tmche
 
 void osal_tmcheck_print_diff(int idx1, int idx2)
 {
-	tmcheck_t snap1;
-	tmcheck_t snap2;
-
-	if (!snapshot_idx(idx1, &snap1) || !snapshot_idx(idx2, &snap2)) {
+	if ((validate_idx(idx1) == false) || (validate_idx(idx2) == false)) {
 		return;
 	}
-	tmcheck_print_diff(&snap1, &snap2);
+	tmcheck_print_diff(&s_tmcheck_man.tmchecks[idx1], &s_tmcheck_man.tmchecks[idx2]);
 }
 
 static int tmcheck_cmp(const void *a, const void *b)
@@ -275,13 +219,13 @@ static int tmcheck_cmp(const void *a, const void *b)
 
 void osal_tmcheck_print_diff_all(void)
 {
-	tmcheck_t sort_tmchecks[OSAL_TMCHECK_NUM_MAX];
+	tmcheck_t sort_tmchecks[OSAL_TMCHECK_NUM_MAX] = {0};
 	tmcheck_t *prev_tmcheck = NULL;
 	tmcheck_t *first_tmcheck = NULL;
 	int count = 0;
 	int i;
 
-	snapshot_all(sort_tmchecks);
+	memcpy(sort_tmchecks, s_tmcheck_man.tmchecks, sizeof(sort_tmchecks));
 	qsort(sort_tmchecks, OSAL_TMCHECK_NUM_MAX, sizeof(tmcheck_t), tmcheck_cmp);
 
 	for (i = 0; i < OSAL_TMCHECK_NUM_MAX; i++) {
@@ -333,30 +277,52 @@ osal_error_t osal_tmcheck_get_diff(int idx1, int idx2, int64_t *out_ns)
 
 void osal_tmcheck_name_print_diff(const char *name1, const char *name2)
 {
-	tmcheck_t snap1;
-	tmcheck_t snap2;
+	int i;
+	tmcheck_t *tmcheck1 = NULL;
+	tmcheck_t *tmcheck2 = NULL;
 
-	if ((name1 == NULL) || (name2 == NULL) || !snapshot_names(name1, name2, &snap1, &snap2)) {
-		OSALOG_ERROR("Invalid checkpoint name %s or %s\n", name1, name2);
-		return;
+	for (i = 0; i < OSAL_TMCHECK_NUM_MAX; i++) {
+		if (strcmp(s_tmcheck_man.tmchecks[i].name, name1) == 0) {
+			tmcheck1 = &s_tmcheck_man.tmchecks[i];
+		} else if (strcmp(s_tmcheck_man.tmchecks[i].name, name2) == 0) {
+			tmcheck2 = &s_tmcheck_man.tmchecks[i];
+		}
+		if ((tmcheck1 != NULL) && (tmcheck2 != NULL)) {
+			break;
+		}
 	}
-	/* NOLINTNEXTLINE(readability-suspicious-call-argument): intentional order */
-	tmcheck_print_diff(&snap2, &snap1);
+	if ((tmcheck1 != NULL) && (tmcheck2 != NULL)) {
+		/* NOLINTNEXTLINE(readability-suspicious-call-argument): intentional order */
+		tmcheck_print_diff(tmcheck2, tmcheck1);
+	} else {
+		OSALOG_ERROR("Invalid checkpoint name %s or %s\n", name1, name2);
+	}
 }
 
 osal_error_t osal_tmcheck_name_get_diff(const char *name1, const char *name2, int64_t *out_ns)
 {
-	tmcheck_t snap1;
-	tmcheck_t snap2;
+	int i;
+	tmcheck_t *tmcheck1 = NULL;
+	tmcheck_t *tmcheck2 = NULL;
 
 	if ((name1 == NULL) || (name2 == NULL) || (out_ns == NULL)) {
 		return OSAL_E_PARAM;
 	}
-	if (!snapshot_names(name1, name2, &snap1, &snap2)) {
+	for (i = 0; i < OSAL_TMCHECK_NUM_MAX; i++) {
+		if (strcmp(s_tmcheck_man.tmchecks[i].name, name1) == 0) {
+			tmcheck1 = &s_tmcheck_man.tmchecks[i];
+		} else if (strcmp(s_tmcheck_man.tmchecks[i].name, name2) == 0) {
+			tmcheck2 = &s_tmcheck_man.tmchecks[i];
+		}
+		if ((tmcheck1 != NULL) && (tmcheck2 != NULL)) {
+			break;
+		}
+	}
+	if ((tmcheck1 == NULL) || (tmcheck2 == NULL)) {
 		OSALOG_ERROR("Invalid checkpoint name %s or %s\n", name1, name2);
 		return OSAL_E_PARAM;
 	}
-	*out_ns = (int64_t)snap2.ts - (int64_t)snap1.ts;
+	*out_ns = (int64_t)tmcheck2->ts - (int64_t)tmcheck1->ts;
 	return OSAL_E_OK;
 }
 
@@ -371,24 +337,18 @@ uint64_t osal_tmcheck_get_captured_ts(int idx)
 uint64_t osal_tmcheck_name_get_captured_ts(const char *name)
 {
 	int i;
-	uint64_t ts = 0;
-	bool found = false;
+	tmcheck_t *tmcheck = NULL;
 
-	if (name == NULL) {
-		return 0;
-	}
-	TMCHECK_LOCK();
 	for (i = 0; i < OSAL_TMCHECK_NUM_MAX; i++) {
 		if ((s_tmcheck_man.tmchecks[i].inuse != 0) &&
 			(strcmp(s_tmcheck_man.tmchecks[i].name, name) == 0)) {
-			ts = s_tmcheck_man.tmchecks[i].ts;
-			found = true;
+			tmcheck = &s_tmcheck_man.tmchecks[i];
 			break;
 		}
 	}
-	TMCHECK_UNLOCK();
-	if (!found) {
-		OSALOG_ERROR("Invalid checkpoint name %s\n", name);
+	if (tmcheck != NULL) {
+		return tmcheck->ts;
 	}
-	return ts;
+	OSALOG_ERROR("Invalid checkpoint name %s\n", name);
+	return 0;
 }
