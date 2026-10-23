@@ -292,13 +292,61 @@ static void tmcheck_mt_task(void *arg)
 	idx = osal_tmcheck_create(name);
 	assert_true(idx >= 0);
 	g_mt_idx[i] = idx;
-	/* Each task only touches its own checkpoint slot, so this stresses
-	 * the create/delete pool locking concurrently across threads without
-	 * racing on a single tmcheck_t's fields (which are documented as
-	 * caller-serialized / [owner], not internally locked). */
+	/* Each task only touches its own checkpoint slot: capture/get are the lock-free
+	 * hot path and are caller-serialized per checkpoint ([owner]). */
 	osal_tmcheck_capture_ts(idx);
 	ts = osal_tmcheck_get_captured_ts(idx);
 	g_mt_ok[i] = (ts > 0);
+}
+
+/* Cold-path readers (name lookup, print) racing with create/delete in other threads. */
+static void tmcheck_mt_cold_task(void *arg)
+{
+	intptr_t i = (intptr_t)arg;
+	char name1[32];
+	char name2[32];
+	int round;
+
+	unique_name(name1, sizeof(name1), "cold1", (int)i);
+	unique_name(name2, sizeof(name2), "cold2", (int)i);
+	for (round = 0; round < 50; round++) {
+		int64_t diff_ns;
+		int idx1 = osal_tmcheck_create(name1);
+		int idx2 = osal_tmcheck_create(name2);
+
+		if (idx1 >= 0 && idx2 >= 0) {
+			osal_tmcheck_capture_ts(idx1);
+			osal_tmcheck_capture_ts(idx2);
+			(void)osal_tmcheck_name_get_captured_ts(name1);
+			(void)osal_tmcheck_name_get_diff(name1, name2, &diff_ns);
+		}
+		if (idx1 >= 0) {
+			osal_tmcheck_delete(idx1);
+		}
+		if (idx2 >= 0) {
+			osal_tmcheck_delete(idx2);
+		}
+	}
+}
+
+static void test_tmcheck_multithread_cold_path(void **state)
+{
+	(void)state;
+	osal_task_t *tasks[TMCHECK_MT_TASKS];
+	osal_task_cfg_t cfg;
+	int i;
+
+	for (i = 0; i < TMCHECK_MT_TASKS; i++) {
+		memset(&cfg, 0, sizeof(cfg));
+		cfg.task_handler = tmcheck_mt_cold_task;
+		cfg.task_arg = (void *)(intptr_t)i;
+		tasks[i] = osal_task_create(&cfg);
+		assert_non_null(tasks[i]);
+	}
+	for (i = 0; i < TMCHECK_MT_TASKS; i++) {
+		osal_task_delete(tasks[i]); /* joins the thread */
+	}
+	assert_int_equal(osal_tmcheck_use(), 0);
 }
 
 static void test_tmcheck_multithread_capture(void **state)
@@ -572,6 +620,7 @@ int main(void)
 		cmocka_unit_test_setup_teardown(test_tmcheck_name_apis, setup, teardown),
 		cmocka_unit_test_setup_teardown(test_tmcheck_diff_ns_large, setup, teardown),
 		cmocka_unit_test_setup_teardown(test_tmcheck_multithread_capture, setup, teardown),
+		cmocka_unit_test_setup_teardown(test_tmcheck_multithread_cold_path, setup, teardown),
 		cmocka_unit_test_setup_teardown(test_tmcheck_print_diff, setup, teardown),
 		cmocka_unit_test_setup_teardown(test_tmcheck_print_diff_uncaptured, setup, teardown),
 		cmocka_unit_test_setup_teardown(test_tmcheck_print_all, setup, teardown),
