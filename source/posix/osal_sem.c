@@ -140,10 +140,9 @@ osal_error_t osal_sem_waittime(osal_sem_t *sem, uint32_t usec)
 	if (res < 0) {
 		if (errno == ETIMEDOUT) {
 			return OSAL_E_TIMEOUT;
-		} else {
-			perror("sem_timedwait");
-			return OSAL_E_OSCALL;
 		}
+		perror("sem_timedwait");
+		return OSAL_E_OSCALL;
 	}
 	return OSAL_E_OK;
 }

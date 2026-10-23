@@ -76,9 +76,11 @@ doc: configure
 format:
     pre-commit run clang-format --all-files
 
-# Run clang-tidy
+# Run clang-tidy over the portable + POSIX sources via pre-commit
 tidy:
-    pre-commit run clang-tidy --all-files
+    cmake -S . -B {{build_dir}} -DCMAKE_BUILD_TYPE={{build_type}} -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+    cmake --build {{build_dir}} --target dmosal -j{{jobs}}
+    pre-commit run clang-tidy --all-files --hook-stage manual
 
 # Build the examples for Zephyr native_sim inside Docker (EXAMPLE=<name> for one)
 zephyr-build:

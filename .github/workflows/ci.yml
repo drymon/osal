@@ -165,7 +165,7 @@ jobs:
         run: cmake --build build --target dmosal -j "$(nproc)"
       - name: Run clang-tidy over library sources
         run: |
-          files=$(git ls-files 'source/*.c' 'source/posix/*.c')
+          files=$(git ls-files 'source/*.c' ':!source/zephyr')
           clang-tidy -p build $files
 
   docs:

@@ -95,7 +95,7 @@ osal_queue_t *osal_queue_create(const osal_queue_cfg_t *cfg)
 	OSAL_RUNTIME_ASSERT(queue != NULL);
 	memset(queue, 0, sizeof(osal_queue_t));
 	queue->resrc = resrc;
-	snprintf(queue->name, OSAL_QUEUE_NAME_SIZE + 1, "/%s", cfg->name);
+	(void)snprintf(queue->name, OSAL_QUEUE_NAME_SIZE + 1, "/%s", cfg->name);
 	queue->msglen = cfg->msglen;
 	memset(&attr, 0, sizeof(attr));
 	attr.mq_maxmsg = cfg->qsize;
@@ -173,14 +173,15 @@ osal_queue_recv(osal_queue_t *queue, uint8_t *buf, uint32_t bufsize, uint32_t ti
 	FD_ZERO(&rfds);
 	FD_SET(queue->fd, &rfds);
 	memset(&tvtout, 0, sizeof(tvtout));
-	tvtout.tv_sec = timeout_usec / OSAL_SEC_USEC;
-	tvtout.tv_usec = timeout_usec % OSAL_SEC_USEC;
+	tvtout.tv_sec = (time_t)(timeout_usec / OSAL_SEC_USEC);
+	tvtout.tv_usec = (suseconds_t)(timeout_usec % OSAL_SEC_USEC);
 
 	res = select(queue->fd + 1, &rfds, NULL, NULL, &tvtout);
 	if (res < 0) {
 		OSALOG_ERROR("select:%s\n", strerror(errno));
 		return OSAL_E_OSCALL;
-	} else if (res == 0) {
+	}
+	if (res == 0) {
 		return OSAL_E_TIMEOUT;
 	}
 	if (FD_ISSET(queue->fd, &rfds) == false) {

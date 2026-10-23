@@ -22,3 +22,13 @@ repos:
     hooks:
       - id: clang-format
         types_or: [c, c++]
+
+  # Manual stage: needs build/compile_commands.json. Run with `just tidy`.
+  - repo: local
+    hooks:
+      - id: clang-tidy
+        name: clang-tidy
+        entry: clang-tidy -p build
+        language: system
+        files: ^source/(?!zephyr/).*\.c$
+        stages: [manual]
