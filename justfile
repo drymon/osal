@@ -18,6 +18,7 @@
 #   just tidy               # run clang-tidy
 #   just zephyr-build       # build the examples for Zephyr native_sim (Docker)
 #   just zephyr-run         # run the Zephyr examples
+#   just zephyr-test        # run the cmocka tests on Zephyr native_sim (TEST=<name> for one)
 #   just zephyr-shell       # shell inside the Zephyr container
 #   just clean              # remove build directories
 
@@ -53,7 +54,8 @@ check-asan:
 # Build and run tests with ThreadSanitizer
 check-tsan:
     just build_dir=build-tsan configure -DDMOSAL_ENABLE_TSAN=ON
-    just build_dir=build-tsan check
+    # TSan aborts with "unexpected memory mapping" when ASLR is on; disable it for the run.
+    setarch "$(uname -m)" -R just build_dir=build-tsan check
 
 # Build and run tests with gcov coverage, generate HTML report
 check-coverage:
@@ -76,7 +78,7 @@ doc: configure
 format:
     pre-commit run clang-format --all-files
 
-# Run clang-tidy over the portable + POSIX sources via pre-commit
+# Run clang-tidy over the portable + Linux sources via pre-commit
 tidy:
     cmake -S . -B {{build_dir}} -DCMAKE_BUILD_TYPE={{build_type}} -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
     cmake --build {{build_dir}} --target dmosal -j{{jobs}}
@@ -90,6 +92,10 @@ zephyr-build:
 zephyr-run:
     zephyr/docker.sh run
 
+# Build and run the cmocka tests (test/osal) on Zephyr native_sim
+zephyr-test:
+    zephyr/docker.sh test
+
 # Open a shell in the Zephyr container
 zephyr-shell:
     zephyr/docker.sh shell
@@ -100,4 +106,4 @@ clean:
 
 # Remove all build directories (default + sanitizer variants)
 distclean:
-    rm -rf {{build_dir}} build-asan build-tsan build-zephyr
+    rm -rf {{build_dir}} build-asan build-tsan build-zephyr build-zephyr-test

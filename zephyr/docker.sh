@@ -5,9 +5,11 @@
 #
 #   zephyr/docker.sh build   # build every examples/*.c into build-zephyr/<name>
 #   zephyr/docker.sh run     # run them all
+#   zephyr/docker.sh test    # build + run every test/osal/*_test.c (cmocka) on native_sim
 #   zephyr/docker.sh shell   # interactive shell in the container
 #
 # EXAMPLE=<name> limits build/run to one file from examples/.
+# TEST=<name> limits test to one file from test/osal/ (for example TEST=mutex_test).
 set -euo pipefail
 
 IMAGE=dmosal-zephyr:local
@@ -21,7 +23,14 @@ else
 	for f in "$REPO"/examples/*.c; do EXAMPLES+=("$(basename "$f" .c)"); done
 fi
 
-DOCKER_RUN=(docker run --rm -u "$(id -u):$(id -g)" -e HOME=/tmp -v "$REPO":/dmosal)
+if [ -n "${TEST:-}" ]; then
+	TESTS=("$TEST")
+else
+	TESTS=()
+	for f in "$REPO"/test/osal/*_test.c; do TESTS+=("$(basename "$f" .c)"); done
+fi
+
+DOCKER_RUN=(docker run --rm -u "$(id -u):$(id -g)" -e HOME=/tmp -e CMOCKA_DIR=/opt/cmocka -v "$REPO":/dmosal)
 
 if ! docker image inspect "$IMAGE" >/dev/null 2>&1; then
 	docker build -t "$IMAGE" -f "$REPO/zephyr/Dockerfile" "$REPO/zephyr"
@@ -39,6 +48,19 @@ run)
 		echo "=== $ex ==="
 		"${DOCKER_RUN[@]}" "$IMAGE" "build-zephyr/$ex/zephyr/zephyr.exe" -stop_at=3
 	done
+	;;
+test)
+	failed=()
+	for t in "${TESTS[@]}"; do
+		"${DOCKER_RUN[@]}" "$IMAGE" west build -b "$BOARD" -d "build-zephyr-test/$t" zephyr/app -p auto \
+			-- -DTEST="$t" >/dev/null
+		echo "=== $t ==="
+		"${DOCKER_RUN[@]}" "$IMAGE" "build-zephyr-test/$t/zephyr/zephyr.exe" -stop_at=120 || failed+=("$t")
+	done
+	if [ ${#failed[@]} -ne 0 ]; then
+		echo "FAILED: ${failed[*]}"
+		exit 1
+	fi
 	;;
 shell)
 	"${DOCKER_RUN[@]}" -it "$IMAGE" bash

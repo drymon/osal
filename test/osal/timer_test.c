@@ -112,7 +112,7 @@ static void test_timer_oneshot(void **state)
 	assert_int_equal(get_timer_count(), 1);
 
 	/* One-shot: confirm it really doesn't repeat. */
-	usleep(50000);
+	osal_usleep(50000);
 	assert_int_equal(get_timer_count(), 1);
 
 	osal_timer_delete(timer);
@@ -141,9 +141,9 @@ static void test_timer_periodic(void **state)
 
 	osal_timer_stop(timer);
 	/* Let any expiration already queued right before stop drain out. */
-	usleep(50000);
+	osal_usleep(50000);
 	stopped_count = get_timer_count();
-	usleep(50000);
+	osal_usleep(50000);
 	assert_int_equal(get_timer_count(), stopped_count);
 
 	osal_timer_delete(timer);
@@ -164,7 +164,7 @@ static void test_timer_stop_before_fire(void **state)
 	assert_int_equal(res, OSAL_E_OK);
 
 	osal_timer_stop(timer);
-	usleep(50000);
+	osal_usleep(50000);
 	assert_int_equal(get_timer_count(), 0);
 
 	osal_timer_delete(timer);

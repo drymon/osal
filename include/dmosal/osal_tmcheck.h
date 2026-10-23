@@ -66,6 +66,14 @@ extern "C" {
  *
  * A static checkpoint is created (if not already allocated) based on the function
  * name and line number, and the current timestamp is captured for it.
+ *
+ * @warning The checkpoint is a per-call-site static, so the same code in the same
+ * function must not be run from multiple threads through this macro: all threads would
+ * share one checkpoint (capture is one-shot, so only the first timestamp is kept), and
+ * the lazy creation is not thread-safe. In that case, allocate a unique id per thread,
+ * create one checkpoint per id with osal_tmcheck_create() (for example named
+ * "func:line:id"), and call osal_tmcheck_capture_ts() with that index instead of
+ * using this macro.
  */
 #define OSAL_TMCHECK_CAPTURE()                                                                     \
 	do {                                                                                           \

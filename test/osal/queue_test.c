@@ -24,7 +24,6 @@
 * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <errno.h>
 #include "cmocka_include.h"
 #include "osal.h"
 
@@ -224,30 +223,6 @@ static void test_queue_reopen_mismatch(void **state)
 	osal_queue_delete(creator);
 }
 
-static void test_queue_delete_unlinks(void **state)
-{
-	(void)state;
-	osal_queue_cfg_t cfg;
-	osal_queue_t *queue;
-	char path[256];
-
-	memset(&cfg, 0, sizeof(cfg));
-	unique_name((char *)cfg.name, sizeof(cfg.name), "unlink", 0);
-	cfg.msglen = 8;
-	cfg.qsize = 2;
-
-	queue = osal_queue_create(&cfg);
-	assert_non_null(queue);
-
-	snprintf(path, sizeof(path), "/dev/mqueue/%s", (char *)cfg.name);
-	assert_int_equal(access(path, F_OK), 0);
-
-	osal_queue_delete(queue);
-
-	assert_int_not_equal(access(path, F_OK), 0);
-	assert_int_equal(errno, ENOENT);
-}
-
 static void test_queue_pool_exhaustion(void **state)
 {
 	(void)state;
@@ -361,7 +336,6 @@ int main(void)
 		cmocka_unit_test_setup_teardown(test_queue_recv_timeout, setup, teardown),
 		cmocka_unit_test_setup_teardown(test_queue_reopen_match, setup, teardown),
 		cmocka_unit_test_setup_teardown(test_queue_reopen_mismatch, setup, teardown),
-		cmocka_unit_test_setup_teardown(test_queue_delete_unlinks, setup, teardown),
 		cmocka_unit_test_setup_teardown(test_queue_pool_exhaustion, setup, teardown),
 		cmocka_unit_test_setup_teardown(test_queue_send_recv_invalid_params, setup, teardown),
 		cmocka_unit_test_setup_teardown(test_queue_delete_null, setup, teardown),

@@ -48,6 +48,8 @@ osal_error_t osal_clock_time(uint64_t *nsec)
 		return OSAL_E_PARAM;
 	}
 
-	*nsec = k_ticks_to_ns_floor64(k_uptime_ticks());
+	/* Uptime is 0 right after boot (always so on native_sim before time advances); callers
+	 * such as tmcheck use 0 as "not set", so never return it. */
+	*nsec = k_ticks_to_ns_floor64(k_uptime_ticks()) + 1U;
 	return OSAL_E_OK;
 }
