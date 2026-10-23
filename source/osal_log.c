@@ -88,29 +88,31 @@ osal_log_print(uint32_t index, bool ts, osal_log_level_t level, const char *form
 	/* add timestamp */
 	if ((ts == true) || (module->ts == true)) {
 		uint64_t now = 0;
-		uint32_t sec_low, usec;
+		uint32_t sec_low;
+		uint32_t usec;
 
 		osal_clock_time(&now);
 		sec_low = (uint32_t)((now / OSAL_SEC_NSEC) % 100000);
 		usec = (uint32_t)((now % OSAL_SEC_NSEC) / OSAL_USEC_NSEC);
 
-		snprintf(logstr, OSAL_LOG_STRING_SIZE, "%05u-%06u|", sec_low, usec);
+		(void)snprintf(logstr, OSAL_LOG_STRING_SIZE, "%05u-%06u|", sec_low, usec);
 	}
 
 	/* add log level string */
 	len = strlen(logstr);
-	snprintf(&logstr[len], OSAL_LOG_STRING_SIZE - len, "%-5s|", s_loglevel_strs[level]);
+	(void)snprintf(&logstr[len], OSAL_LOG_STRING_SIZE - len, "%-5s|", s_loglevel_strs[level]);
 
 	/* add module name */
 	if (module->name[0] != 0) {
 		len = strlen(logstr);
-		snprintf(&logstr[len], OSAL_LOG_STRING_SIZE - len, "%s|", module->name);
+		(void)snprintf(&logstr[len], OSAL_LOG_STRING_SIZE - len, "%s|", module->name);
 	}
 
 	/* add user log */
 	len = strlen(logstr);
 	va_start(ap, format);
-	vsnprintf(&logstr[len], OSAL_LOG_STRING_SIZE - len, format, ap);
+	/* NOLINTNEXTLINE(clang-analyzer-valist.Uninitialized): ap is set by va_start above */
+	(void)vsnprintf(&logstr[len], OSAL_LOG_STRING_SIZE - len, format, ap);
 	va_end(ap);
 
 	/* print out */
@@ -133,7 +135,7 @@ osal_error_t osal_log_module_init(uint32_t index, const char *name, osal_log_lev
 	module->log_level = level;
 	module->ts = ts;
 	if (name != NULL) {
-		snprintf(module->name, OSAL_LOG_MODULE_NAME_SIZE, "%s", name);
+		(void)snprintf(module->name, OSAL_LOG_MODULE_NAME_SIZE, "%s", name);
 	}
 	module->inuse = true;
 	return OSAL_E_OK;

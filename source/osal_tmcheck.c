@@ -210,11 +210,11 @@ static int tmcheck_cmp(const void *a, const void *b)
 
 	if (tmcheck1->ts < tmcheck2->ts) {
 		return -1;
-	} else if (tmcheck1->ts > tmcheck2->ts) {
-		return 1;
-	} else {
-		return 0;
 	}
+	if (tmcheck1->ts > tmcheck2->ts) {
+		return 1;
+	}
+	return 0;
 }
 
 void osal_tmcheck_print_diff_all(void)
@@ -292,6 +292,7 @@ void osal_tmcheck_name_print_diff(const char *name1, const char *name2)
 		}
 	}
 	if ((tmcheck1 != NULL) && (tmcheck2 != NULL)) {
+		/* NOLINTNEXTLINE(readability-suspicious-call-argument): intentional order */
 		tmcheck_print_diff(tmcheck2, tmcheck1);
 	} else {
 		OSALOG_ERROR("Invalid checkpoint name %s or %s\n", name1, name2);

@@ -36,7 +36,8 @@
 
 static void task_send(void *arg)
 {
-	osal_queue_t *queue = arg;
+	const osal_queue_cfg_t *cfg = arg;
+	osal_queue_t *queue;
 	int res;
 	char msg[MSG_LEN] = {0};
 	int i;
@@ -44,6 +45,13 @@ static void task_send(void *arg)
 	OSAL_TMCHECK_CAPTURE();
 
 	OSALOG_INFO("--task send is started--\n");
+
+	/* Own handle, matched with the receiver's handle by queue name only. */
+	queue = osal_queue_create(cfg);
+	if (queue == NULL) {
+		OSALOG_ERROR("task send: failed to create queue\n");
+		return;
+	}
 	for (i = 10; i > 0; i--) {
 		memset(msg, 0, sizeof(msg));
 		snprintf(msg, MSG_LEN, "hello main %d", i);
@@ -54,6 +62,7 @@ static void task_send(void *arg)
 			OSALOG_TRACE("Task sent: %s\n", msg);
 		}
 	}
+	osal_queue_delete(queue);
 	OSAL_TMCHECK_CAPTURE();
 }
 
@@ -62,7 +71,7 @@ int main(void)
 	int res = -1;
 	int err;
 	osal_task_t *task = NULL;
-	osal_queue_t *queue = NULL;
+	osal_queue_t *queue = NULL; /* receive side; the task creates its own send-side handle */
 	osal_task_cfg_t taskcfg = {
 		.task_handler = &task_send,
 	};
@@ -98,7 +107,7 @@ int main(void)
 
 	OSAL_TMCHECK_CAPTURE();
 
-	taskcfg.task_arg = queue;
+	taskcfg.task_arg = &queuecfg;
 	task = osal_task_create(&taskcfg);
 	if (task == NULL) {
 		OSALOG_ERROR("failed to create task\n");

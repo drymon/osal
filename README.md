@@ -12,8 +12,8 @@ semantics across POSIX and RTOS platforms.
 Everything (tasks, mutexes, semaphores, queues, timers, ...) is allocated
 statically up front through a central resource manager, so there's no malloc
 on the hot path and the worst-case memory usage is known ahead of time. A
-POSIX/Linux backend is included; other targets can be added behind the same
-API without breaking existing callers.
+POSIX/Linux backend and a Zephyr backend are included; other targets can be
+added behind the same API without breaking existing callers.
 
 ```
    +-------------------------------+
@@ -67,10 +67,28 @@ There are a few more recipes worth knowing about: `just check-valgrind`,
 Resource limits (how many tasks, queues, etc. you get) are set at CMake
 configure time — see [osal_config.cmake](osal_config.cmake).
 
+## Zephyr
+
+dmosal also runs on [Zephyr RTOS](https://zephyrproject.org/) through a native
+backend (`k_mutex`, `k_sem`, `k_thread`, `k_timer`, `k_msgq`) in
+[source/zephyr/](source/zephyr/). The repo is a Zephyr module, and the same
+programs from [examples/](examples/) build unchanged for Zephyr. It is tested
+on the virtual `native_sim` board, so no hardware is needed, and everything
+(including the Zephyr source) runs inside Docker:
+
+```
+just zephyr-build       # build the examples for Zephyr native_sim (Docker)
+just zephyr-run         # run the Zephyr examples
+```
+
+See [zephyr/README.md](zephyr/README.md) for setup, configuration and how the
+backend maps to Zephyr primitives.
+
 ## Examples
 
 Sample programs live in [examples/](examples/). Build them with `just build`
-(CMake target `examples`).
+(CMake target `examples`) for POSIX, or with `zephyr/docker.sh build` for
+Zephyr.
 
 ## Documentation
 

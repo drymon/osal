@@ -1,0 +1,71 @@
+menuconfig DMOSAL
+	bool "dmosal OS abstraction layer"
+	depends on MULTITHREADING
+	select THREAD_NAME
+	help
+	  Enable the dmosal OS abstraction layer using the native Zephyr
+	  kernel backend (source/zephyr).
+
+if DMOSAL
+
+config DMOSAL_TASK_NAME_SIZE
+	int "Task name size"
+	default 32
+
+config DMOSAL_TASK_NUM_MAX
+	int "Maximum number of tasks"
+	default 8
+
+config DMOSAL_MUTEX_NUM_MAX
+	int "Maximum number of mutexes"
+	default 16
+
+config DMOSAL_SEM_NUM_MAX
+	int "Maximum number of semaphores"
+	default 16
+
+config DMOSAL_TIMER_NUM_MAX
+	int "Maximum number of timers"
+	default 8
+
+config DMOSAL_QUEUE_NAME_SIZE
+	int "Queue name size"
+	default 32
+
+config DMOSAL_QUEUE_NUM_MAX
+	int "Maximum number of queues"
+	default 8
+
+config DMOSAL_LOG_MODULE_NUM_MAX
+	int "Maximum number of log modules"
+	default 8
+
+config DMOSAL_LOG_MODULE_NAME_SIZE
+	int "Log module name size"
+	default 32
+
+config DMOSAL_LOG_STRING_SIZE
+	int "Log string buffer size"
+	default 128
+
+config DMOSAL_TMCHECK_NUM_MAX
+	int "Maximum number of time check points"
+	default 16
+
+config DMOSAL_TASK_STACK_SIZE
+	int "Stack size of each task in bytes"
+	default 4096
+
+config DMOSAL_TASK_PRIORITY
+	int "Preemptible priority of tasks"
+	default 7
+
+config DMOSAL_QUEUE_BUF_SIZE
+	int "Message buffer size per queue in bytes (msglen * qsize)"
+	default 2048
+
+config DMOSAL_QUEUE_MSG_MAX_SIZE
+	int "Maximum message length of a queue in bytes"
+	default 256
+
+endif # DMOSAL

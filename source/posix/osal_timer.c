@@ -161,8 +161,8 @@ osal_error_t osal_timer_start(osal_timer_t *timer, uint32_t usec, bool repeat)
 		return OSAL_E_PARAM;
 	}
 	memset(&its, 0, sizeof(its));
-	its.it_value.tv_sec = usec / OSAL_SEC_USEC;
-	its.it_value.tv_nsec = (usec % OSAL_SEC_USEC) * OSAL_USEC_NSEC;
+	its.it_value.tv_sec = (time_t)(usec / OSAL_SEC_USEC);
+	its.it_value.tv_nsec = (long)((usec % OSAL_SEC_USEC) * OSAL_USEC_NSEC);
 	if (repeat == true) {
 		its.it_interval.tv_sec = its.it_value.tv_sec;
 		its.it_interval.tv_nsec = its.it_value.tv_nsec;

@@ -9,7 +9,13 @@ add_executable(queue_sample queue_sample.c)
 target_link_libraries(queue_sample ${DMOSAL_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
 
 add_dependencies(examples queue_sample)
+# example timer
+add_executable(timer_sample timer_sample.c)
+target_link_libraries(timer_sample ${DMOSAL_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
+
+add_dependencies(examples timer_sample)
+
 install(
-  TARGETS task_sample queue_sample
+  TARGETS task_sample queue_sample timer_sample
   RUNTIME DESTINATION "${INSTALL_BIN_DIR}" COMPONENT bin
 )

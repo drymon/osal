@@ -1,0 +1,4 @@
+name: dmosal
+build:
+  cmake: zephyr
+  kconfig: zephyr/Kconfig
