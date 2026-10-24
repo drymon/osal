@@ -61,4 +61,11 @@ zephyr_library_sources(
   "${DMOSAL_ROOT}/source/zephyr/osal_timer.c"
 )
 
+# Same extra warnings as the other backends, except -Wpedantic and -Wconversion: Zephyr builds
+# with a strict -std that rejects the variadic log macros, and its own headers trigger both
+# (they are not system headers). Conversions are covered by clang-tidy (just zephyr-tidy).
+zephyr_library_compile_options(
+  -Wshadow -Wcast-align -Wpointer-arith -Wstrict-prototypes -Wmissing-prototypes
+)
+
 endif()

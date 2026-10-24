@@ -8,59 +8,67 @@
 A small, portable C abstraction layer for tasks, mutexes, semaphores, queues,
 timers and time, with the same semantics on every supported OS.
 
-All resources are statically allocated up front, so there is no `malloc` on
-any hot path and worst-case memory use is known in advance. New backends can
-be added behind the same API without breaking existing callers.
+All resources are statically allocated up front, so the code in dmosal itself
+never calls `malloc` on any hot path and its worst-case memory use is known in
+advance. This does not cover the OS calls underneath: pthreads, POSIX message
+queues and timers on Linux, or the FreeRTOS kernel in dynamic allocation mode,
+may allocate internally. New backends can be added behind the same API without
+breaking existing callers.
 
 ## Supported backends
 
-| Backend  | Source                          | Tested on                          | Details                                |
-|----------|---------------------------------|------------------------------------|----------------------------------------|
-| Linux    | [source/linux/](source/linux/)  | Native Linux (pthreads, POSIX IPC) | Quick start                                |
-| Zephyr   | [source/zephyr/](source/zephyr/) | `native_sim` virtual board (Docker) | [zephyr/README.md](zephyr/README.md)   |
-| FreeRTOS | [source/freertos/](source/freertos/) | POSIX/Linux simulator (Docker) | [freertos/README.md](freertos/README.md) |
-| ...      | your own, see [docs/porting.md](docs/porting.md) | | |
+| Backend  | Source                                           | Tested on                           | Details                                  |
+|----------|--------------------------------------------------|-------------------------------------|------------------------------------------|
+| Linux    | [source/linux/](source/linux/)                   | Native Linux (pthreads, POSIX IPC)  | Quick start below                        |
+| Zephyr   | [source/zephyr/](source/zephyr/)                 | `native_sim` virtual board (Docker) | [zephyr/README.md](zephyr/README.md)     |
+| FreeRTOS | [source/freertos/](source/freertos/)             | POSIX/Linux simulator (Docker)      | [freertos/README.md](freertos/README.md) |
+| ...      | your own, see [docs/porting.md](docs/porting.md) |                                     |                                          |
 
 The same [examples](examples/) and [cmocka tests](test/) run unchanged on every
 backend. The Zephyr and FreeRTOS targets need no hardware. More backends can be
 added behind the same API.
 
 ```
-+-------------------------------+
-|          Application          |
-+---------------+---------------+
-|     dmosal    |     libc      |
-+---------------+---------------+
-| Linux | Zephyr | FreeRTOS | ...|
-+-------------------------------+
++-------------------------------------------------+
+|                   Application                   |
++-------------------------------------------------+
+                         |
++-------------------------------------------------+
+|                dmosal public API                |
++-------------------------------------------------+
+                         |
++----------+ +----------+ +----------+ +----------+
+|  Linux   | |  Zephyr  | | FreeRTOS | |   ...    |
++----------+ +----------+ +----------+ +----------+
 ```
 
 ## Quick start
 
-Install the dependencies, then build and test on Linux:
+On Linux you only need a compiler, CMake and cmocka:
 
 ```
-sudo apt install cmake libcmocka-dev doxygen
-just check          # configure, build, run tests
-just build          # build the examples
+sudo apt install cmake libcmocka-dev
+just check             # build and run the tests
+just run-examples      # build and run the examples
 ```
 
-No toolchain locally? Use the pinned [`Dockerfile`](Dockerfile):
+The `just` recipes are thin wrappers around `cmake` and `ctest`. Without
+`just`, run the equivalent commands from the [`justfile`](justfile).
+
+The [`Dockerfile`](Dockerfile) provides the full toolchain:
 
 ```
 docker build -t dmosal-dev .
 docker run --rm -v "$PWD":/workspace -w /workspace dmosal-dev just check
 ```
 
-Without [`just`](https://github.com/casey/just), the [`justfile`](justfile)
-recipes are plain `cmake`/`ctest` commands you can run directly.
-
-Resource limits (number of tasks, queues, ...) are set at configure time in
-[osal_config.cmake](osal_config.cmake).
+Resource pool sizes (tasks, queues, mutexes, etc.) are fixed at build time in
+[osal_config.cmake](osal_config.cmake) and can be overridden, e.g.
+`cmake -DOSAL_CONFIG_QUEUE_NUM_MAX=8 ..`.
 
 ## Zephyr and FreeRTOS
 
-Both run inside Docker, so no local SDK is needed:
+Both backends run inside Docker, so no local SDK is required:
 
 ```
 just zephyr-build     # build examples and tests for native_sim
@@ -72,20 +80,22 @@ just freertos-run     # run the examples
 just freertos-test    # run the cmocka tests
 ```
 
-## Other recipes
+## More checks
 
-`just check-valgrind`, `check-asan`, `check-tsan`, `check-coverage`, `doc`,
-`format`, `tidy`. Run `just --list` for everything.
+Additional recipes: `just check-valgrind`, `check-asan`, `check-tsan` and
+`check-coverage` for dynamic analysis, `just format` and `just tidy` for style
+checks (`just zephyr-tidy` and `just freertos-tidy` for the RTOS backends).
+`just --list` shows all recipes.
 
 ## Documentation
 
-- API reference (Doxygen): `just doc` → `build/doc/html/`.
-- Design docs: [docs/](docs/README.md) (architecture, API spec, lifetime,
-  thread safety, porting guide).
+`just doc` builds the API reference into `build/doc/html/` (requires
+`doxygen`). Design documents are in [docs/](docs/README.md): architecture, API
+spec, object lifetime, thread safety and the porting guide.
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for building, testing and style.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for build, test and code style requirements.
 
 ## License
 

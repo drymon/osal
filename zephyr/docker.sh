@@ -6,6 +6,7 @@
 #   zephyr/docker.sh build   # build every examples/*.c into build-zephyr/<name>
 #   zephyr/docker.sh run     # run them all
 #   zephyr/docker.sh test    # build + run every test/osal/*_test.c (cmocka) on native_sim
+#   zephyr/docker.sh tidy    # clang-tidy over source/zephyr/*.c
 #   zephyr/docker.sh shell   # interactive shell in the container
 #
 # EXAMPLE=<name> limits build/run to one file from examples/.
@@ -62,11 +63,20 @@ test)
 		exit 1
 	fi
 	;;
+tidy)
+	# clang does not know a few gcc-only flags that Zephyr passes, so they are dropped from the
+	# compilation database.
+	"${DOCKER_RUN[@]}" "$IMAGE" sh -c \
+		"west build -b $BOARD -d build-zephyr-tidy zephyr/app -p auto -- -DEXAMPLE=queue_sample -DCMAKE_EXPORT_COMPILE_COMMANDS=ON >/dev/null &&
+		mkdir -p build-zephyr-tidy/db &&
+		sed -e 's/ -fno-freestanding//g; s/ -fno-reorder-functions//g' build-zephyr-tidy/compile_commands.json > build-zephyr-tidy/db/compile_commands.json &&
+		clang-tidy -p build-zephyr-tidy/db --quiet --warnings-as-errors='*' source/zephyr/*.c"
+	;;
 shell)
 	"${DOCKER_RUN[@]}" -it "$IMAGE" bash
 	;;
 *)
-	sed -n "2,10p" "$0"
+	sed -n "2,11p" "$0"
 	exit 1
 	;;
 esac

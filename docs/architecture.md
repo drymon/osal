@@ -5,7 +5,10 @@
 `dmosal` is a thin OS abstraction layer with a **static-allocation** ethos:
 every resource (mutex, semaphore, task, timer, queue, tmcheck) comes from a
 fixed-size pool sized at compile time. Applications acquire resources at
-initialization, then run without further heap allocation. The layer is
+initialization, then run without further heap allocation in dmosal's own code.
+The OS or library calls underneath (for example pthreads, POSIX message
+queues and timers, or the FreeRTOS kernel in dynamic mode) may still allocate
+internally, and dmosal does not control that. The layer is
 designed for embedded / real-time contexts where predictable memory
 behaviour matters more than dynamic flexibility.
 

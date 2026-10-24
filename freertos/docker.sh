@@ -6,6 +6,7 @@
 #   freertos/docker.sh build   # build every examples/*.c and test/osal/*_test.c into build-freertos/
 #   freertos/docker.sh run     # run the examples
 #   freertos/docker.sh test    # run the cmocka tests (ctest)
+#   freertos/docker.sh tidy    # clang-tidy over source/freertos/*.c
 #   freertos/docker.sh shell   # interactive shell in the container
 #
 # CMAKE_ARGS=-DDYNAMIC_ALLOC=ON builds against the kernel's dynamic allocation API instead
@@ -38,11 +39,15 @@ run)
 test)
 	"${DOCKER_RUN[@]}" "$IMAGE" ctest --test-dir "$BUILD" --output-on-failure ${TEST:+-R "^$TEST\$"}
 	;;
+tidy)
+	"${DOCKER_RUN[@]}" "$IMAGE" sh -c \
+		"cmake -S freertos/app -B build-freertos-tidy -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_EXPORT_COMPILE_COMMANDS=ON >/dev/null && cmake --build build-freertos-tidy >/dev/null && clang-tidy -p build-freertos-tidy --quiet --warnings-as-errors='*' source/freertos/*.c"
+	;;
 shell)
 	"${DOCKER_RUN[@]}" -it "$IMAGE" bash
 	;;
 *)
-	sed -n "2,10p" "$0"
+	sed -n "2,11p" "$0"
 	exit 1
 	;;
 esac
