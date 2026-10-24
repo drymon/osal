@@ -1,12 +1,14 @@
 # Porting guide
 
 `dmosal`'s design isolates OS-specific code into a **backend** directory
-under `source/`. The rest of the library — the resource manager, LIFO,
-logging, error strings, tmcheck, and top-level init — is portable C and
+under `source/`. The rest of the library, the resource manager, LIFO,
+logging, error strings, tmcheck, and top-level init, is portable C and
 unchanged across backends.
 
 The reference implementation lives at `source/linux/` and targets Linux /
-glibc. This document walks through what a new backend must provide.
+glibc. `source/zephyr/` and `source/freertos/` are two RTOS backends
+(see `zephyr/README.md` and `freertos/README.md`). This document walks
+through what a new backend must provide.
 
 ## Files a backend must implement
 
@@ -21,7 +23,7 @@ All six live in `source/<backend>/`:
 | `osal_queue.c` | `osal_queue_init`, `osal_queue_deinit`, `osal_queue_create`, `osal_queue_delete`, `osal_queue_send`, `osal_queue_recv`, `osal_queue_use`, `osal_queue_avail`. |
 | `osal_time.c` | `osal_sleep`, `osal_usleep`, `osal_clock_time`. |
 
-The public headers (`include/dmosal/osal_*.h`) are fixed — they define the
+The public headers (`include/dmosal/osal_*.h`) are fixed, they define the
 API the backend must satisfy.
 
 ## Contracts to preserve
@@ -30,21 +32,21 @@ For each function, honour the behavior documented in
 [api-spec.md](api-spec.md), [thread-safety.md](thread-safety.md), and
 [lifetime.md](lifetime.md). Concretely:
 
-- **Pool ops must be thread-safe** — `_create` and `_delete` need to
+- **Pool ops must be thread-safe**: `_create` and `_delete` need to
   serialize their pool touches. On Linux we do this by threading the
   shared `osal_mutex_t *mutex` through each `_man_t`'s `osal_rm_t`. Reuse
   that pattern via `OSAL_RM_USEROBJMAN_DECLARE` / `_INIT` if the target
   OS has a mutex primitive.
 - **Callbacks run on library-managed threads**, not the caller's:
   - Task handlers run to completion on a spawned thread; the exit
-    (returning from the handler) must not free the pool slot — that only
+    (returning from the handler) must not free the pool slot, that only
     happens in `osal_task_delete`.
   - Timer callbacks may run on any backend-managed context. On systems
     without a helper-thread mechanism, provide one (e.g. a dedicated
     timer dispatch task).
 - **`osal_timer_delete` must reject in-callback invocation.** Use the
   `in_callback` bool pattern from the Linux backend: set true around the
-  callback invocation, `OSAL_RUNTIME_ASSERT` in delete if it's true.
+  callback invocation, log an error and return from delete if it's true.
 
 ## Steps
 
@@ -59,13 +61,14 @@ For each function, honour the behavior documented in
    └── osal_timer.c
    ```
 
-2. **Add sources to `CMakeLists.txt`.** Extend the `osal_SRC` list to
-   include `source/mybackend/*.c` when the target backend is selected.
-   The simplest scheme: add an option `DMOSAL_BACKEND=linux|mybackend`
-   and switch the source glob accordingly. Only one backend is compiled
-   in at a time.
+2. **Add a build file.** The root `CMakeLists.txt` builds the Linux
+   backend only. Other backends have their own build entry point that
+   compiles `source/*.c` (portable layer) plus `source/<backend>/*.c`
+   and generates `osal_config.h` / `osal_version.h`: see
+   `zephyr/CMakeLists.txt` (Zephyr module) and `freertos/CMakeLists.txt`
+   for templates. Only one backend is compiled in at a time.
 
-3. **Implement `osal_mutex.c` first.** Everything else depends on it —
+3. **Implement `osal_mutex.c` first.** Everything else depends on it:
    the shared mutex from this pool is passed to every other subsystem's
    init. See `source/linux/osal_mutex.c` for the reference:
    - `s_mutex_man` static holding the pool.
@@ -79,25 +82,28 @@ For each function, honour the behavior documented in
    `osal_time.c`.** Each mirrors the same `_man_t` + `osal_rm_t` structure.
    Copy the Linux file and swap the OS calls.
 
-5. **Wire in the build.** `CMakeLists.txt` is the only place where the
-   backend directory is referenced. Neither the public headers nor the
-   portable `source/*.c` files hard-code Linux.
+5. **Wire in the build.** The build file from step 2 is the only place
+   where the backend directory is referenced. Neither the public headers
+   nor the portable `source/*.c` files hard-code a backend.
 
-6. **Run the existing test suite.** All six cmocka tests exercise only
-   the public API and should pass unchanged. If they fail, the failure
+6. **Run the existing test suite.** The cmocka tests in `test/osal/`
+   exercise only the public API and should pass unchanged. Tests specific
+   to one backend live in `test/<backend>/` (for example `test/linux/`).
+   See `zephyr/app` and `freertos/app` for how to run them on an RTOS. If they fail, the failure
    is almost always a lifetime / thread-safety contract violation.
 
 ## Non-portable knobs you may need
 
 Some behaviors are inherently backend-specific and may need adjustment:
 
-- **Log timestamp format** — `osal_log.c` uses `osal_clock_time` to build
+- **Log timestamp format**: `osal_log.c` uses `osal_clock_time` to build
   timestamps. If your backend's monotonic clock has coarser resolution,
-  the microsecond field will just always show 0 — no code change needed.
-- **`osal_task_cfg_t` hints** — `stack_addr`, `stack_size`, `priority`,
-  `name` are best-effort. Honour them if your target OS supports them.
-  The Linux reference implementation ignores them.
-- **Timer callback thread** — the Linux backend spawns one helper thread
+  the microsecond field will just always show 0, no code change needed.
+- **`osal_task_cfg_t` hints**: `stack_addr`, `stack_size`, `priority`,
+  `name` are optional (0 / NULL means the default from `osal_config.h`:
+  `OSAL_TASK_STACK_SIZE_DEFAULT`, `OSAL_TASK_PRIORITY_DEFAULT`). Honour them if your target
+  OS supports them. Zephyr and FreeRTOS do, Linux ignores them.
+- **Timer callback thread**: the Linux backend spawns one helper thread
   per expiration (`SIGEV_THREAD`). On memory-constrained targets, use a
   single dedicated timer-dispatch task that walks a pending list.
 
@@ -105,14 +111,14 @@ Some behaviors are inherently backend-specific and may need adjustment:
 
 After the backend compiles and links, before you declare it done:
 
-- [ ] `make check` — all six existing suites pass.
-- [ ] `make check-valgrind` (or the target's equivalent) — no leaks.
-- [ ] TSan or platform equivalent — no data races.
+- [ ] Every test in `test/osal/` passes.
+- [ ] `make check-valgrind` (or the target's equivalent): no leaks.
+- [ ] TSan or platform equivalent: no data races.
 - [ ] Manual: create a task, have it lock the shared mutex, then
       `osal_deinit()` after cleanup. Should not crash or hang.
 - [ ] Manual: create a timer, `osal_timer_delete` from inside its own
-      callback. Should assert (not silently corrupt).
-- [ ] Manual: create a queue with `qsize=1`, send, send again — second
+      callback. Should log an error and leave the timer intact.
+- [ ] Manual: create a queue with `qsize=1`, send, send again: second
       send returns `OSAL_E_QFULL`.
 - [ ] Manual: `osal_sem_waittime` with 1 ms timeout on an unposted
       semaphore returns `OSAL_E_TIMEOUT` in roughly 1 ms.

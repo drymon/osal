@@ -1,28 +1,5 @@
-/* BSD 2-Clause License
-*
-* Copyright (c) 2023, nguyenvannam142@gmail.com
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-* 1. Redistributions of source code must retain the above copyright notice, this
-*    list of conditions and the following disclaimer.
-*
-* 2. Redistributions in binary form must reproduce the above copyright notice,
-*    this list of conditions and the following disclaimer in the documentation
-*    and/or other materials provided with the distribution.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-* AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-* IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-* DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-* FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-* DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-* SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-* CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-* OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-* OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+/* SPDX-License-Identifier: BSD-2-Clause */
+/* Copyright (c) 2023, nguyenvannam142@gmail.com */
 #include <string.h>
 #include <stdio.h>
 #include "osal.h"
@@ -34,6 +11,30 @@ static bool s_initialized;
 static void log_output_default(char *logstr)
 {
 	printf("%s", logstr);
+}
+
+static void teardown(void)
+{
+	/* Tear down subsystems that use the shared mutex FIRST, their
+	 * osal_rm_deinit locks the shared mutex. Deleting the shared mutex
+	 * before this point would leave those locks operating on a destroyed
+	 * mutex.
+	 */
+	osal_sem_deinit();
+	osal_task_deinit();
+	osal_timer_deinit();
+	osal_queue_deinit();
+	osal_tmcheck_deinit();
+
+	/* Log is independent of the shared mutex. */
+	osal_log_deinit();
+
+	/* Now safe to destroy the shared mutex and tear down the mutex pool. */
+	if (s_shared_mutex != NULL) {
+		osal_mutex_delete(s_shared_mutex);
+		s_shared_mutex = NULL;
+	}
+	osal_mutex_deinit();
 }
 
 osal_error_t osal_init(const osal_config_t *config)
@@ -55,44 +56,68 @@ osal_error_t osal_init(const osal_config_t *config)
 
 	/* mutex must be init first since it is used in other osal modules */
 	res = osal_mutex_init();
-	OSAL_RUNTIME_ASSERT(res == OSAL_E_OK);
+	if (res != OSAL_E_OK) {
+		goto fail;
+	}
 
 	/* log initialization */
 	res = osal_log_init(log_output);
-	OSAL_RUNTIME_ASSERT(res == OSAL_E_OK);
+	if (res != OSAL_E_OK) {
+		goto fail;
+	}
 
 	/* log module initialization */
 	res = osal_log_module_init(OSAL_LOG_MODULE_INDEX, "osal", log_level, false);
-	OSAL_RUNTIME_ASSERT(res == OSAL_E_OK);
+	if (res != OSAL_E_OK) {
+		goto fail;
+	}
 
 	/* create a shared local mutex */
 	OSAL_RUNTIME_ASSERT(s_shared_mutex == NULL);
 	s_shared_mutex = osal_mutex_create();
-	OSAL_RUNTIME_ASSERT(s_shared_mutex != NULL);
+	if (s_shared_mutex == NULL) {
+		res = OSAL_E_RESRC;
+		goto fail;
+	}
 
 	/* semaphore initialization */
 	res = osal_sem_init(s_shared_mutex);
-	OSAL_RUNTIME_ASSERT(res == OSAL_E_OK);
+	if (res != OSAL_E_OK) {
+		goto fail;
+	}
 
 	/* task initialization */
 	res = osal_task_init(s_shared_mutex);
-	OSAL_RUNTIME_ASSERT(res == OSAL_E_OK);
+	if (res != OSAL_E_OK) {
+		goto fail;
+	}
 
 	/* timer initialization */
 	res = osal_timer_init(s_shared_mutex);
-	OSAL_RUNTIME_ASSERT(res == OSAL_E_OK);
+	if (res != OSAL_E_OK) {
+		goto fail;
+	}
 
 	/* queue initialization */
 	res = osal_queue_init(s_shared_mutex);
-	OSAL_RUNTIME_ASSERT(res == OSAL_E_OK);
+	if (res != OSAL_E_OK) {
+		goto fail;
+	}
 
 	res = osal_tmcheck_init(s_shared_mutex);
-	OSAL_RUNTIME_ASSERT(res == OSAL_E_OK);
+	if (res != OSAL_E_OK) {
+		goto fail;
+	}
 
 	/* initialization done */
 	s_initialized = true;
 
 	return OSAL_E_OK;
+
+fail:
+	/* Every deinit ignores a subsystem that was not initialized. */
+	teardown();
+	return res;
 }
 
 char *osal_version(void)
@@ -138,26 +163,6 @@ void osal_deinit(void)
 	if (s_initialized == false) {
 		return;
 	}
-	OSAL_RUNTIME_ASSERT(s_shared_mutex != NULL);
-
-	/* Tear down subsystems that use the shared mutex FIRST — their
-	 * osal_rm_deinit locks the shared mutex. Deleting the shared mutex
-	 * before this point would leave those locks operating on a destroyed
-	 * mutex.
-	 */
-	osal_sem_deinit();
-	osal_task_deinit();
-	osal_timer_deinit();
-	osal_queue_deinit();
-	osal_tmcheck_deinit();
-
-	/* Log is independent of the shared mutex. */
-	osal_log_deinit();
-
-	/* Now safe to destroy the shared mutex and tear down the mutex pool. */
-	osal_mutex_delete(s_shared_mutex);
-	s_shared_mutex = NULL;
-	osal_mutex_deinit();
-
+	teardown();
 	s_initialized = false;
 }

@@ -18,7 +18,7 @@ behaviour matters more than dynamic flexibility.
    |          dmosal (public API)  |
    +---------------+---------------+
    |    portable   |    backend    |
-   |    layer      |    (Linux...) |
+   |    layer      |    (Linux, Zephyr, FreeRTOS, ...) |
    +---------------+---------------+
    |         OS user-space API     |
    +-------------------------------+
@@ -28,14 +28,15 @@ behaviour matters more than dynamic flexibility.
    +-------------------------------+
 ```
 
-- **Public API** — all `osal_*` symbols exposed via `include/dmosal/*.h`.
+- **Public API**: all `osal_*` symbols exposed via `include/dmosal/*.h`.
   Backend-agnostic; no POSIX / RTOS-specific names leak into headers.
-- **Portable layer** — `source/*.c`. Data structures and logic shared
+- **Portable layer**: `source/*.c`. Data structures and logic shared
   across every backend (resource manager, LIFO free-list, error strings,
   logging, time-checkpoint utility, top-level init).
-- **Backend** — `source/<backend>/*.c`. Only these files touch OS-specific
+- **Backend**: `source/<backend>/*.c`. Only these files touch OS-specific
   APIs. The Linux backend under `source/linux/` is the reference
-  implementation.
+  implementation; `source/zephyr/` and `source/freertos/` are the RTOS
+  backends.
 
 ## Subsystems
 
@@ -45,7 +46,7 @@ static resource pool.
 | Subsystem | Public header | What it provides |
 |---|---|---|
 | Top-level | `osal.h` | `osal_init`, `osal_deinit`, config, version, resource print. |
-| Mutex | `osal_mutex.h` | Recursive-free lock. Also used to serialize other subsystems' resource pools. |
+| Mutex | `osal_mutex.h` | Mutual-exclusion lock. Recursion is backend-specific (recursive on Zephyr, not on Linux or FreeRTOS). Also used to serialize other subsystems' resource pools. |
 | Semaphore | `osal_sem.h` | Counting semaphore with timed wait. |
 | Task | `osal_task.h` | Thread/task with a handler function. |
 | Timer | `osal_timer.h` | One-shot or periodic timer. Callback runs on a backend-managed context. |
@@ -90,11 +91,12 @@ deletes are rare (init/shutdown) and avoids per-subsystem locking overhead.
 
 Two subsystems invoke user code from a thread other than the caller's:
 
-- **Task** — `osal_task_create(cfg)` spawns a new thread that runs
+- **Task**: `osal_task_create(cfg)` spawns a new thread that runs
   `cfg->task_handler`. The handler runs to completion on that thread.
-- **Timer** — the timer callback fires on a backend-managed context, not
+- **Timer**: the timer callback fires on a backend-managed context, not
   the caller's thread. On the Linux backend that means a fresh helper
-  thread per expiration (via `SIGEV_THREAD`). User code must not assume
+  thread per expiration (via `SIGEV_THREAD`), on Zephyr the system work
+  queue, on FreeRTOS the timer service task. User code must not assume
   any particular thread identity inside the callback.
 
 Everything else (mutex lock/unlock, semaphore post/wait, queue send/recv,

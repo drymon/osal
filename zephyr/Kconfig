@@ -52,20 +52,26 @@ config DMOSAL_TMCHECK_NUM_MAX
 	int "Maximum number of time check points"
 	default 16
 
-config DMOSAL_TASK_STACK_SIZE
+config DMOSAL_TASK_STACK_SIZE_DEFAULT
 	int "Stack size of each task in bytes"
 	default 4096
 
-config DMOSAL_TASK_PRIORITY
+config DMOSAL_TASK_STACK_EMBEDDED
+	bool "Embed a stack array in each task object"
+	default y
+	help
+	  When disabled, osal_task_create() requires cfg->stack_addr.
+
+config DMOSAL_TASK_PRIORITY_DEFAULT
 	int "Preemptible priority of tasks"
 	default 7
-
-config DMOSAL_QUEUE_BUF_SIZE
-	int "Message buffer size per queue in bytes (msglen * qsize)"
-	default 2048
 
 config DMOSAL_QUEUE_MSG_MAX_SIZE
 	int "Maximum message length of a queue in bytes"
 	default 256
+
+config DMOSAL_QUEUE_MSG_NUM_MAX
+	int "Maximum number of messages per queue"
+	default 8
 
 endif # DMOSAL

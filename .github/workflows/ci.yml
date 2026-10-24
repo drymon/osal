@@ -165,7 +165,7 @@ jobs:
         run: cmake --build build --target dmosal -j "$(nproc)"
       - name: Run clang-tidy over library sources
         run: |
-          files=$(git ls-files 'source/*.c' ':!source/zephyr')
+          files=$(git ls-files 'source/*.c' ':!source/zephyr' ':!source/freertos')
           clang-tidy -p build $files
 
   zephyr:
@@ -193,6 +193,32 @@ jobs:
         run: zephyr/docker.sh run
       - name: Build and run cmocka tests
         run: zephyr/docker.sh test
+
+  freertos:
+    name: freertos posix simulator (examples + tests)
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Cache the FreeRTOS build image
+        id: image-cache
+        uses: actions/cache@v4
+        with:
+          path: /tmp/dmosal-freertos.tar
+          key: freertos-image-${{ hashFiles('freertos/Dockerfile') }}
+      - name: Load cached image
+        if: steps.image-cache.outputs.cache-hit == 'true'
+        run: docker load -i /tmp/dmosal-freertos.tar
+      - name: Build the FreeRTOS image
+        if: steps.image-cache.outputs.cache-hit != 'true'
+        run: |
+          docker build -t dmosal-freertos:local -f freertos/Dockerfile freertos
+          docker save -o /tmp/dmosal-freertos.tar dmosal-freertos:local
+      - name: Build examples and tests
+        run: freertos/docker.sh build
+      - name: Run examples
+        run: freertos/docker.sh run
+      - name: Run cmocka tests
+        run: freertos/docker.sh test
 
   docs:
     name: docs (build)

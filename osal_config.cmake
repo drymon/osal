@@ -5,6 +5,23 @@ set(OSAL_CONFIG_TASK_NAME_SIZE 64
     CACHE STRING "The size of the task name"
 )
 
+set(OSAL_CONFIG_TASK_STACK_SIZE_DEFAULT 16384
+    CACHE STRING "Stack size of each task in bytes (RTOS backends; no effect on Linux)"
+)
+
+set(DMOSAL_TASK_STACK_EMBEDDED ON
+    CACHE BOOL "Each task object embeds a stack array. OFF: the caller must pass cfg->stack_addr (RTOS backends; no effect on Linux)"
+)
+if(DMOSAL_TASK_STACK_EMBEDDED)
+  set(OSAL_CONFIG_TASK_STACK_EMBEDDED 1)
+else()
+  set(OSAL_CONFIG_TASK_STACK_EMBEDDED 0)
+endif()
+
+set(OSAL_CONFIG_TASK_PRIORITY_DEFAULT 1
+    CACHE STRING "Native priority of tasks (RTOS backends; no effect on Linux)"
+)
+
 set(OSAL_CONFIG_TASK_NUM_MAX 64
     CACHE STRING "Maximum of number tasks to support"
 )
@@ -27,6 +44,14 @@ set(OSAL_CONFIG_QUEUE_NAME_SIZE 64
 
 set(OSAL_CONFIG_QUEUE_NUM_MAX 64
     CACHE STRING "Maximum number of queues to support"
+)
+
+set(OSAL_CONFIG_QUEUE_MSG_MAX_SIZE 256
+    CACHE STRING "Maximum message length of a queue in bytes (RTOS backends; no effect on Linux)"
+)
+
+set(OSAL_CONFIG_QUEUE_MSG_NUM_MAX 8
+    CACHE STRING "Maximum number of messages per queue (RTOS backends; no effect on Linux)"
 )
 
 set(OSAL_CONFIG_LOG_MODULE_NUM_MAX 32

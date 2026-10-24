@@ -37,9 +37,9 @@ Board is a constant at the top of `docker.sh`; the Zephyr version is `ZEPHYR_VER
 |--------|------------------|
 | mutex | `k_mutex` (own pool lock, since the pool cannot use `osal_mutex`) |
 | sem | `k_sem` (`-EBUSY`/`-EAGAIN` -> `OSAL_E_TIMEOUT`) |
-| task | `k_thread` + static stack per slot (`CONFIG_DMOSAL_TASK_STACK_SIZE`, `_PRIORITY`); `cfg->stack_*`/`priority` are ignored |
+| task | `k_thread` + kernel stack inside each task object (`CONFIG_DMOSAL_TASK_STACK_SIZE_DEFAULT`, `_PRIORITY_DEFAULT`); `cfg->priority`, `stack_size` and `stack_addr` override the defaults when set (a caller stack must be a valid Zephyr kernel stack). With `CONFIG_DMOSAL_TASK_STACK_EMBEDDED=n` there is no embedded stack and `stack_addr` is required |
 | timer | `k_timer` + `k_work`; callback runs in the system work queue, not the ISR |
-| queue | `k_msgq` + static buffer per queue (`CONFIG_DMOSAL_QUEUE_BUF_SIZE`, `_MSG_MAX_SIZE`); creating the same name again attaches to the same queue (refcounted, freed with the last handle; not persistent across `osal_deinit`); shorter sends are zero-padded to `msglen` |
+| queue | `k_msgq` + static buffer per queue (`CONFIG_DMOSAL_QUEUE_MSG_MAX_SIZE`, `_MSG_NUM_MAX`); creating the same name again attaches to the same queue (refcounted, freed with the last handle; not persistent across `osal_deinit`); shorter sends are zero-padded to `msglen` |
 | time | `k_sleep`, `k_usleep`, `k_uptime_ticks` |
 
 Zephyr-specific behaviour to know: `osal_timer_delete` from inside the callback
@@ -49,8 +49,10 @@ Add new examples under `examples/` (portable code only) and select them with `EX
 
 ## Notes
 
-- Pool sizes: `CONFIG_DMOSAL_*` in `zephyr/app/prj.conf`
-  (defaults in `zephyr/Kconfig`), mapped to `OSAL_*` macros in `zephyr/CMakeLists.txt`.
+- Settings: `CONFIG_DMOSAL_*` in `zephyr/app/prj.conf` (defaults in `zephyr/Kconfig`), mapped
+  to the `OSAL_CONFIG_*` values of `osal_config.h.in` in `zephyr/CMakeLists.txt`. The backend
+  reads the resulting `OSAL_*` macros, like every other backend. Task priority is a Zephyr
+  preemptible priority.
 - The app finds the module via `ZEPHYR_EXTRA_MODULES` in
   `zephyr/app/CMakeLists.txt`. Your own app does the same and sets `CONFIG_DMOSAL=y`.
 - Zephyr source: inside the image at `/opt/zephyrws/zephyr` (browse with `zephyr/docker.sh shell`).
