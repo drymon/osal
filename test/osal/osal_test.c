@@ -1,28 +1,5 @@
-/* BSD 2-Clause License
-*
-* Copyright (c) 2026, nguyenvannam142@gmail.com
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-* 1. Redistributions of source code must retain the above copyright notice, this
-*    list of conditions and the following disclaimer.
-*
-* 2. Redistributions in binary form must reproduce the above copyright notice,
-*    this list of conditions and the following disclaimer in the documentation
-*    and/or other materials provided with the distribution.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-* AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-* IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-* DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-* FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-* DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-* SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-* CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-* OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-* OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+/* SPDX-License-Identifier: BSD-2-Clause */
+/* Copyright (c) 2023, nguyenvannam142@gmail.com */
 
 #include "cmocka_include.h"
 #include "osal.h"
@@ -107,6 +84,26 @@ static void test_osal_init_config_null_log_output(void **state)
 	osal_deinit();
 }
 
+static void test_osal_init_unwinds_on_failure(void **state)
+{
+	osal_mutex_t *m;
+
+	(void)state;
+	osal_deinit();
+
+	/* With the mutex pool exhausted osal_init() cannot create its shared mutex. */
+	assert_int_equal(osal_mutex_init(), OSAL_E_OK);
+	do {
+		m = osal_mutex_create();
+	} while (m != NULL);
+
+	assert_int_equal(osal_init(NULL), OSAL_E_RESRC);
+
+	/* The failed init left nothing behind, a new one works. */
+	assert_int_equal(osal_init(NULL), OSAL_E_OK);
+	osal_deinit();
+}
+
 static void test_osal_print_resource(void **state)
 {
 	(void)state;
@@ -138,6 +135,7 @@ int main(void)
 		cmocka_unit_test(test_osal_init_default_config),
 		cmocka_unit_test(test_osal_init_custom_config),
 		cmocka_unit_test(test_osal_init_config_null_log_output),
+		cmocka_unit_test(test_osal_init_unwinds_on_failure),
 		cmocka_unit_test(test_osal_print_resource),
 	};
 	return cmocka_run_group_tests(tests, NULL, NULL);

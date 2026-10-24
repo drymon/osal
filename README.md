@@ -1,107 +1,92 @@
-# dmosal — OS Abstraction Layer
+# dmosal: OS Abstraction Layer
 
 [![CI](https://github.com/drymon/osal/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/drymon/osal/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/drymon/osal/branch/main/graph/badge.svg)](https://codecov.io/gh/drymon/osal)
 [![License: BSD-2-Clause](https://img.shields.io/badge/License-BSD--2--Clause-blue.svg)](LICENSE)
 [![Language: C](https://img.shields.io/badge/language-C-brightgreen.svg)](#)
 
-A small, portable embedded C abstraction layer providing deterministic/bounded
-resource management and consistent concurrency, timing, and communication
-semantics across POSIX and RTOS platforms.
+A small, portable C abstraction layer for tasks, mutexes, semaphores, queues,
+timers and time, with the same semantics on every supported OS.
 
-Everything (tasks, mutexes, semaphores, queues, timers, ...) is allocated
-statically up front through a central resource manager, so there's no malloc
-on the hot path and the worst-case memory usage is known ahead of time. A
-Linux backend and a Zephyr backend are included; other targets can be
-added behind the same API without breaking existing callers.
+All resources are statically allocated up front, so there is no `malloc` on
+any hot path and worst-case memory use is known in advance. New backends can
+be added behind the same API without breaking existing callers.
+
+## Supported backends
+
+| Backend  | Source                          | Tested on                          | Details                                |
+|----------|---------------------------------|------------------------------------|----------------------------------------|
+| Linux    | [source/linux/](source/linux/)  | Native Linux (pthreads, POSIX IPC) | Quick start                                |
+| Zephyr   | [source/zephyr/](source/zephyr/) | `native_sim` virtual board (Docker) | [zephyr/README.md](zephyr/README.md)   |
+| FreeRTOS | [source/freertos/](source/freertos/) | POSIX/Linux simulator (Docker) | [freertos/README.md](freertos/README.md) |
+| ...      | your own, see [docs/porting.md](docs/porting.md) | | |
+
+The same [examples](examples/) and [cmocka tests](test/) run unchanged on every
+backend. The Zephyr and FreeRTOS targets need no hardware. More backends can be
+added behind the same API.
 
 ```
-   +-------------------------------+
-   |           Application         |
-   +-------------------------------+
-   +--------------+----------------+
-   |       OSAL   |    libc        |
-   +--------------+----------------+
-   +-------------------------------+
-   |        OS User Space APIs     |
-   +-------------------------------+
-   +-------------------------------+
-   |         OS Kernel Space       |
-   +-------------------------------+
-   +-------------------------------+
-   |            HW                 |
-   +-------------------------------+
++-------------------------------+
+|          Application          |
++---------------+---------------+
+|     dmosal    |     libc      |
++---------------+---------------+
+| Linux | Zephyr | FreeRTOS | ...|
++-------------------------------+
 ```
 
-## Getting started
+## Quick start
 
-You'll need `cmake`, `libcmocka-dev`, and `doxygen`:
+Install the dependencies, then build and test on Linux:
 
 ```
 sudo apt install cmake libcmocka-dev doxygen
+just check          # configure, build, run tests
+just build          # build the examples
 ```
 
-Then build the library, run the tests, and check out the examples:
-
-```
-just check          # configure + build + run tests
-just build           # build the examples target
-```
-
-If you'd rather not install a toolchain locally, there's a pinned
-[`Dockerfile`](Dockerfile):
+No toolchain locally? Use the pinned [`Dockerfile`](Dockerfile):
 
 ```
 docker build -t dmosal-dev .
 docker run --rm -v "$PWD":/workspace -w /workspace dmosal-dev just check
 ```
 
-Don't have [`just`](https://github.com/casey/just) installed? Check the
-[`justfile`](justfile) — every recipe there is just a couple of plain
-`cmake`/`ctest` commands you can run directly.
+Without [`just`](https://github.com/casey/just), the [`justfile`](justfile)
+recipes are plain `cmake`/`ctest` commands you can run directly.
 
-There are a few more recipes worth knowing about: `just check-valgrind`,
-`just check-asan`, `just check-tsan`, `just check-coverage`, `just doc`,
-`just format`, `just tidy`. Run `just --list` to see everything.
+Resource limits (number of tasks, queues, ...) are set at configure time in
+[osal_config.cmake](osal_config.cmake).
 
-Resource limits (how many tasks, queues, etc. you get) are set at CMake
-configure time — see [osal_config.cmake](osal_config.cmake).
+## Zephyr and FreeRTOS
 
-## Zephyr
-
-dmosal also runs on [Zephyr RTOS](https://zephyrproject.org/) through a native
-backend (`k_mutex`, `k_sem`, `k_thread`, `k_timer`, `k_msgq`) in
-[source/zephyr/](source/zephyr/). The repo is a Zephyr module, and the same
-programs from [examples/](examples/) build unchanged for Zephyr. It is tested
-on the virtual `native_sim` board, so no hardware is needed, and everything
-(including the Zephyr source) runs inside Docker:
+Both run inside Docker, so no local SDK is needed:
 
 ```
-just zephyr-build       # build the examples for Zephyr native_sim (Docker)
-just zephyr-run         # run the Zephyr examples
+just zephyr-build     # build examples and tests for native_sim
+just zephyr-run       # run the examples
+just zephyr-test      # run the cmocka tests
+
+just freertos-build   # build examples and tests for the POSIX simulator
+just freertos-run     # run the examples
+just freertos-test    # run the cmocka tests
 ```
 
-See [zephyr/README.md](zephyr/README.md) for setup, configuration and how the
-backend maps to Zephyr primitives.
+## Other recipes
 
-## Examples
-
-Sample programs live in [examples/](examples/). Build them with `just build`
-(CMake target `examples`) for Linux, or with `zephyr/docker.sh build` for
-Zephyr.
+`just check-valgrind`, `check-asan`, `check-tsan`, `check-coverage`, `doc`,
+`format`, `tidy`. Run `just --list` for everything.
 
 ## Documentation
 
-- API reference (Doxygen): run `just doc`, output ends up in
-  `build/doc/html/`.
-- Design docs: [docs/](docs/README.md) — architecture, API spec, resource
-  lifetime, thread-safety, porting guide.
+- API reference (Doxygen): `just doc` → `build/doc/html/`.
+- Design docs: [docs/](docs/README.md) (architecture, API spec, lifetime,
+  thread safety, porting guide).
 
 ## Contributing
 
-Bug reports, patches, ideas — all welcome. See [CONTRIBUTING.md](CONTRIBUTING.md)
-for how to build, test, and keep the style consistent.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for building, testing and style.
 
 ## License
 
-BSD-2-Clause — see [LICENSE](LICENSE).
+BSD-2-Clause. See [LICENSE](LICENSE).

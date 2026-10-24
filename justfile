@@ -20,6 +20,10 @@
 #   just zephyr-run         # run the Zephyr examples
 #   just zephyr-test        # run the cmocka tests on Zephyr native_sim (TEST=<name> for one)
 #   just zephyr-shell       # shell inside the Zephyr container
+#   just freertos-build     # build examples + tests for the FreeRTOS POSIX simulator (Docker)
+#   just freertos-run       # run the FreeRTOS examples
+#   just freertos-test      # run the cmocka tests on the FreeRTOS simulator (TEST=<name> for one)
+#   just freertos-shell     # shell inside the FreeRTOS container
 #   just clean              # remove build directories
 
 build_dir := "build"
@@ -100,10 +104,26 @@ zephyr-test:
 zephyr-shell:
     zephyr/docker.sh shell
 
+# Build the examples and tests for the FreeRTOS POSIX simulator inside Docker
+freertos-build:
+    freertos/docker.sh build
+
+# Run the FreeRTOS examples on the simulator
+freertos-run:
+    freertos/docker.sh run
+
+# Run the cmocka tests (test/osal) on the FreeRTOS simulator
+freertos-test:
+    freertos/docker.sh test
+
+# Open a shell in the FreeRTOS container
+freertos-shell:
+    freertos/docker.sh shell
+
 # Remove the default build directory
 clean:
     rm -rf {{build_dir}}
 
 # Remove all build directories (default + sanitizer variants)
 distclean:
-    rm -rf {{build_dir}} build-asan build-tsan build-zephyr build-zephyr-test
+    rm -rf {{build_dir}} build-asan build-tsan build-zephyr build-zephyr-test build-freertos

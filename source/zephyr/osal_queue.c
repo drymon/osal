@@ -1,28 +1,5 @@
-/* BSD 2-Clause License
-*
-* Copyright (c) 2023, nguyenvannam142@gmail.com
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-* 1. Redistributions of source code must retain the above copyright notice, this
-*    list of conditions and the following disclaimer.
-*
-* 2. Redistributions in binary form must reproduce the above copyright notice,
-*    this list of conditions and the following disclaimer in the documentation
-*    and/or other materials provided with the distribution.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-* AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-* IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-* DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-* FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-* DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-* SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-* CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-* OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-* OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+/* SPDX-License-Identifier: BSD-2-Clause */
+/* Copyright (c) 2023, nguyenvannam142@gmail.com */
 
 /* Zephyr backend (native kernel API). */
 
@@ -39,7 +16,7 @@
 /* Shared by every handle created with the same name (mirrors Linux mq_open attach). */
 typedef struct {
 	struct k_msgq msgq;
-	char buf[CONFIG_DMOSAL_QUEUE_BUF_SIZE] __aligned(sizeof(void *));
+	char buf[OSAL_QUEUE_BUF_SIZE] __aligned(sizeof(void *));
 	char name[OSAL_QUEUE_NAME_SIZE + 1];
 	uint32_t msglen;
 	uint32_t qsize;
@@ -63,14 +40,20 @@ static queue_man_t s_queue_man;
 static void cores_lock(void)
 {
 	if (s_queue_man.mutex != NULL) {
-		OSAL_RUNTIME_ASSERT(osal_mutex_lock(s_queue_man.mutex) == OSAL_E_OK);
+		osal_error_t res = osal_mutex_lock(s_queue_man.mutex);
+
+		OSAL_RUNTIME_ASSERT(res == OSAL_E_OK);
+		(void)res;
 	}
 }
 
 static void cores_unlock(void)
 {
 	if (s_queue_man.mutex != NULL) {
-		OSAL_RUNTIME_ASSERT(osal_mutex_unlock(s_queue_man.mutex) == OSAL_E_OK);
+		osal_error_t res = osal_mutex_unlock(s_queue_man.mutex);
+
+		OSAL_RUNTIME_ASSERT(res == OSAL_E_OK);
+		(void)res;
 	}
 }
 
@@ -136,8 +119,8 @@ osal_queue_t *osal_queue_create(const osal_queue_cfg_t *cfg)
 	queue_core_t *core;
 
 	if (!s_queue_man.init || cfg == NULL || cfg->name[0] == '\0' || cfg->msglen == 0 ||
-		cfg->qsize == 0 || cfg->msglen > CONFIG_DMOSAL_QUEUE_MSG_MAX_SIZE ||
-		cfg->msglen * cfg->qsize > CONFIG_DMOSAL_QUEUE_BUF_SIZE) {
+		cfg->qsize == 0 || cfg->msglen > OSAL_QUEUE_MSG_MAX_SIZE ||
+		cfg->qsize > OSAL_QUEUE_MSG_NUM_MAX) {
 		return NULL;
 	}
 
@@ -189,7 +172,7 @@ osal_error_t osal_queue_send(osal_queue_t *queue, uint8_t *msg, uint32_t msglen)
 	}
 
 	/* k_msgq copies a fixed msglen; zero-pad shorter messages. */
-	uint8_t tmp[CONFIG_DMOSAL_QUEUE_MSG_MAX_SIZE] = {0};
+	uint8_t tmp[OSAL_QUEUE_MSG_MAX_SIZE] = {0};
 	int res;
 
 	memcpy(tmp, msg, msglen);

@@ -1,28 +1,5 @@
-/* BSD 2-Clause License
-*
-* Copyright (c) 2023, nguyenvannam142@gmail.com
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-* 1. Redistributions of source code must retain the above copyright notice, this
-*    list of conditions and the following disclaimer.
-*
-* 2. Redistributions in binary form must reproduce the above copyright notice,
-*    this list of conditions and the following disclaimer in the documentation
-*    and/or other materials provided with the distribution.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-* AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-* IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-* DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-* FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-* DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-* SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-* CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-* OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-* OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+/* SPDX-License-Identifier: BSD-2-Clause */
+/* Copyright (c) 2023, nguyenvannam142@gmail.com */
 
 /* Zephyr backend (native kernel API). */
 
@@ -35,11 +12,41 @@
 #include "osal_assert.h"
 #include "osal_config.h"
 
+/* Tasks are kernel threads (no user mode), so they use kernel stacks. */
+#if OSAL_TASK_STACK_EMBEDDED
+#define TASK_STACK_MEMBER	   K_KERNEL_STACK_MEMBER(stack, OSAL_TASK_STACK_SIZE_DEFAULT);
+#define EMBEDDED_STACK(t)	   ((t)->stack)
+#define EMBEDDED_STACK_SIZE(t) K_KERNEL_STACK_SIZEOF((t)->stack)
+#else
+#define TASK_STACK_MEMBER
+#define EMBEDDED_STACK(t)	   ((k_thread_stack_t *)NULL)
+#define EMBEDDED_STACK_SIZE(t) 0
+#endif
+
 struct osal_task {
 	struct k_thread thread;
+	TASK_STACK_MEMBER
 	osal_task_cfg_t taskcfg;
 	osal_resrc_t *resrc;
 };
+
+/* The stack is the caller's (stack_addr) or, if enabled, the one embedded in the task object. */
+static bool task_stack_get(osal_task_t *task, k_thread_stack_t **stack, size_t *size)
+{
+	const osal_task_cfg_t *cfg = &task->taskcfg;
+
+	if (cfg->stack_addr != NULL) {
+		*stack = cfg->stack_addr;
+		*size = cfg->stack_size;
+	} else {
+		*stack = EMBEDDED_STACK(task);
+		*size = cfg->stack_size != 0 ? cfg->stack_size : EMBEDDED_STACK_SIZE(task);
+		if (cfg->stack_size > EMBEDDED_STACK_SIZE(task)) {
+			return false;
+		}
+	}
+	return *stack != NULL && *size != 0;
+}
 
 typedef struct {
 	OSAL_RM_USEROBJMAN_DECLARE(struct osal_task, OSAL_TASK_NUM_MAX);
@@ -47,9 +54,6 @@ typedef struct {
 } task_man_t;
 
 static task_man_t s_task_man;
-
-/* One static stack per pool slot; the slot index selects the stack. */
-static K_THREAD_STACK_ARRAY_DEFINE(s_stacks, OSAL_TASK_NUM_MAX, CONFIG_DMOSAL_TASK_STACK_SIZE);
 
 static void task_entry(void *p1, void *p2, void *p3)
 {
@@ -84,8 +88,15 @@ osal_task_t *osal_task_create(const osal_task_cfg_t *cfg)
 {
 	osal_resrc_t *resrc;
 	osal_task_t *task;
+	k_thread_stack_t *stack;
+	size_t stack_size;
+	uint16_t priority;
 
 	if (!s_task_man.init || cfg == NULL || cfg->task_handler == NULL) {
+		return NULL;
+	}
+	priority = cfg->priority != 0 ? cfg->priority : OSAL_TASK_PRIORITY_DEFAULT;
+	if (priority >= CONFIG_NUM_PREEMPT_PRIORITIES) {
 		return NULL;
 	}
 
@@ -99,15 +110,19 @@ osal_task_t *osal_task_create(const osal_task_cfg_t *cfg)
 	memcpy(&task->taskcfg, cfg, sizeof(*cfg));
 	task->resrc = resrc;
 
-	size_t idx = (size_t)(task - s_task_man.userobj);
+	if (!task_stack_get(task, &stack, &stack_size)) {
+		osal_rm_free(&s_task_man.rm, resrc);
+		return NULL;
+	}
+
 	k_tid_t tid = k_thread_create(&task->thread,
-								  s_stacks[idx],
-								  K_THREAD_STACK_SIZEOF(s_stacks[idx]),
+								  stack,
+								  stack_size,
 								  task_entry,
 								  task,
 								  NULL,
 								  NULL,
-								  K_PRIO_PREEMPT(CONFIG_DMOSAL_TASK_PRIORITY),
+								  K_PRIO_PREEMPT(priority),
 								  0,
 								  K_NO_WAIT);
 	if (tid == NULL) {

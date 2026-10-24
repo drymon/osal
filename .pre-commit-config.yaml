@@ -23,6 +23,16 @@ repos:
       - id: clang-format
         types_or: [c, c++]
 
+  # Every C source and header must carry an SPDX license identifier.
+  - repo: local
+    hooks:
+      - id: spdx-license-header
+        name: SPDX license header
+        language: pygrep
+        entry: 'SPDX-License-Identifier: \S+'
+        args: [--negate]
+        files: \.(c|h)$|\.h\.in$
+
   # Manual stage: needs build/compile_commands.json. Run with `just tidy`.
   - repo: local
     hooks:
@@ -30,5 +40,5 @@ repos:
         name: clang-tidy
         entry: clang-tidy -p build
         language: system
-        files: ^source/(?!zephyr/).*\.c$
+        files: ^source/(?!zephyr/|freertos/).*\.c$
         stages: [manual]

@@ -1,3 +1,6 @@
+/* SPDX-License-Identifier: BSD-2-Clause */
+/* Copyright (c) 2023, nguyenvannam142@gmail.com */
+
 /* Minimal cmocka build configuration for Zephyr native_sim (host libc). */
 #ifndef DMOSAL_CMOCKA_CONFIG_H
 #define DMOSAL_CMOCKA_CONFIG_H

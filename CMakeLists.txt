@@ -51,7 +51,7 @@ set(DMOSAL_EXTRA_WARNING_FLAGS
   -Wmissing-prototypes
 )
 
-# Sanitizers / coverage — one flag string shared between compile and link.
+# Sanitizers / coverage: one flag string shared between compile and link.
 set(_dm_extra "")
 if(DMOSAL_ENABLE_ASAN)
   set(_dm_extra "${_dm_extra} -fsanitize=address -fsanitize=undefined -fno-omit-frame-pointer -O1")
@@ -70,7 +70,7 @@ endif()
 
 find_package(Threads REQUIRED)
 
-# Explicit source list — new files require a cmake refresh (on purpose).
+# Explicit source list: new files require a cmake refresh (on purpose).
 set(osal_SRC
   source/osal.c
   source/osal_error.c
@@ -86,7 +86,7 @@ set(osal_SRC
   source/linux/osal_timer.c
 )
 
-# Generated headers live under the build tree — never in the source tree.
+# Generated headers live under the build tree: never in the source tree.
 set(DMOSAL_GEN_DIR "${CMAKE_CURRENT_BINARY_DIR}/gen/dmosal")
 file(MAKE_DIRECTORY "${DMOSAL_GEN_DIR}")
 
