@@ -46,11 +46,11 @@ set(OSAL_CONFIG_QUEUE_NUM_MAX 64
     CACHE STRING "Maximum number of queues to support"
 )
 
-set(OSAL_CONFIG_QUEUE_MSG_MAX_SIZE 256
+set(OSAL_CONFIG_QUEUE_MSG_MAX_SIZE 128
     CACHE STRING "Maximum message length of a queue in bytes (RTOS backends; no effect on Linux)"
 )
 
-set(OSAL_CONFIG_QUEUE_MSG_NUM_MAX 8
+set(OSAL_CONFIG_QUEUE_MSG_NUM_MAX 16
     CACHE STRING "Maximum number of messages per queue (RTOS backends; no effect on Linux)"
 )
 

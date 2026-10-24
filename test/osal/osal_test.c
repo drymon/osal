@@ -84,6 +84,26 @@ static void test_osal_init_config_null_log_output(void **state)
 	osal_deinit();
 }
 
+static void test_osal_init_unwinds_on_failure(void **state)
+{
+	osal_mutex_t *m;
+
+	(void)state;
+	osal_deinit();
+
+	/* With the mutex pool exhausted osal_init() cannot create its shared mutex. */
+	assert_int_equal(osal_mutex_init(), OSAL_E_OK);
+	do {
+		m = osal_mutex_create();
+	} while (m != NULL);
+
+	assert_int_equal(osal_init(NULL), OSAL_E_RESRC);
+
+	/* The failed init left nothing behind, a new one works. */
+	assert_int_equal(osal_init(NULL), OSAL_E_OK);
+	osal_deinit();
+}
+
 static void test_osal_print_resource(void **state)
 {
 	(void)state;
@@ -115,6 +135,7 @@ int main(void)
 		cmocka_unit_test(test_osal_init_default_config),
 		cmocka_unit_test(test_osal_init_custom_config),
 		cmocka_unit_test(test_osal_init_config_null_log_output),
+		cmocka_unit_test(test_osal_init_unwinds_on_failure),
 		cmocka_unit_test(test_osal_print_resource),
 	};
 	return cmocka_run_group_tests(tests, NULL, NULL);

@@ -37,6 +37,15 @@ static void teardown(void)
 	osal_mutex_deinit();
 }
 
+/* Runs one init step and unwinds everything on failure. */
+#define INIT_STEP(call)                                                                            \
+	do {                                                                                           \
+		res = (call);                                                                              \
+		if (res != OSAL_E_OK) {                                                                    \
+			goto fail;                                                                             \
+		}                                                                                          \
+	} while (0)
+
 osal_error_t osal_init(const osal_config_t *config)
 {
 	osal_error_t res;
@@ -55,22 +64,13 @@ osal_error_t osal_init(const osal_config_t *config)
 	}
 
 	/* mutex must be init first since it is used in other osal modules */
-	res = osal_mutex_init();
-	if (res != OSAL_E_OK) {
-		goto fail;
-	}
+	INIT_STEP(osal_mutex_init());
 
 	/* log initialization */
-	res = osal_log_init(log_output);
-	if (res != OSAL_E_OK) {
-		goto fail;
-	}
+	INIT_STEP(osal_log_init(log_output));
 
 	/* log module initialization */
-	res = osal_log_module_init(OSAL_LOG_MODULE_INDEX, "osal", log_level, false);
-	if (res != OSAL_E_OK) {
-		goto fail;
-	}
+	INIT_STEP(osal_log_module_init(OSAL_LOG_MODULE_INDEX, "osal", log_level, false));
 
 	/* create a shared local mutex */
 	OSAL_RUNTIME_ASSERT(s_shared_mutex == NULL);
@@ -81,33 +81,18 @@ osal_error_t osal_init(const osal_config_t *config)
 	}
 
 	/* semaphore initialization */
-	res = osal_sem_init(s_shared_mutex);
-	if (res != OSAL_E_OK) {
-		goto fail;
-	}
+	INIT_STEP(osal_sem_init(s_shared_mutex));
 
 	/* task initialization */
-	res = osal_task_init(s_shared_mutex);
-	if (res != OSAL_E_OK) {
-		goto fail;
-	}
+	INIT_STEP(osal_task_init(s_shared_mutex));
 
 	/* timer initialization */
-	res = osal_timer_init(s_shared_mutex);
-	if (res != OSAL_E_OK) {
-		goto fail;
-	}
+	INIT_STEP(osal_timer_init(s_shared_mutex));
 
 	/* queue initialization */
-	res = osal_queue_init(s_shared_mutex);
-	if (res != OSAL_E_OK) {
-		goto fail;
-	}
+	INIT_STEP(osal_queue_init(s_shared_mutex));
 
-	res = osal_tmcheck_init(s_shared_mutex);
-	if (res != OSAL_E_OK) {
-		goto fail;
-	}
+	INIT_STEP(osal_tmcheck_init(s_shared_mutex));
 
 	/* initialization done */
 	s_initialized = true;

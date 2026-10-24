@@ -68,10 +68,10 @@ config DMOSAL_TASK_PRIORITY_DEFAULT
 
 config DMOSAL_QUEUE_MSG_MAX_SIZE
 	int "Maximum message length of a queue in bytes"
-	default 256
+	default 128
 
 config DMOSAL_QUEUE_MSG_NUM_MAX
 	int "Maximum number of messages per queue"
-	default 8
+	default 16
 
 endif # DMOSAL
