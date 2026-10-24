@@ -76,6 +76,6 @@ config DMOSAL_QUEUE_MSG_NUM_MAX
 
 config DMOSAL_QUEUE_MSG_NUM_MAX
 	int "Maximum number of messages per queue"
-	default 8
+	default 16
 
 endif # DMOSAL
