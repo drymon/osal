@@ -20,4 +20,8 @@ RUN mkdir -p ${FREERTOS_KERNEL_PATH} \
        | tar -xz -C ${FREERTOS_KERNEL_PATH} --strip-components=1 \
     && chmod -R a+rX ${FREERTOS_KERNEL_PATH}
 
+# Static analysis of the backend sources (docker.sh tidy).
+RUN apt-get update && apt-get install -y --no-install-recommends clang-tidy \
+    && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /dmosal

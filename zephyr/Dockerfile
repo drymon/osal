@@ -36,4 +36,8 @@ RUN mkdir -p /opt/cmocka \
 # west and cmake write caches inside the Zephyr tree, and the container runs as the host user.
 RUN mkdir -p /opt/zephyrws/zephyr/.cache && chmod -R a+rwX /opt/zephyrws/.west /opt/zephyrws/zephyr/.cache
 
+# Static analysis of the backend sources (docker.sh tidy).
+RUN apt-get update && apt-get install -y --no-install-recommends clang-tidy \
+    && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /dmosal

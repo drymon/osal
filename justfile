@@ -19,10 +19,12 @@
 #   just zephyr-build       # build the examples for Zephyr native_sim (Docker)
 #   just zephyr-run         # run the Zephyr examples
 #   just zephyr-test        # run the cmocka tests on Zephyr native_sim (TEST=<name> for one)
+#   just zephyr-tidy        # clang-tidy over source/zephyr (Docker)
 #   just zephyr-shell       # shell inside the Zephyr container
 #   just freertos-build     # build examples + tests for the FreeRTOS POSIX simulator (Docker)
 #   just freertos-run       # run the FreeRTOS examples
 #   just freertos-test      # run the cmocka tests on the FreeRTOS simulator (TEST=<name> for one)
+#   just freertos-tidy      # clang-tidy over source/freertos (Docker)
 #   just freertos-shell     # shell inside the FreeRTOS container
 #   just clean              # remove build directories
 
@@ -87,6 +89,14 @@ tidy:
     cmake -S . -B {{build_dir}} -DCMAKE_BUILD_TYPE={{build_type}} -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
     cmake --build {{build_dir}} --target dmosal -j{{jobs}}
     pre-commit run clang-tidy --all-files --hook-stage manual
+
+# Run clang-tidy over the Zephyr backend inside Docker
+zephyr-tidy:
+    zephyr/docker.sh tidy
+
+# Run clang-tidy over the FreeRTOS backend inside Docker
+freertos-tidy:
+    freertos/docker.sh tidy
 
 # Build the examples for Zephyr native_sim inside Docker (EXAMPLE=<name> for one)
 zephyr-build:

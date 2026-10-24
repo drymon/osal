@@ -193,6 +193,8 @@ jobs:
         run: zephyr/docker.sh run
       - name: Build and run cmocka tests
         run: zephyr/docker.sh test
+      - name: clang-tidy (backend sources)
+        run: zephyr/docker.sh tidy
 
   freertos:
     name: freertos posix simulator (examples + tests)
@@ -219,6 +221,8 @@ jobs:
         run: freertos/docker.sh run
       - name: Run cmocka tests
         run: freertos/docker.sh test
+      - name: clang-tidy (backend sources)
+        run: freertos/docker.sh tidy
 
   docs:
     name: docs (build)
